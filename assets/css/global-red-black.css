@@ -1,0 +1,342 @@
+/* CSS Global - Cores Vermelho e Preto com Efeitos Dopaminérgicos */
+
+/* Reset e Base */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background: #000000; 
+    overflow-x: hidden; 
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+/* Background com Efeitos Dopaminérgicos */
+body::before { 
+    content: ''; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    z-index: -2; 
+    background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
+    animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { 
+        background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
+    }
+    50% { 
+        background: linear-gradient(135deg, #1a0000 0%, #000000 50%, #1a0000 100%);
+    }
+}
+
+/* Cursor Glow Dopaminérgico */
+#cursor-glow { 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    width: 200px; 
+    height: 200px; 
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.1) 30%, transparent 70%); 
+    border-radius: 50%; 
+    transform: translate(-50%, -50%); 
+    pointer-events: none; 
+    z-index: -1; 
+    transition: all 0.3s ease;
+    animation: cursorGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes cursorGlow {
+    from { 
+        background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.1) 30%, transparent 70%);
+    }
+    to { 
+        background: radial-gradient(circle, rgba(255, 0, 0, 0.3) 0%, rgba(255, 0, 0, 0.15) 30%, transparent 70%);
+    }
+}
+
+/* Navbar Glassmorphism Dopaminérgico */
+.frosted-glass-nav { 
+    background: rgba(0, 0, 0, 0.9); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 0, 0, 0.1);
+    position: relative;
+}
+
+.frosted-glass-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.05), transparent);
+    animation: navbarShimmer 3s ease-in-out infinite;
+}
+
+@keyframes navbarShimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+/* Títulos com Gradiente Vermelho Animado */
+.gradient-title { 
+    background: linear-gradient(135deg, #ff0000, #ff3333, #ff6666, #ff0000);
+    background-size: 300% 300%;
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+    background-clip: text; 
+    text-fill-color: transparent;
+    animation: gradient-shift 3s ease infinite;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+}
+
+@keyframes gradient-shift {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+    50% { 
+        background-position: 100% 50%; 
+        text-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+    }
+}
+
+/* Cards com Glassmorphism Dopaminérgico */
+.glass-card { 
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px); 
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.glass-card:hover::before {
+    left: 100%;
+}
+
+/* Botões Dopaminérgicos */
+.btn-red {
+    background: linear-gradient(45deg, #ff0000, #ff3333);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-red::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-red:hover::before {
+    left: 100%;
+}
+
+.btn-red:hover {
+    background: linear-gradient(45deg, #ff3333, #ff0000);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+}
+
+/* Preços com Efeito Glow */
+.preco-glow {
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    animation: priceGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes priceGlow {
+    from { text-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+    to { text-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.3); }
+}
+
+/* Cards de Produto */
+.produto-card {
+    background: linear-gradient(145deg, #1a0000, #000000);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.produto-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.produto-card:hover::before {
+    left: 100%;
+}
+
+.produto-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2), 0 0 20px rgba(255, 0, 0, 0.1);
+    border-color: rgba(255, 0, 0, 0.4);
+}
+
+/* Swiper Customizado Dopaminérgico */
+.swiper-button-next, .swiper-button-prev { 
+    color: #fff; 
+    background: rgba(0, 0, 0, 0.8); 
+    backdrop-filter: blur(10px);
+    border-radius: 50%; 
+    width: 50px; 
+    height: 50px; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    opacity: 0;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+}
+
+.swiper:hover .swiper-button-next, .swiper:hover .swiper-button-prev { 
+    opacity: 1; 
+}
+
+.swiper-button-next:hover, .swiper-button-prev:hover { 
+    background: linear-gradient(45deg, #ff0000, #ff3333);
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+}
+
+.swiper-pagination-bullet-active { 
+    background: linear-gradient(45deg, #ff0000, #ff3333);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Scrollbar Personalizada Dopaminérgica */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { 
+    background: linear-gradient(135deg, #ff0000, #ff3333); 
+    border-radius: 4px; 
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+::-webkit-scrollbar-thumb:hover { 
+    background: linear-gradient(135deg, #ff3333, #ff0000); 
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Efeitos de Hover Globais */
+.hover-glow:hover {
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    transition: text-shadow 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+/* Animações de Entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .swiper-button-next, .swiper-button-prev {
+        display: none !important;
+    }
+    
+    .btn-red {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Efeitos Especiais */
+.pulse-red {
+    animation: pulseRed 2s ease-in-out infinite;
+}
+
+@keyframes pulseRed {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+    }
+}
+
+.shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}

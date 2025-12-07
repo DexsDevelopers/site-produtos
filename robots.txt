@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://<?= $_SERVER['HTTP_HOST'] ?? 'seudominio.com' ?>/sitemap.php
+
+# Disallow admin area
+Disallow: /admin/
+
+# Disallow cache directory
+Disallow: /cache/
+
+# Disallow includes directory
+Disallow: /includes/
+
+# Allow important pages
+Allow: /index.php
+Allow: /produto.php
+Allow: /categoria.php
+Allow: /busca.php
+Allow: /carrinho.php
+Allow: /login.php
+Allow: /registrar.php
+
+# Crawl delay (optional)
+Crawl-delay: 1

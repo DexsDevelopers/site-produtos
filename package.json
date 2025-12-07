@@ -1,0 +1,45 @@
+{
+  "name": "loja-produtos-moderna",
+  "version": "1.0.0",
+  "description": "Loja de produtos moderna com tecnologias avançadas",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
+    "sass": "sass src/scss:assets/css --watch",
+    "typescript": "tsc --watch",
+    "start": "concurrently \"npm run sass\" \"npm run typescript\" \"npm run watch\"",
+    "pwa": "workbox generateSW workbox-config.js"
+  },
+  "keywords": ["ecommerce", "modern", "typescript", "sass", "pwa"],
+  "author": "Sua Loja",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "concurrently": "^8.2.0",
+    "css-loader": "^6.8.1",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.3",
+    "mini-css-extract-plugin": "^2.7.6",
+    "sass": "^1.64.1",
+    "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "workbox-webpack-plugin": "^7.0.0"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.7.17",
+    "graphql": "^16.8.1",
+    "socket.io-client": "^4.7.2",
+    "three": "^0.155.0",
+    "gsap": "^3.12.2",
+    "swiper": "^10.3.1",
+    "chart.js": "^4.4.0",
+    "framer-motion": "^10.16.4"
+  }
+}
