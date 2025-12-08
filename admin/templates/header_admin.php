@@ -163,6 +163,11 @@ require_once '../config.php';
                     <span>Dashboard</span>
                 </a>
                 
+                <a href="gerenciar_produtos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : '' ?>">
+                    <i class="fas fa-box w-5"></i>
+                    <span>Gerenciar Produtos</span>
+                </a>
+                
                 <a href="adicionar_produto.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : '' ?>">
                     <i class="fas fa-plus-circle w-5"></i>
                     <span>Adicionar Produto</span>
