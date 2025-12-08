@@ -105,7 +105,7 @@ try {
 
     <!-- Footer -->
     <footer class="bg-black p-8 text-center">
-        <p>&copy; 2024 Minha Loja. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Minha Loja. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>
