@@ -85,6 +85,27 @@ require_once 'templates/header.php';
     box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
+.contact-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.contact-card {
+    background: linear-gradient(145deg, #1a0000, #000000);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 0, 0, 0.4);
+}
+
 @media (max-width: 768px) {
     .security-hero h1 {
         font-size: 2.5rem;
@@ -165,6 +186,46 @@ require_once 'templates/header.php';
                 <p class="text-gray-300 leading-relaxed">
                     Plataforma certificada e em conformidade com os principais padrões de segurança internacionais, incluindo LGPD e GDPR.
                 </p>
+            </div>
+        </div>
+
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white mb-4">Entre em Contato</h2>
+            <p class="text-gray-300 text-lg">Escolha a forma de contato que preferir</p>
+        </div>
+
+        <div class="contact-methods">
+            <div class="contact-card">
+                <div class="feature-icon mx-auto mb-4">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">E-mail</h3>
+                <p class="text-gray-300 mb-4">Envie sua dúvida por e-mail</p>
+                <a href="mailto:empresatokio@gmail.com" class="text-red-400 hover:text-red-300 font-semibold">
+                    empresatokio@gmail.com
+                </a>
+            </div>
+
+            <div class="contact-card">
+                <div class="feature-icon mx-auto mb-4">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Telefone</h3>
+                <p class="text-gray-300 mb-4">Ligue para nossa central</p>
+                <a href="tel:+5551996148568" class="text-red-400 hover:text-red-300 font-semibold">
+                    (51) 99614-8568
+                </a>
+            </div>
+
+            <div class="contact-card">
+                <div class="feature-icon mx-auto mb-4">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">WhatsApp</h3>
+                <p class="text-gray-300 mb-4">Chat direto pelo WhatsApp</p>
+                <a href="https://wa.me/5551996148568" target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
+                    Falar no WhatsApp
+                </a>
             </div>
         </div>
 

@@ -6,7 +6,7 @@
     <footer class="bg-black border-t border-red-500/20 text-center py-8 px-4 relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/5 to-transparent"></div>
         <div class="relative z-10">
-            <p class="text-white/80 text-sm">© 2024 Minha Loja - O Mercado é dos Tubarões</p>
+            <p class="text-white/80 text-sm">© 2025 Minha Loja - O Mercado é dos Tubarões</p>
             <p class="text-red-400 text-xs mt-2">Desenvolvido com ❤️ para dominar o mercado</p>
         </div>
     </footer>
