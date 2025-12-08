@@ -5,9 +5,17 @@ require_once 'config.php';
 
 // Processa ações do carrinho ANTES do header para evitar HTML em respostas JSON
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Limpa qualquer output anterior
-    if (ob_get_level()) {
-        ob_clean();
+    // Limpa output apenas se o buffer foi iniciado por nós (não por auto_prepend)
+    // Verifica se há buffer e se não foi iniciado por auto_prepend_file
+    $ob_level = ob_get_level();
+    if ($ob_level > 0) {
+        // Verifica se o buffer contém apenas nosso output (não de auto_prepend)
+        $buffer_content = ob_get_contents();
+        // Só limpa se o buffer estiver vazio ou contiver apenas whitespace
+        // Isso evita limpar tokens de segurança ou headers importantes
+        if (trim($buffer_content) === '' || strlen($buffer_content) < 100) {
+            ob_clean();
+        }
     }
     
     try {
@@ -239,92 +247,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 <div class="carrinho-container">
 <?php
 // Processa ações do carrinho já foi movido para o topo do arquivo (linhas 6-86)
-// Calcula totais
-    // Limpa qualquer output anterior
-    if (ob_get_level()) {
-        ob_clean();
-    }
-    
-    try {
-        $action = $_POST['action'] ?? '';
-        $produto_id = (int)($_POST['produto_id'] ?? 0);
-        
-        if (!isset($_SESSION['carrinho'])) {
-            $_SESSION['carrinho'] = [];
-        }
-    
-    switch ($action) {
-        case 'add':
-            if ($produto_id > 0) {
-                if (isset($_SESSION['carrinho'][$produto_id])) {
-                    $_SESSION['carrinho'][$produto_id]['quantidade']++;
-                } else {
-                    // Busca dados do produto
-                    $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, checkout_link FROM produtos WHERE id = ?");
-                    $stmt->execute([$produto_id]);
-                    $produto = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
-                    if ($produto) {
-                        $_SESSION['carrinho'][$produto_id] = [
-                            'id' => $produto['id'],
-                            'nome' => $produto['nome'],
-                            'preco' => $produto['preco'],
-                            'imagem' => $produto['imagem'],
-                            'checkout_link' => $produto['checkout_link'],
-                            'quantidade' => 1
-                        ];
-                    }
-                }
-            }
-            break;
-            
-        case 'remove':
-            if ($produto_id > 0 && isset($_SESSION['carrinho'][$produto_id])) {
-                unset($_SESSION['carrinho'][$produto_id]);
-            }
-            break;
-            
-        case 'update':
-            $quantidade = max(1, (int)($_POST['quantidade'] ?? 1));
-            if ($produto_id > 0 && isset($_SESSION['carrinho'][$produto_id])) {
-                $_SESSION['carrinho'][$produto_id]['quantidade'] = $quantidade;
-            } else {
-                // Produto não encontrado no carrinho
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Produto não encontrado no carrinho']);
-                exit();
-            }
-            break;
-            
-        case 'clear':
-            $_SESSION['carrinho'] = [];
-            break;
-    }
-    
-        // Responde diferentemente para AJAX
-        if ($action === 'update') {
-            // Resposta JSON para AJAX
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Quantidade atualizada para ' . $quantidade]);
-            exit();
-        } else {
-            // Redireciona para outras ações
-            header('Location: carrinho.php');
-            exit();
-        }
-    } catch (Exception $e) {
-        // Tratamento de erro
-        if ($action === 'update') {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Erro: ' . $e->getMessage()]);
-            exit();
-        } else {
-            header('Location: carrinho.php?error=' . urlencode($e->getMessage()));
-            exit();
-        }
-    }
-}
-
 // Calcula totais
 $total_itens = 0;
 $total_preco = 0;
