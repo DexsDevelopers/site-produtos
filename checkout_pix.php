@@ -303,6 +303,7 @@ if (!empty($codigo_pix)) {
 }
 </style>
 
+<!-- DEBUG: PHP está executando - Carrinho vazio: <?= $carrinho_vazio ? 'SIM' : 'NÃO' ?> | PIX configurado: <?= (!empty($chave_pix)) ? 'SIM' : 'NÃO' ?> -->
 <div class="checkout-pix-container" style="min-height: 100vh; background: #000000 !important; padding: 140px 0 80px !important; position: relative !important; z-index: 1 !important; display: block !important; visibility: visible !important;">
     <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" style="position: relative; z-index: 2;">
         <div class="pt-8">
@@ -480,6 +481,24 @@ if (!empty($codigo_pix)) {
 </div>
 
 <script>
+// Debug: Verificar se JavaScript está carregando
+console.log('✅ checkout_pix.php - JavaScript carregado');
+console.log('Carrinho vazio:', <?= $carrinho_vazio ? 'true' : 'false' ?>);
+console.log('PIX configurado:', <?= (!empty($chave_pix)) ? 'true' : 'false' ?>);
+
+// Verificar se o conteúdo está visível
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('.checkout-pix-container');
+    if (container) {
+        console.log('✅ Container encontrado:', container);
+        console.log('Altura do container:', container.offsetHeight);
+        console.log('Display:', window.getComputedStyle(container).display);
+        console.log('Visibility:', window.getComputedStyle(container).visibility);
+    } else {
+        console.error('❌ Container .checkout-pix-container não encontrado!');
+    }
+});
+
 function copiarCodigoPix() {
     const codigo = document.getElementById('pix-code').textContent.trim();
     
