@@ -32,19 +32,30 @@ if (isset($_GET['ref'])) {
     exit();
 }
 
-// --- BUSCA DADOS OTIMIZADA ---
+// --- BUSCA DADOS DO SISTEMA DE ARQUIVOS ---
 try {
-    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 3")->fetchAll(PDO::FETCH_ASSOC);
-    $banners_categorias = $pdo->query("SELECT * FROM banners WHERE tipo = 'categoria' AND ativo = 1 ORDER BY id DESC LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
-    $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+    $banners_principais = [];
+    $banners_categorias = [];
+    
+    // Busca categorias
+    $categorias = $fileStorage->getCategorias();
+    $categorias = array_slice($categorias, 0, 4);
     
     // Busca produtos em destaque
-    $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+    $todos_produtos = $fileStorage->getProdutos();
+    usort($todos_produtos, function($a, $b) {
+        return ($b['id'] ?? 0) <=> ($a['id'] ?? 0);
+    });
+    $produtos_destaque = array_slice($todos_produtos, 0, 8);
     
     // Busca produtos por categoria
     $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
-        $produtos = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = {$categoria['id']} ORDER BY id DESC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+        $produtos = $fileStorage->getProdutos(['categoria_id' => $categoria['id']]);
+        usort($produtos, function($a, $b) {
+            return ($b['id'] ?? 0) <=> ($a['id'] ?? 0);
+        });
+        $produtos = array_slice($produtos, 0, 4);
         if (!empty($produtos)) {
             $produtos_por_categoria[$categoria['id']] = $produtos;
         }

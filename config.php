@@ -1,28 +1,14 @@
 <?php
-// config.php (VERSÃO SIMPLIFICADA E ESTÁVEL)
+// config.php (VERSÃO SEM BANCO DE DADOS - USANDO ARQUIVOS JSON)
 
 // Inicia a sessão se não estiver iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// --- INFORMAÇÕES DE CONEXÃO COM O BANCO DE DADOS ---
-$host = 'localhost';
-$dbname = 'u853242961_lojahelmer';
-$user = 'u853242961_user2';
-$password = 'Lucastav8012@';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
-    ]);
-} catch (PDOException $e) {
-    // Em caso de erro, mostra uma mensagem mais amigável
-    die("Erro de conexão com o banco de dados. Verifique as configurações.");
-}
+// --- SISTEMA DE ARMAZENAMENTO EM ARQUIVO ---
+require_once __DIR__ . '/includes/file_storage.php';
+$fileStorage = new FileStorage();
 
 // --- FUNÇÕES GLOBAIS ---
 function formatarPreco($preco) {

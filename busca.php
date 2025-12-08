@@ -166,81 +166,47 @@ $total_resultados = 0;
 $total_paginas = 0;
 
 // Busca categorias para o filtro
-$categorias = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC);
+$categorias = $fileStorage->getCategorias();
+usort($categorias, function($a, $b) {
+    return strcmp($a['nome'], $b['nome']);
+});
 
-// Se há termo de busca ou filtros, executa a consulta
+// Se há termo de busca ou filtros, executa a busca
 if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0) {
     try {
-        // Constrói a consulta SQL dinamicamente
-        $where_conditions = [];
-        $params = [];
+        // Prepara filtros
+        $filtros = [];
         
         if (!empty($termo)) {
-            $where_conditions[] = "(nome LIKE ? OR descricao_curta LIKE ? OR descricao LIKE ?)";
-            $termo_busca = "%$termo%";
-            $params[] = $termo_busca;
-            $params[] = $termo_busca;
-            $params[] = $termo_busca;
+            $filtros['termo'] = $termo;
         }
         
         if ($categoria_id > 0) {
-            $where_conditions[] = "categoria_id = ?";
-            $params[] = $categoria_id;
+            $filtros['categoria_id'] = $categoria_id;
         }
         
         if ($preco_min > 0) {
-            $where_conditions[] = "preco >= ?";
-            $params[] = $preco_min;
+            $filtros['preco_min'] = $preco_min;
         }
         
         if ($preco_max > 0) {
-            $where_conditions[] = "preco <= ?";
-            $params[] = $preco_max;
+            $filtros['preco_max'] = $preco_max;
         }
         
-        $where_clause = !empty($where_conditions) ? "WHERE " . implode(" AND ", $where_conditions) : "";
-        
-        // Determina a ordenação
-        $order_clause = "ORDER BY ";
-        switch ($ordenar) {
-            case 'preco_asc':
-                $order_clause .= "preco ASC";
-                break;
-            case 'preco_desc':
-                $order_clause .= "preco DESC";
-                break;
-            case 'nome':
-                $order_clause .= "nome ASC";
-                break;
-            case 'relevancia':
-            default:
-                $order_clause .= "nome ASC";
-                break;
+        if (!empty($ordenar)) {
+            $filtros['ordenar'] = $ordenar;
         }
         
-        // Conta o total de resultados
-        $count_sql = "SELECT COUNT(*) FROM produtos $where_clause";
-        $count_stmt = $pdo->prepare($count_sql);
-        $count_stmt->execute($params);
-        $total_resultados = $count_stmt->fetchColumn();
+        // Busca produtos com filtros
+        $todos_resultados = $fileStorage->getProdutos($filtros);
+        $total_resultados = count($todos_resultados);
         $total_paginas = ceil($total_resultados / $itens_por_pagina);
         
-        // Calcula o offset para paginação
+        // Aplica paginação
         $offset = ($pagina - 1) * $itens_por_pagina;
+        $resultados = array_slice($todos_resultados, $offset, $itens_por_pagina);
         
-        // Busca os resultados com paginação
-        $sql = "SELECT p.*, c.nome as categoria_nome 
-                FROM produtos p 
-                LEFT JOIN categorias c ON p.categoria_id = c.id 
-                $where_clause 
-                $order_clause 
-                LIMIT $itens_por_pagina OFFSET $offset";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Erro na busca: " . $e->getMessage());
         $resultados = [];
     }

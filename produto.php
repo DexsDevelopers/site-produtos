@@ -37,32 +37,14 @@ $produto_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $produto_selecionado = null;
 
 try {
-    // Busca os dados do produto
-    $stmt = $pdo->prepare("SELECT * FROM produtos WHERE id = ?");
-    $stmt->execute([$produto_id]);
-    $produto_selecionado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Se o produto existe, busca as avaliações dele
-    if ($produto_selecionado) {
-        $stmt_avaliacoes = $pdo->prepare(
-            "SELECT a.*, u.nome as nome_usuario 
-             FROM avaliacoes a
-             JOIN usuarios u ON a.usuario_id = u.id
-             WHERE a.produto_id = ? 
-             ORDER BY a.data_avaliacao DESC"
-        );
-        $stmt_avaliacoes->execute([$produto_id]);
-        $avaliacoes = $stmt_avaliacoes->fetchAll(PDO::FETCH_ASSOC);
-
-        // Calcula a média das notas
-        $total_avaliacoes = count($avaliacoes);
-        $soma_notas = 0;
-        foreach ($avaliacoes as $avaliacao) {
-            $soma_notas += $avaliacao['nota'];
-        }
-        $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
-    }
-} catch (PDOException $e) {
+    // Busca os dados do produto do sistema de arquivos
+    $produto_selecionado = $fileStorage->getProduto($produto_id);
+    
+    // Avaliações (por enquanto vazio, pode ser implementado depois)
+    $avaliacoes = [];
+    $total_avaliacoes = 0;
+    $media_notas = 0;
+} catch (Exception $e) {
     die("Erro ao carregar a página do produto.");
 }
 

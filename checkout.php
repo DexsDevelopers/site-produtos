@@ -1,14 +1,17 @@
 <?php
-// checkout.php - Página de Checkout com seleção de produtos
+// checkout.php - Redireciona para checkout PIX
 session_start();
 require_once 'config.php';
-require_once 'templates/header.php';
 
 // Verifica se há itens no carrinho
 if (empty($_SESSION['carrinho'])) {
     header('Location: carrinho.php');
     exit();
 }
+
+// Redireciona para checkout PIX
+header('Location: checkout_pix.php');
+exit();
 
 $carrinho_itens = $_SESSION['carrinho'];
 $total_itens = 0;

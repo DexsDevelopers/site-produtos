@@ -1,0 +1,38 @@
+# Arquivos de dados (contêm informações sensíveis)
+data/*.json
+!data/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Uploads
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# Configurações locais
+config_local.php
+
+# Arquivos temporários
+*.tmp
+*.bak
+*~
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (se houver)
+node_modules/
+
+# Cache
+cache/
+*.cache
+
