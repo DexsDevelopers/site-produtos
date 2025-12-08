@@ -201,8 +201,8 @@ require_once 'templates/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">E-mail</h3>
                 <p class="text-gray-300 mb-4">Envie sua dúvida por e-mail</p>
-                <a href="mailto:suporte@exemplo.com" class="text-red-400 hover:text-red-300 font-semibold">
-                    suporte@exemplo.com
+                <a href="mailto:empresatokio@gmail.com" class="text-red-400 hover:text-red-300 font-semibold">
+                    empresatokio@gmail.com
                 </a>
             </div>
 
@@ -212,8 +212,8 @@ require_once 'templates/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">Telefone</h3>
                 <p class="text-gray-300 mb-4">Ligue para nossa central</p>
-                <a href="tel:+5511999999999" class="text-red-400 hover:text-red-300 font-semibold">
-                    (11) 99999-9999
+                <a href="tel:+5551996148568" class="text-red-400 hover:text-red-300 font-semibold">
+                    (51) 99614-8568
                 </a>
             </div>
 
@@ -223,7 +223,7 @@ require_once 'templates/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">WhatsApp</h3>
                 <p class="text-gray-300 mb-4">Chat direto pelo WhatsApp</p>
-                <a href="https://wa.me/5511999999999" target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
+                <a href="https://wa.me/5551996148568" target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
                     Falar no WhatsApp
                 </a>
             </div>
