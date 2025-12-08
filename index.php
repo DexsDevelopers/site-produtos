@@ -1069,42 +1069,54 @@ require_once 'templates/header.php';
                     <?= htmlspecialchars($categoria_info['nome']) ?>
                 </h3>
                 
-                <div class="products-grid-adsly">
-                    <?php foreach ($produtos as $produto): ?>
-                    <div class="product-card-adsly">
-                        <div class="product-image">
-                            <?php 
-                            $imagem_produto = $produto['imagem'];
-                            $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
-                            ?>
-                            
-                            <?php if ($imagem_existe): ?>
-                                <img src="<?= htmlspecialchars($imagem_produto) ?>"
-                                     alt="<?= htmlspecialchars($produto['nome']) ?>"
-                                     loading="lazy"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-<?php endif; ?>
+                <!-- Carrossel Swiper para Produtos -->
+                <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?>" style="position: relative;">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($produtos as $produto): ?>
+                        <div class="swiper-slide">
+                            <div class="product-card-adsly">
+                                <div class="product-image">
+                                    <?php 
+                                    $imagem_produto = $produto['imagem'];
+                                    $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
+                                    ?>
+                                    
+                                    <?php if ($imagem_existe): ?>
+                                        <img src="<?= htmlspecialchars($imagem_produto) ?>"
+                                             alt="<?= htmlspecialchars($produto['nome']) ?>"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <?php endif; ?>
 
-                            <!-- Fallback para quando não há imagem -->
-                            <div class="product-image-fallback" style="<?= $imagem_existe ? 'display: none;' : 'display: flex;' ?>">
-                                <div class="fallback-content">
-                                    <i class="fas fa-image"></i>
-                                    <span><?= htmlspecialchars($produto['nome']) ?></span>
+                                    <!-- Fallback para quando não há imagem -->
+                                    <div class="product-image-fallback" style="<?= $imagem_existe ? 'display: none;' : 'display: flex;' ?>">
+                                        <div class="fallback-content">
+                                            <i class="fas fa-image"></i>
+                                            <span><?= htmlspecialchars($produto['nome']) ?></span>
+                                        </div>
+                                    </div>
                                 </div>
-        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name"><?= htmlspecialchars($produto['nome']) ?></h3>
-                        <p class="product-description"><?= htmlspecialchars($produto['descricao_curta']) ?></p>
-                        <div class="product-price"><?= formatarPreco($produto['preco']) ?></div>
-                            <a href="produto.php?id=<?= $produto['id'] ?>" class="btn">
-                                <i class="fas fa-shopping-cart"></i>
-                                Comprar Agora
-                </a>
+                                <div class="product-info">
+                                    <h3 class="product-name"><?= htmlspecialchars($produto['nome']) ?></h3>
+                                    <p class="product-description"><?= htmlspecialchars($produto['descricao_curta']) ?></p>
+                                    <div class="product-price"><?= formatarPreco($produto['preco']) ?></div>
+                                    <a href="produto.php?id=<?= $produto['id'] ?>" class="btn">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Comprar Agora
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <!-- Setas de Navegação (Desktop) -->
+                    <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;"></div>
+                    <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;"></div>
+                    
+                    <!-- Paginação (Opcional) -->
+                    <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>" style="position: relative; margin-top: 2rem;"></div>
+                </div>
             </div>
             <?php endif; ?>
         <?php endforeach; ?>
@@ -1132,8 +1144,135 @@ require_once 'templates/header.php';
     </div>
 </section>
 
+<!-- CSS para Carrossel Swiper de Produtos -->
+<style>
+/* Setas de navegação - Desktop */
+@media (min-width: 768px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: flex !important;
+        width: 50px !important;
+        height: 50px !important;
+        background: rgba(255, 0, 0, 0.1) !important;
+        border-radius: 50% !important;
+        border: 2px solid rgba(255, 0, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .swiper-button-next:hover,
+    .swiper-button-prev:hover {
+        background: rgba(255, 0, 0, 0.2) !important;
+        border-color: rgba(255, 0, 0, 0.5) !important;
+        transform: scale(1.1) !important;
+    }
+    
+    .swiper-button-next::after,
+    .swiper-button-prev::after {
+        font-size: 20px !important;
+        font-weight: bold !important;
+    }
+}
+
+/* Esconde setas no mobile */
+@media (max-width: 767px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none !important;
+    }
+    
+    .produtos-swiper {
+        padding: 0 20px 50px !important;
+    }
+}
+
+/* Paginação customizada */
+.swiper-pagination-bullet {
+    background: rgba(255, 0, 0, 0.5) !important;
+    opacity: 1 !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.swiper-pagination-bullet-active {
+    background: #ff0000 !important;
+    width: 30px !important;
+    border-radius: 6px !important;
+}
+
+/* Ajustes nos cards dentro do Swiper */
+.swiper-slide .product-card-adsly {
+    height: 100%;
+    margin: 0;
+}
+
+/* Padding do carrossel */
+.produtos-swiper {
+    padding: 0 60px 50px !important;
+}
+
+@media (max-width: 767px) {
+    .produtos-swiper {
+        padding: 0 20px 50px !important;
+    }
+}
+</style>
+
 <!-- JavaScript Específico da Homepage -->
 <script src="assets/js/homepage.js"></script>
+
+<!-- Swiper JS para Carrossel de Produtos -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa carrosséis de produtos por categoria
+    <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+    const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+        },
+        // Deslize para mobile/Android
+        touchEventsTarget: 'container',
+        allowTouchMove: true,
+        grabCursor: true,
+        touchRatio: 1,
+        touchAngle: 45,
+        
+        // Setas de navegação (visíveis no desktop)
+        navigation: {
+            nextEl: '.produtos-next-<?= $categoria_id ?>',
+            prevEl: '.produtos-prev-<?= $categoria_id ?>',
+        },
+        
+        // Paginação
+        pagination: {
+            el: '.produtos-pagination-<?= $categoria_id ?>',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        
+        // Responsividade
+        breakpoints: {
+            480: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+            },
+            768: {
+                slidesPerView: 3,
+                spaceBetween: 24,
+            },
+            1024: {
+                slidesPerView: 4,
+                spaceBetween: 30,
+            }
+        }
+    });
+    <?php endforeach; ?>
+});
+</script>
 
 <?php
 require_once 'templates/footer.php';

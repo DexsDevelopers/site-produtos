@@ -221,6 +221,8 @@ try {
     line-height: 1.6;
     max-height: 150px;
     overflow-y: auto;
+    position: relative;
+    z-index: 1;
 }
 
 /* Títulos */
@@ -296,7 +298,7 @@ try {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <!-- Resumo do Pedido -->
                 <div class="lg:col-span-1">
-                    <div class="pix-card sticky top-24">
+                    <div class="pix-card sticky top-24" style="z-index: 10; max-height: calc(100vh - 120px); overflow-y: auto;">
                         <h2 class="text-xl font-bold text-white mb-6 pb-4 border-b border-white/10">
                             Resumo do Pedido
                         </h2>
@@ -312,7 +314,7 @@ try {
                             </div>
                             <?php endforeach; ?>
                             
-                            <div class="flex justify-between items-center pt-4 border-t-2 border-white/20">
+                            <div class="flex justify-between items-center pt-4 border-t-2 border-white/20 sticky bottom-0 bg-inherit pb-2" style="background: inherit;">
                                 <span class="text-lg font-bold text-white">Total</span>
                                 <span class="text-2xl font-black price-highlight"><?= formatarPreco($total_preco) ?></span>
                             </div>
@@ -321,7 +323,7 @@ try {
                 </div>
                 
                 <!-- Chave PIX -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2" style="z-index: 1;">
                     <div class="pix-card text-center">
                         <div class="mb-8">
                             <h2 class="text-2xl font-bold text-white mb-3">
