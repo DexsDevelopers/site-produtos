@@ -39,14 +39,14 @@ try {
     // Busca TODAS as categorias (sem limite)
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
     
-    // Busca produtos em destaque (apenas ativos ou sem status definido)
-    $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE (status = 'ativo' OR status IS NULL OR status = '') ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
+    // Busca produtos em destaque (todos os produtos)
+    $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
     
-    // Busca produtos por categoria (apenas ativos ou sem status definido)
+    // Busca produtos por categoria (todos os produtos de cada categoria)
     $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
-        // Usa prepared statement para segurança e busca TODOS os produtos da categoria (sem limite ou limite maior)
-        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = ? AND (status = 'ativo' OR status IS NULL OR status = '') ORDER BY id DESC");
+        // Usa prepared statement para segurança e busca TODOS os produtos da categoria
+        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = ? ORDER BY id DESC");
         $stmt->execute([$categoria['id']]);
         $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (!empty($produtos)) {
