@@ -465,6 +465,8 @@ if (!empty($codigo_pix)) {
     </div>
 </div>
 
+</main>
+
 <script>
 function copiarCodigoPix() {
     const codigo = document.getElementById('pix-code').textContent.trim();
