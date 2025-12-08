@@ -36,15 +36,19 @@ if (isset($_GET['ref'])) {
 try {
     $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 3")->fetchAll(PDO::FETCH_ASSOC);
     $banners_categorias = $pdo->query("SELECT * FROM banners WHERE tipo = 'categoria' AND ativo = 1 ORDER BY id DESC LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
-    $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+    // Busca TODAS as categorias (sem limite)
+    $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
     
-    // Busca produtos em destaque
-    $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+    // Busca produtos em destaque (apenas ativos ou sem status definido)
+    $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE (status = 'ativo' OR status IS NULL OR status = '') ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
     
-    // Busca produtos por categoria
+    // Busca produtos por categoria (apenas ativos ou sem status definido)
     $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
-        $produtos = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = {$categoria['id']} ORDER BY id DESC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+        // Usa prepared statement para segurança e busca TODOS os produtos da categoria (sem limite ou limite maior)
+        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = ? AND (status = 'ativo' OR status IS NULL OR status = '') ORDER BY id DESC");
+        $stmt->execute([$categoria['id']]);
+        $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (!empty($produtos)) {
             $produtos_por_categoria[$categoria['id']] = $produtos;
         }
@@ -52,6 +56,7 @@ try {
 } catch (Exception $e) {
     $banners_principais = $banners_categorias = $categorias = $produtos_destaque = [];
     $produtos_por_categoria = [];
+    error_log("Erro ao buscar produtos na página principal: " . $e->getMessage());
 }
 
 // Define meta tags
