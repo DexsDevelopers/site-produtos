@@ -1,15 +1,15 @@
 <?php
 // checkout_pix.php - Página de Checkout com QR Code PIX
-// Garantir que não há output antes do header
-if (ob_get_level()) ob_clean();
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
 
-// Verifica se há itens no carrinho - mas não redireciona imediatamente para permitir debug
-$carrinho_vazio = empty($_SESSION['carrinho']);
+// Verifica se há itens no carrinho
+if (empty($_SESSION['carrinho'])) {
+    header('Location: carrinho.php');
+    exit();
+}
 
 try {
     require_once 'config.php';
@@ -18,15 +18,13 @@ try {
     die("Erro ao carregar arquivos: " . $e->getMessage());
 }
 
-$carrinho_itens = $carrinho_vazio ? [] : $_SESSION['carrinho'];
+$carrinho_itens = $_SESSION['carrinho'];
 $total_itens = 0;
 $total_preco = 0;
 
-if (!$carrinho_vazio) {
-    foreach ($carrinho_itens as $item) {
-        $total_itens += $item['quantidade'];
-        $total_preco += $item['preco'] * $item['quantidade'];
-    }
+foreach ($carrinho_itens as $item) {
+    $total_itens += $item['quantidade'];
+    $total_preco += $item['preco'] * $item['quantidade'];
 }
 
 // Busca configuração PIX
@@ -303,30 +301,17 @@ if (!empty($codigo_pix)) {
 }
 </style>
 
-<!-- DEBUG: PHP está executando - Carrinho vazio: <?= $carrinho_vazio ? 'SIM' : 'NÃO' ?> | PIX configurado: <?= (!empty($chave_pix)) ? 'SIM' : 'NÃO' ?> -->
-<div class="checkout-pix-container" style="min-height: 100vh; background: #000000 !important; padding: 140px 0 80px !important; position: relative !important; z-index: 1 !important; display: block !important; visibility: visible !important;">
-    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" style="position: relative; z-index: 2;">
+<div class="checkout-pix-container">
+    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="pt-8">
-            <h1 class="text-4xl md:text-5xl font-black text-white mb-4 text-center" style="color: #ffffff !important; display: block !important; visibility: visible !important; opacity: 1 !important;">
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-4 text-center">
                 Pagamento via PIX
             </h1>
             <p class="text-center text-white/70 mb-12 text-lg">
                 Escaneie o QR Code ou copie o código para pagar
             </p>
             
-            <?php if ($carrinho_vazio): ?>
-                <div class="pix-card text-center" style="background: rgba(26, 26, 26, 0.8); padding: 2.5rem; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
-                    <i class="fas fa-shopping-cart text-yellow-400 text-4xl mb-4"></i>
-                    <h2 class="text-2xl font-bold text-white mb-4">Carrinho vazio</h2>
-                    <p class="text-white/70 mb-6">
-                        Adicione produtos ao carrinho antes de finalizar a compra.
-                    </p>
-                    <a href="carrinho.php" class="copy-button inline-block">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Ir para o Carrinho
-                    </a>
-                </div>
-            <?php elseif (empty($chave_pix) || empty($nome_pix) || empty($cidade_pix)): ?>
+            <?php if (empty($chave_pix) || empty($nome_pix) || empty($cidade_pix)): ?>
                 <div class="pix-card text-center">
                     <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl mb-4"></i>
                     <h2 class="text-2xl font-bold text-white mb-4">Chave PIX não configurada</h2>
@@ -481,24 +466,6 @@ if (!empty($codigo_pix)) {
 </div>
 
 <script>
-// Debug: Verificar se JavaScript está carregando
-console.log('✅ checkout_pix.php - JavaScript carregado');
-console.log('Carrinho vazio:', <?= $carrinho_vazio ? 'true' : 'false' ?>);
-console.log('PIX configurado:', <?= (!empty($chave_pix)) ? 'true' : 'false' ?>);
-
-// Verificar se o conteúdo está visível
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.querySelector('.checkout-pix-container');
-    if (container) {
-        console.log('✅ Container encontrado:', container);
-        console.log('Altura do container:', container.offsetHeight);
-        console.log('Display:', window.getComputedStyle(container).display);
-        console.log('Visibility:', window.getComputedStyle(container).visibility);
-    } else {
-        console.error('❌ Container .checkout-pix-container não encontrado!');
-    }
-});
-
 function copiarCodigoPix() {
     const codigo = document.getElementById('pix-code').textContent.trim();
     
@@ -520,4 +487,3 @@ function copiarCodigoPix() {
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
-
