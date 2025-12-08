@@ -1087,31 +1087,31 @@ require_once 'templates/header.php';
                 </div>
                 <h3>Performance Otimizada</h3>
                 <p>Nossa plataforma foi desenvolvida com foco em velocidade e performance, garantindo uma experiência fluida para todos os usuários.</p>
-                <a href="busca.php" class="btn">
+                <a href="performance.php" class="btn">
                     <i class="fas fa-arrow-right"></i>
-                                            Saiba Mais
-                                        </a>
-                                </div>
+                    Saiba Mais
+                </a>
+            </div>
             
             <div class="adsly-card">
                 <div class="icon">
                     <i class="fas fa-shield-alt"></i>
-                            </div>
+                </div>
                 <h3>Segurança Garantida</h3>
                 <p>Proteção total dos seus dados com criptografia avançada e protocolos de segurança de última geração.</p>
-                <a href="busca.php" class="btn">
+                <a href="seguranca.php" class="btn">
                     <i class="fas fa-arrow-right"></i>
                     Saiba Mais
                 </a>
-                        </div>
+            </div>
             
             <div class="adsly-card">
                 <div class="icon">
                     <i class="fas fa-headset"></i>
-                    </div>
+                </div>
                 <h3>Suporte 24/7</h3>
                 <p>Nossa equipe de suporte está sempre disponível para ajudar você em qualquer momento do dia.</p>
-                <a href="busca.php" class="btn">
+                <a href="suporte.php" class="btn">
                     <i class="fas fa-arrow-right"></i>
                     Saiba Mais
                 </a>
