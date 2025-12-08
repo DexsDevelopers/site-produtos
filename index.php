@@ -1013,16 +1013,6 @@ require_once 'templates/header.php';
     <div class="container">
         <h1>O Mercado é dos <span style="color: #ff0000;">Tubarões</span></h1>
         <p class="subtitle">Descubra produtos incríveis com qualidade premium e preços imbatíveis</p>
-        <div class="cta-buttons">
-            <a href="#produtos" class="btn-primary">
-                <i class="fas fa-shopping-bag"></i>
-                Explorar Produtos
-            </a>
-            <a href="busca.php" class="btn-secondary">
-                <i class="fas fa-search"></i>
-                Buscar
-            </a>
-        </div>
     </div>
 </section>
 
