@@ -29,11 +29,13 @@ require_once 'templates/header_admin.php';
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <?php
         try {
-            // Busca estatísticas
-            $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn();
-            $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
-            $total_categorias = $pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
-            $total_banners = $pdo->query('SELECT COUNT(*) FROM banners')->fetchColumn();
+            // Busca estatísticas do FileStorage
+            $produtos = $fileStorage->getProdutos();
+            $total_produtos = count($produtos);
+            $categorias = $fileStorage->getCategorias();
+            $total_categorias = count($categorias);
+            $total_usuarios = 0; // Não há mais sistema de usuários sem banco
+            $total_banners = 0; // Banners podem ser implementados depois
         } catch (Exception $e) {
             $total_produtos = $total_usuarios = $total_categorias = $total_banners = 0;
         }
@@ -128,7 +130,12 @@ require_once 'templates/header_admin.php';
                 <div class="space-y-4">
                     <?php
                     try {
-                        $produtos_recentes = $pdo->query('SELECT * FROM produtos ORDER BY id DESC LIMIT 6')->fetchAll(PDO::FETCH_ASSOC);
+                        $todos_produtos = $fileStorage->getProdutos();
+                        // Ordena por ID decrescente
+                        usort($todos_produtos, function($a, $b) {
+                            return ($b['id'] ?? 0) <=> ($a['id'] ?? 0);
+                        });
+                        $produtos_recentes = array_slice($todos_produtos, 0, 6);
                     } catch (Exception $e) {
                         $produtos_recentes = [];
                     }
@@ -173,33 +180,28 @@ require_once 'templates/header_admin.php';
 
         <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Usuários Recentes -->
+            <!-- Informações do Sistema -->
             <div class="admin-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Usuários Recentes</h3>
+                <h3 class="text-lg font-semibold text-white mb-4">Sistema</h3>
                 <div class="space-y-3">
-                    <?php
-                    try {
-                        $usuarios_recentes = $pdo->query('SELECT id, nome, email, data_cadastro FROM usuarios ORDER BY id DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
-                    } catch (Exception $e) {
-                        $usuarios_recentes = [];
-                    }
-                    ?>
-                    
-                    <?php if (!empty($usuarios_recentes)): ?>
-                        <?php foreach ($usuarios_recentes as $usuario): ?>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                <?= strtoupper(substr($usuario['nome'], 0, 1)) ?>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-white text-sm font-medium truncate"><?= htmlspecialchars($usuario['nome']) ?></p>
-                                <p class="text-admin-gray-400 text-xs truncate"><?= htmlspecialchars($usuario['email']) ?></p>
-                            </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            <i class="fas fa-database"></i>
                         </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-admin-gray-400 text-sm">Nenhum usuário encontrado</p>
-                    <?php endif; ?>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white text-sm font-medium">Armazenamento</p>
+                            <p class="text-admin-gray-400 text-xs">Arquivo JSON</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-admin-success to-admin-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white text-sm font-medium">Pagamento</p>
+                            <p class="text-admin-gray-400 text-xs">PIX</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

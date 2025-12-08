@@ -13,11 +13,23 @@ class FileStorage {
         
         // Cria o diretório se não existir
         if (!is_dir($this->dataDir)) {
-            mkdir($this->dataDir, 0755, true);
+            if (!@mkdir($this->dataDir, 0755, true)) {
+                // Se não conseguir criar, tenta criar no diretório atual
+                $this->dataDir = __DIR__ . '/data';
+                $this->productsFile = $this->dataDir . '/produtos.json';
+                $this->configFile = $this->dataDir . '/config.json';
+                if (!is_dir($this->dataDir)) {
+                    @mkdir($this->dataDir, 0755, true);
+                }
+            }
         }
         
         // Inicializa arquivos se não existirem
-        $this->initializeFiles();
+        try {
+            $this->initializeFiles();
+        } catch (Exception $e) {
+            error_log("Erro ao inicializar FileStorage: " . $e->getMessage());
+        }
     }
     
     private function initializeFiles() {
