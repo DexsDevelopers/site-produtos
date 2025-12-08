@@ -84,77 +84,7 @@ try {
     error_log("Erro ao carregar configuração PIX: " . $e->getMessage());
 }
 
-// Gera código PIX (formato EMV)
-function gerarCodigoPIX($chave, $nome, $cidade, $valor, $descricao = '') {
-    // Remove caracteres não numéricos do valor
-    $valor_limpo = preg_replace('/[^0-9]/', '', number_format($valor, 2, '.', ''));
-    
-    // Identificador do payload
-    $payload = '00020126';
-    
-    // Merchant Account Information
-    $merchant_account = '0014BR.GOV.BCB.PIX01' . strlen($chave) . $chave;
-    $payload .= '26' . str_pad(strlen($merchant_account), 2, '0', STR_PAD_LEFT) . $merchant_account;
-    
-    // Merchant Category Code
-    $payload .= '52040000';
-    
-    // Transaction Currency (BRL = 986)
-    $payload .= '5303986';
-    
-    // Transaction Amount
-    $payload .= '54' . str_pad(strlen($valor_limpo), 2, '0', STR_PAD_LEFT) . $valor_limpo;
-    
-    // Country Code
-    $payload .= '5802BR';
-    
-    // Merchant Name
-    $nome_limpo = substr($nome, 0, 25);
-    $payload .= '59' . str_pad(strlen($nome_limpo), 2, '0', STR_PAD_LEFT) . $nome_limpo;
-    
-    // Merchant City
-    $cidade_limpa = substr($cidade, 0, 15);
-    $payload .= '60' . str_pad(strlen($cidade_limpa), 2, '0', STR_PAD_LEFT) . $cidade_limpa;
-    
-    // Additional Data Field Template (descrição opcional)
-    if (!empty($descricao)) {
-        $descricao_limpa = substr($descricao, 0, 25);
-        $additional_data = '05' . str_pad(strlen($descricao_limpa), 2, '0', STR_PAD_LEFT) . $descricao_limpa;
-        $payload .= '62' . str_pad(strlen($additional_data), 2, '0', STR_PAD_LEFT) . $additional_data;
-    }
-    
-    // CRC16
-    $crc = crc16($payload . '6304');
-    $payload .= '6304' . strtoupper(str_pad(dechex($crc), 4, '0', STR_PAD_LEFT));
-    
-    return $payload;
-}
-
-function crc16($str) {
-    $crc = 0xFFFF;
-    for ($i = 0; $i < strlen($str); $i++) {
-        $crc ^= ord($str[$i]) << 8;
-        for ($j = 0; $j < 8; $j++) {
-            if ($crc & 0x8000) {
-                $crc = ($crc << 1) ^ 0x1021;
-            } else {
-                $crc <<= 1;
-            }
-        }
-    }
-    return $crc & 0xFFFF;
-}
-
-$codigo_pix = '';
-if (!empty($chave_pix) && !empty($nome_pix) && !empty($cidade_pix)) {
-    $codigo_pix = gerarCodigoPIX($chave_pix, $nome_pix, $cidade_pix, $total_preco, 'Pedido #' . time());
-}
-
-// URL para gerar QR Code (usando API pública)
-$qr_code_url = '';
-if (!empty($codigo_pix)) {
-    $qr_code_url = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($codigo_pix);
-}
+// Usa apenas a chave PIX simples (sem QR Code, sem código EMV)
 ?>
 
 <style>
@@ -343,10 +273,10 @@ if (!empty($codigo_pix)) {
                 Pagamento via PIX
             </h1>
             <p class="text-center text-white/70 mb-12 text-lg">
-                Escaneie o QR Code ou copie o código para pagar
+                Copie a chave PIX abaixo e cole no app do seu banco para pagar
             </p>
             
-            <?php if (empty($chave_pix) || empty($nome_pix) || empty($cidade_pix)): ?>
+            <?php if (empty($chave_pix)): ?>
                 <div class="pix-card text-center">
                     <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl mb-4"></i>
                     <h2 class="text-2xl font-bold text-white mb-4">Chave PIX não configurada</h2>
@@ -390,38 +320,29 @@ if (!empty($codigo_pix)) {
                     </div>
                 </div>
                 
-                <!-- QR Code PIX -->
+                <!-- Chave PIX -->
                 <div class="lg:col-span-2">
                     <div class="pix-card text-center">
                         <div class="mb-8">
                             <h2 class="text-2xl font-bold text-white mb-3">
-                                Escaneie o QR Code
+                                Chave PIX para Pagamento
                             </h2>
                             <p class="text-white/70 text-base">
-                                Abra o app do seu banco e escaneie o QR Code abaixo
+                                Copie a chave PIX abaixo e cole no app do seu banco
                             </p>
                         </div>
                         
-                        <?php if (!empty($qr_code_url)): ?>
-                        <div class="qr-code-container mb-8">
-                            <img src="<?= htmlspecialchars($qr_code_url) ?>" 
-                                 alt="QR Code PIX" 
-                                 class="w-72 h-72 mx-auto"
-                                 style="width: 288px; height: 288px;">
-                        </div>
-                        <?php endif; ?>
-                        
-                        <!-- Código PIX Copiável -->
+                        <!-- Chave PIX Copiável -->
                         <div class="mb-8">
                             <label class="block text-sm font-medium text-white/90 mb-3">
-                                Ou copie o código PIX:
+                                Chave PIX:
                             </label>
-                            <div class="pix-code text-left mb-4" id="pix-code">
-                                <?= htmlspecialchars($codigo_pix) ?>
+                            <div class="pix-code text-center mb-4" id="pix-code" style="font-size: 1.1rem; padding: 1.5rem;">
+                                <?= htmlspecialchars($chave_pix) ?>
                             </div>
                             <button onclick="copiarCodigoPix()" class="copy-button">
                                 <i class="fas fa-copy mr-2"></i>
-                                Copiar Código PIX
+                                Copiar Chave PIX
                             </button>
                         </div>
                         
@@ -460,8 +381,8 @@ if (!empty($codigo_pix)) {
                                 <div class="flex items-start gap-3">
                                     <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">2</div>
                                     <div>
-                                        <p class="text-white font-medium mb-1">Escaneie ou cole o código</p>
-                                        <p class="text-white/60 text-sm">Use a câmera ou cole o código copiado</p>
+                                        <p class="text-white font-medium mb-1">Cole a chave PIX</p>
+                                        <p class="text-white/60 text-sm">Cole a chave PIX copiada no app do banco</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-3">
