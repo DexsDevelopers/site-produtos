@@ -652,7 +652,7 @@ require_once 'templates/header.php';
 
 /* Banners Principais */
 .adsly-banners-principais {
-    padding: 60px 0;
+    padding: 20px 0 60px;
     background: #000000;
     position: relative;
 }
