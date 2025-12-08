@@ -68,11 +68,12 @@ require_once 'templates/header.php';
 /* Estilo Adsly - Cores Vermelho e Preto com Efeitos Dopaminérgicos */
 .adsly-hero {
     background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    padding: 80px 0;
+    padding: 140px 0 80px;
     color: white;
     text-align: center;
     position: relative;
     overflow: hidden;
+    margin-top: 0;
 }
 
 .adsly-hero::before {
