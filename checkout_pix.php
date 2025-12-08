@@ -4,6 +4,41 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+require_once 'config.php';
+
+// Se recebeu produto_id via GET, adiciona ao carrinho primeiro
+if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
+    $produto_id = (int)$_GET['produto_id'];
+    $quantidade = max(1, (int)($_GET['quantidade'] ?? 1));
+    
+    if ($produto_id > 0) {
+        // Busca dados do produto
+        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, checkout_link FROM produtos WHERE id = ?");
+        $stmt->execute([$produto_id]);
+        $produto = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($produto) {
+            // Inicializa carrinho se não existir
+            if (!isset($_SESSION['carrinho'])) {
+                $_SESSION['carrinho'] = [];
+            }
+            
+            // Adiciona produto ao carrinho (substitui se já existir para garantir quantidade correta)
+            $_SESSION['carrinho'][$produto_id] = [
+                'id' => $produto['id'],
+                'nome' => $produto['nome'],
+                'preco' => $produto['preco'],
+                'imagem' => $produto['imagem'],
+                'checkout_link' => $produto['checkout_link'],
+                'quantidade' => $quantidade
+            ];
+            
+            // Redireciona para remover o produto_id da URL
+            header('Location: checkout_pix.php');
+            exit();
+        }
+    }
+}
 
 // Verifica se há itens no carrinho
 if (empty($_SESSION['carrinho'])) {

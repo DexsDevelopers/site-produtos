@@ -742,15 +742,10 @@ require_once 'templates/header.php';
                     </form>
                     
                     <!-- Botão Comprar Agora - Adiciona ao carrinho e vai para checkout PIX -->
-                    <form id="comprar-agora-form" style="display: inline;" action="checkout_pix.php" method="POST">
-                        <input type="hidden" name="produto_id" value="<?= $produto_selecionado['id'] ?>">
-                        <input type="hidden" name="quantidade" value="1">
-                        <input type="hidden" name="action" value="add_and_checkout">
-                        <button type="submit" class="btn-secondary">
-                            <i class="fas fa-qrcode"></i>
-                            Comprar Agora (PIX)
-                        </button>
-                    </form>
+                    <a href="checkout_pix.php?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1" class="btn-secondary">
+                        <i class="fas fa-qrcode"></i>
+                        Comprar Agora (PIX)
+                    </a>
                 </div>
             </div>
 </section>
