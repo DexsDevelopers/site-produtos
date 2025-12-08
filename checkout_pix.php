@@ -300,8 +300,12 @@ if (!empty($codigo_pix)) {
 }
 </style>
 
-<main>
-<div class="checkout-pix-container" style="min-height: 100vh; background: #000000; padding: 140px 0 80px; position: relative; z-index: 1;">
+<!-- TESTE: Conteúdo deve aparecer -->
+<div style="background: red; color: white; padding: 20px; text-align: center; font-size: 24px; z-index: 9999; position: relative;">
+    TESTE - Se você vê isso, o conteúdo está sendo renderizado!
+</div>
+
+<div class="checkout-pix-container" style="min-height: 100vh; background: #000000 !important; padding: 140px 0 80px !important; position: relative !important; z-index: 1 !important; display: block !important;">
     <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" style="position: relative; z-index: 2;">
         <div class="pt-8">
             <h1 class="text-4xl md:text-5xl font-black text-white mb-4 text-center" style="color: #ffffff !important; display: block !important;">
@@ -476,8 +480,6 @@ if (!empty($codigo_pix)) {
         </div>
     </div>
 </div>
-
-</main>
 
 <script>
 function copiarCodigoPix() {
