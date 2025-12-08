@@ -1198,7 +1198,7 @@ require_once 'templates/header.php';
         <?php endforeach; ?>
         
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="busca.php" class="btn-large" style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
+            <a href="busca.php?todos=1" class="btn-large" style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
                 <i class="fas fa-arrow-right"></i>
                 Ver Todos os Produtos
             </a>

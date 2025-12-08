@@ -160,6 +160,7 @@ $preco_max = (float)($_GET['preco_max'] ?? 0);
 $ordenar = htmlspecialchars(trim($_GET['ordenar'] ?? 'relevancia'), ENT_QUOTES, 'UTF-8');
 $pagina = max(1, (int)($_GET['pagina'] ?? 1));
 $itens_por_pagina = 12;
+$mostrar_todos = isset($_GET['todos']) && $_GET['todos'] == '1';
 
 $resultados = [];
 $total_resultados = 0;
@@ -168,8 +169,8 @@ $total_paginas = 0;
 // Busca categorias para o filtro
 $categorias = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// Se há termo de busca ou filtros, executa a consulta
-if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0) {
+// Se há termo de busca, filtros, ou se foi solicitado para mostrar todos os produtos, executa a consulta
+if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $mostrar_todos) {
     try {
         // Constrói a consulta SQL dinamicamente
         $where_conditions = [];
@@ -250,7 +251,9 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0) {
 <div class="w-full max-w-7xl mx-auto py-24 px-4">
     <div class="pt-16">
         <h1 class="text-3xl md:text-4xl font-black text-white">
-            <?php if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0): ?>
+            <?php if ($mostrar_todos): ?>
+                Todos os Produtos
+            <?php elseif (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0): ?>
                 Resultados da Busca
             <?php else: ?>
                 Buscar Produtos
