@@ -671,10 +671,12 @@ require_once 'templates/header.php';
 
 .banners-principais-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     position: relative;
     z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .banner-principal {
@@ -699,7 +701,8 @@ require_once 'templates/header.php';
 
 .banner-image {
     position: relative;
-    height: 300px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
 }
 
@@ -810,50 +813,114 @@ require_once 'templates/header.php';
 }
 
 .banners-categorias-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 2rem;
     position: relative;
     z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .banner-categoria {
     position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 0, 0, 0.2);
+    width: 120px;
 }
 
 .banner-categoria:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2);
+    transform: translateY(-5px) scale(1.05);
+}
+
+.banner-categoria .banner-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
 }
 
 .banner-categoria .banner-image {
-    height: 250px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(255, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    background: linear-gradient(135deg, #ff0000, #ff3333);
+    padding: 3px;
 }
 
-.banner-categoria .banner-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+.banner-categoria:hover .banner-image {
+    border-color: rgba(255, 0, 0, 0.6);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+    transform: scale(1.05);
 }
 
-.banner-categoria .banner-content p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
+.banner-categoria .banner-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
 }
 
-.banner-categoria .banner-cta {
-    padding: 10px 20px;
+.banner-categoria:hover .banner-image img {
+    transform: scale(1.1);
+}
+
+.banner-categoria .banner-overlay {
+    display: none;
+}
+
+.banner-categoria .category-name {
+    margin-top: 0.75rem;
     font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Estilo Instagram Stories para categorias */
+.banner-categoria .banner-image::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #ff0000, #ff3333, #ff0000);
+    background-size: 200% 200%;
+    animation: gradientRotate 3s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradientRotate {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
 }
 
 /* Responsividade */
 @media (max-width: 1200px) {
     .banners-principais-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
 }
 
@@ -872,15 +939,30 @@ require_once 'templates/header.php';
     }
 
     .banners-categorias-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1rem;
     }
 
-    .banner-principal .banner-image {
-        height: 250px;
+    .banner-categoria {
+        width: 100px;
     }
 
     .banner-categoria .banner-image {
-        height: 200px;
+        width: 100px;
+        height: 100px;
+    }
+
+    .banner-categoria .category-name {
+        font-size: 0.85rem;
+        max-width: 100px;
+    }
+
+    .banner-principal .banner-image {
+        aspect-ratio: 1 / 1;
+    }
+
+    .banner-categoria .banner-image {
+        aspect-ratio: 1 / 1;
     }
 
     .section-title {
@@ -898,7 +980,21 @@ require_once 'templates/header.php';
 
 @media (max-width: 480px) {
     .banners-categorias-grid {
-        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .banner-categoria {
+        width: 80px;
+    }
+
+    .banner-categoria .banner-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .banner-categoria .category-name {
+        font-size: 0.75rem;
+        max-width: 80px;
     }
 
     .banner-content {
@@ -977,19 +1073,8 @@ require_once 'templates/header.php';
                         <img src="<?= htmlspecialchars($banner['imagem']) ?>" 
                              alt="<?= htmlspecialchars($banner['titulo']) ?>"
                              loading="lazy">
-                        <div class="banner-overlay">
-                            <div class="banner-content">
-                                <h3><?= htmlspecialchars($banner['titulo']) ?></h3>
-                                <?php if (!empty($banner['descricao'])): ?>
-                                <p><?= htmlspecialchars($banner['descricao']) ?></p>
-                                <?php endif; ?>
-                                <span class="banner-cta">
-                                    <i class="fas fa-arrow-right"></i>
-                                    Explorar
-                                </span>
-                            </div>
-                        </div>
                     </div>
+                    <h3 class="category-name"><?= htmlspecialchars($banner['titulo']) ?></h3>
                 </a>
             </div>
             <?php endforeach; ?>
