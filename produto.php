@@ -873,11 +873,231 @@ require_once 'templates/header.php';
 </section>
 
 <!-- JavaScript para funcionalidade do carrinho -->
+<style>
+/* Popup de Sucesso - Estilo Moderno */
+.cart-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cart-popup-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid rgba(255, 69, 0, 0.3);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(255, 69, 0, 0.3);
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-popup.show .cart-popup-content {
+    transform: scale(1) translateY(0);
+}
+
+.cart-popup-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popupIconBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes popupIconBounce {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cart-popup-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.cart-popup-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    animation: fadeInUp 0.5s ease 0.2s both;
+}
+
+.cart-popup-message {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.5s ease 0.3s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-popup-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    animation: fadeInUp 0.5s ease 0.4s both;
+}
+
+.cart-popup-btn {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cart-popup-btn-primary {
+    background: linear-gradient(135deg, #ff4500, #ff6347);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+}
+
+.cart-popup-btn-primary:hover {
+    background: linear-gradient(135deg, #ff6347, #ff4500);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+}
+
+.cart-popup-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cart-popup-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+    .cart-popup-content {
+        padding: 2rem 1.5rem;
+    }
+    
+    .cart-popup-title {
+        font-size: 1.5rem;
+    }
+    
+    .cart-popup-buttons {
+        flex-direction: column;
+    }
+    
+    .cart-popup-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<div id="cart-popup" class="cart-popup">
+    <div class="cart-popup-content">
+        <div class="cart-popup-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2 class="cart-popup-title">Produto Adicionado!</h2>
+        <p class="cart-popup-message" id="cart-popup-message">O produto foi adicionado ao seu carrinho com sucesso.</p>
+        <div class="cart-popup-buttons">
+            <a href="carrinho.php" class="cart-popup-btn cart-popup-btn-primary">
+                <i class="fas fa-shopping-cart"></i>
+                Ver Carrinho
+            </a>
+            <button onclick="fecharCartPopup()" class="cart-popup-btn cart-popup-btn-secondary">
+                Continuar Comprando
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+function mostrarCartPopup(mensagem) {
+    const popup = document.getElementById('cart-popup');
+    const messageEl = document.getElementById('cart-popup-message');
+    
+    if (mensagem) {
+        messageEl.textContent = mensagem;
+    }
+    
+    popup.classList.add('show');
+    
+    // Fecha automaticamente após 4 segundos
+    setTimeout(() => {
+        fecharCartPopup();
+    }, 4000);
+}
+
+function fecharCartPopup() {
+    const popup = document.getElementById('cart-popup');
+    popup.classList.remove('show');
+}
+
+// Fecha ao clicar fora do popup
+document.getElementById('cart-popup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        fecharCartPopup();
+    }
+});
+
+// Adiciona produto ao carrinho
 document.getElementById('add-to-cart-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const formData = new FormData(this);
+    const form = this;
+    const button = form.querySelector('button[type="submit"]');
+    const originalText = button.innerHTML;
+    
+    // Animação de loading
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
+    
+    const formData = new FormData(form);
     
     fetch('adicionar_carrinho.php', {
         method: 'POST',
@@ -886,25 +1106,43 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function(
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Mostrar notificação de sucesso
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Produto adicionado!',
-                    text: 'O produto foi adicionado ao seu carrinho.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } else {
-                alert('Produto adicionado ao carrinho!');
+            // Atualiza contador do carrinho
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                const currentCount = parseInt(cartCount.textContent) || 0;
+                cartCount.textContent = data.cart_count || (currentCount + 1);
+                cartCount.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    cartCount.style.transform = 'scale(1)';
+                }, 300);
             }
+            
+            // Mostra popup bonito
+            const mensagem = data.produto_nome 
+                ? `${data.produto_nome} foi adicionado ao carrinho!`
+                : 'Produto adicionado ao carrinho com sucesso!';
+            mostrarCartPopup(mensagem);
+            
+            // Feedback visual no botão
+            button.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
+            button.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+                button.disabled = false;
+            }, 2000);
         } else {
-            alert('Erro ao adicionar produto ao carrinho.');
+            alert(data.message || 'Erro ao adicionar produto ao carrinho.');
+            button.innerHTML = originalText;
+            button.disabled = false;
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao adicionar produto ao carrinho.');
+        alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
+        button.innerHTML = originalText;
+        button.disabled = false;
     });
 });
 </script>
