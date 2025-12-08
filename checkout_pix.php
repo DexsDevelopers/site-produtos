@@ -423,11 +423,51 @@ try {
 
 <script>
 function copiarCodigoPix() {
-    const codigo = document.getElementById('pix-code').textContent.trim();
+    const pixCodeElement = document.getElementById('pix-code');
+    const codigo = pixCodeElement.textContent.trim();
     
-    navigator.clipboard.writeText(codigo).then(function() {
-        // Mostra feedback visual
-        const button = event.target.closest('button');
+    // Tenta usar a API moderna do clipboard primeiro
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codigo).then(function() {
+            mostrarFeedbackSucesso();
+        }).catch(function(err) {
+            // Se falhar, tenta método alternativo
+            copiarTextoFallback(codigo);
+        });
+    } else {
+        // Fallback para navegadores antigos
+        copiarTextoFallback(codigo);
+    }
+}
+
+function copiarTextoFallback(texto) {
+    // Cria um elemento temporário
+    const textarea = document.createElement('textarea');
+    textarea.value = texto;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-999999px';
+    textarea.style.top = '-999999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            mostrarFeedbackSucesso();
+        } else {
+            alert('Não foi possível copiar automaticamente. Selecione o texto e pressione Ctrl+C');
+        }
+    } catch (err) {
+        alert('Erro ao copiar. Selecione o texto manualmente e pressione Ctrl+C');
+    } finally {
+        document.body.removeChild(textarea);
+    }
+}
+
+function mostrarFeedbackSucesso() {
+    const button = document.querySelector('.copy-button');
+    if (button) {
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-check mr-2"></i>Copiado!';
         button.style.background = 'linear-gradient(45deg, #10B981, #059669)';
@@ -436,9 +476,7 @@ function copiarCodigoPix() {
             button.innerHTML = originalText;
             button.style.background = '';
         }, 2000);
-    }).catch(function(err) {
-        alert('Erro ao copiar. Selecione o código manualmente e pressione Ctrl+C');
-    });
+    }
 }
 </script>
 
