@@ -364,8 +364,9 @@ foreach ($carrinho_itens as $item) {
                         
                         <div class="mt-8 space-y-4">
                             <?php if (isset($_SESSION['user_id'])): ?>
-                                <a href="checkout.php" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">
-                                    Finalizar Compra
+                                <a href="checkout_pix.php" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">
+                                    <i class="fas fa-qrcode mr-2"></i>
+                                    Finalizar Compra (PIX)
                                 </a>
                             <?php else: ?>
                                 <a href="login.php" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">

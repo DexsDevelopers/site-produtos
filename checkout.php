@@ -43,17 +43,12 @@ foreach ($carrinho_itens as $item) {
                     </div>
                     
                     <div class="flex gap-2">
-                        <?php if (!empty($item['checkout_link'])): ?>
-                        <a href="<?= htmlspecialchars($item['checkout_link']) ?>" 
-                           target="_blank"
+                        <!-- Botão Comprar - Redireciona para checkout PIX -->
+                        <a href="checkout_pix.php" 
                            class="flex-1 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
-                            Comprar Este Produto
+                            <i class="fas fa-qrcode mr-2"></i>
+                            Pagar com PIX
                         </a>
-                        <?php else: ?>
-                        <div class="flex-1 bg-gray-500 text-white font-bold py-3 px-4 rounded-lg text-center">
-                            Link de Pagamento Não Disponível
-                        </div>
-                        <?php endif; ?>
                         <a href="produto.php?id=<?= $item['id'] ?>" 
                            class="bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
                             Ver Detalhes

@@ -24,6 +24,11 @@ try {
     die("Erro de conexão com o banco de dados. Verifique as configurações.");
 }
 
+// --- SISTEMA DE ARMAZENAMENTO PARA CHAVE PIX ---
+// Carrega FileStorage apenas para gerenciar chave PIX (mesmo usando banco para produtos)
+require_once __DIR__ . '/includes/file_storage.php';
+$fileStorage = new FileStorage();
+
 // --- FUNÇÕES GLOBAIS ---
 function formatarPreco($preco) {
     if (!is_numeric($preco)) { return 'R$ 0,00'; }
