@@ -741,11 +741,12 @@ require_once 'templates/header.php';
                         </button>
                     </form>
                     
-                    <!-- Botão Comprar Agora - Redireciona para checkout PIX -->
-                    <a href="checkout_pix.php" class="btn-secondary">
-                        <i class="fas fa-qrcode"></i>
-                        Comprar Agora (PIX)
-                    </a>
+                    <?php if (!empty($produto_selecionado['checkout_link'])): ?>
+                <a href="<?= htmlspecialchars($produto_selecionado['checkout_link']) ?>" target="_blank" class="btn-secondary">
+                    <i class="fas fa-credit-card"></i>
+                    Comprar Agora
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 </section>
