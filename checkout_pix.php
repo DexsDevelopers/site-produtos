@@ -247,6 +247,21 @@ try {
     text-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
 }
 
+/* Container do Total - Sticky apenas no desktop */
+.total-container {
+    position: sticky;
+    bottom: 0;
+    background: inherit;
+    z-index: 5;
+}
+
+@media (min-width: 1024px) {
+    .total-container {
+        position: sticky;
+        bottom: 0;
+    }
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .checkout-pix-container {
@@ -264,6 +279,34 @@ try {
     .qr-code-container img {
         width: 200px !important;
         height: 200px !important;
+    }
+    
+    /* Remove sticky no mobile para evitar sobreposição */
+    .pix-card.sticky {
+        position: relative !important;
+        top: auto !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+    
+    /* Remove sticky do total no mobile */
+    .pix-card .sticky.bottom-0 {
+        position: relative !important;
+        bottom: auto !important;
+    }
+    
+    /* Garante ordem correta no mobile */
+    .grid.grid-cols-1 {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .grid.grid-cols-1 > div:first-child {
+        order: 1;
+    }
+    
+    .grid.grid-cols-1 > div:last-child {
+        order: 2;
     }
 }
 </style>
@@ -314,7 +357,7 @@ try {
                             </div>
                             <?php endforeach; ?>
                             
-                            <div class="flex justify-between items-center pt-4 border-t-2 border-white/20 sticky bottom-0 bg-inherit pb-2" style="background: inherit;">
+                            <div class="flex justify-between items-center pt-4 border-t-2 border-white/20 pb-2 total-container">
                                 <span class="text-lg font-bold text-white">Total</span>
                                 <span class="text-2xl font-black price-highlight"><?= formatarPreco($total_preco) ?></span>
                             </div>
