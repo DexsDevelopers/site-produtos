@@ -111,11 +111,22 @@ try {
                 // Cria um usuário temporário para a avaliação
                 // Usa um email único baseado no nome
                 $email_temp = strtolower(str_replace(' ', '', $nome_usuario)) . rand(1000, 9999) . '@temp.com';
-                $stmt_create_user = $pdo->prepare("
-                    INSERT INTO usuarios (nome, email, senha, tipo) 
-                    VALUES (?, ?, ?, 'cliente')
-                ");
-                $stmt_create_user->execute([$nome_usuario, $email_temp, password_hash('temp123', PASSWORD_DEFAULT)]);
+                
+                // Tenta inserir com role, se não funcionar, tenta sem role
+                try {
+                    $stmt_create_user = $pdo->prepare("
+                        INSERT INTO usuarios (nome, email, senha, role) 
+                        VALUES (?, ?, ?, 'user')
+                    ");
+                    $stmt_create_user->execute([$nome_usuario, $email_temp, password_hash('temp123', PASSWORD_DEFAULT)]);
+                } catch (PDOException $e) {
+                    // Se a coluna role não existir, tenta sem ela
+                    $stmt_create_user = $pdo->prepare("
+                        INSERT INTO usuarios (nome, email, senha) 
+                        VALUES (?, ?, ?)
+                    ");
+                    $stmt_create_user->execute([$nome_usuario, $email_temp, password_hash('temp123', PASSWORD_DEFAULT)]);
+                }
                 $usuario_id = $pdo->lastInsertId();
             }
             
