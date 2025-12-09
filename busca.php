@@ -177,11 +177,23 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $
         $params = [];
         
         if (!empty($termo)) {
-            $where_conditions[] = "(nome LIKE ? OR descricao_curta LIKE ? OR descricao LIKE ?)";
+            // Remove acentos e caracteres especiais para busca mais flexível
+            $termo_limpo = preg_replace('/[^a-zA-Z0-9\s]/', '', $termo);
             $termo_busca = "%$termo%";
+            $termo_busca_limpo = "%$termo_limpo%";
+            
+            // Busca case-insensitive em múltiplos campos
+            // Busca no nome, descrição curta, descrição completa e até no nome da categoria
+            $where_conditions[] = "(
+                LOWER(p.nome) LIKE LOWER(?) OR 
+                LOWER(p.descricao_curta) LIKE LOWER(?) OR 
+                LOWER(p.descricao) LIKE LOWER(?) OR
+                LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(p.nome, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u')) LIKE LOWER(?)
+            )";
             $params[] = $termo_busca;
             $params[] = $termo_busca;
             $params[] = $termo_busca;
+            $params[] = $termo_busca_limpo;
         }
         
         if ($categoria_id > 0) {
@@ -201,28 +213,81 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $
         
         $where_clause = !empty($where_conditions) ? "WHERE " . implode(" AND ", $where_conditions) : "";
         
-        // Determina a ordenação
+        // Determina a ordenação com relevância para busca
         $order_clause = "ORDER BY ";
-        switch ($ordenar) {
-            case 'preco_asc':
-                $order_clause .= "preco ASC";
-                break;
-            case 'preco_desc':
-                $order_clause .= "preco DESC";
-                break;
-            case 'nome':
-                $order_clause .= "nome ASC";
-                break;
-            case 'relevancia':
-            default:
-                $order_clause .= "nome ASC";
-                break;
+        if (!empty($termo)) {
+            // Se há termo de busca, ordena por relevância (nome que começa com o termo primeiro)
+            switch ($ordenar) {
+                case 'preco_asc':
+                    $order_clause .= "CASE WHEN LOWER(p.nome) LIKE LOWER(?) THEN 0 ELSE 1 END, p.preco ASC";
+                    $params[] = $termo . "%";
+                    break;
+                case 'preco_desc':
+                    $order_clause .= "CASE WHEN LOWER(p.nome) LIKE LOWER(?) THEN 0 ELSE 1 END, p.preco DESC";
+                    $params[] = $termo . "%";
+                    break;
+                case 'nome':
+                    $order_clause .= "CASE WHEN LOWER(p.nome) LIKE LOWER(?) THEN 0 ELSE 1 END, p.nome ASC";
+                    $params[] = $termo . "%";
+                    break;
+                case 'relevancia':
+                default:
+                    // Ordena por relevância: produtos que começam com o termo primeiro, depois contêm o termo
+                    $order_clause .= "CASE 
+                        WHEN LOWER(p.nome) LIKE LOWER(?) THEN 1 
+                        WHEN LOWER(p.nome) LIKE LOWER(?) THEN 2 
+                        WHEN LOWER(p.descricao_curta) LIKE LOWER(?) THEN 3 
+                        ELSE 4 
+                    END, p.nome ASC";
+                    $params[] = $termo . "%";  // Começa com o termo
+                    $params[] = "%" . $termo . "%";  // Contém o termo
+                    $params[] = "%" . $termo . "%";  // Na descrição
+                    break;
+            }
+        } else {
+            // Sem termo de busca, ordena normalmente
+            switch ($ordenar) {
+                case 'preco_asc':
+                    $order_clause .= "p.preco ASC";
+                    break;
+                case 'preco_desc':
+                    $order_clause .= "p.preco DESC";
+                    break;
+                case 'nome':
+                    $order_clause .= "p.nome ASC";
+                    break;
+                case 'relevancia':
+                default:
+                    $order_clause .= "p.id DESC";
+                    break;
+            }
+        }
+        
+        // Prepara parâmetros para contagem (sem os parâmetros de ordenação)
+        $params_count = [];
+        if (!empty($termo)) {
+            $termo_busca = "%$termo%";
+            $termo_limpo = preg_replace('/[^a-zA-Z0-9\s]/', '', $termo);
+            $termo_busca_limpo = "%$termo_limpo%";
+            $params_count[] = $termo_busca;
+            $params_count[] = $termo_busca;
+            $params_count[] = $termo_busca;
+            $params_count[] = $termo_busca_limpo;
+        }
+        if ($categoria_id > 0) {
+            $params_count[] = $categoria_id;
+        }
+        if ($preco_min > 0) {
+            $params_count[] = $preco_min;
+        }
+        if ($preco_max > 0) {
+            $params_count[] = $preco_max;
         }
         
         // Conta o total de resultados
-        $count_sql = "SELECT COUNT(*) FROM produtos $where_clause";
+        $count_sql = "SELECT COUNT(*) FROM produtos p $where_clause";
         $count_stmt = $pdo->prepare($count_sql);
-        $count_stmt->execute($params);
+        $count_stmt->execute($params_count);
         $total_resultados = $count_stmt->fetchColumn();
         $total_paginas = ceil($total_resultados / $itens_por_pagina);
         
