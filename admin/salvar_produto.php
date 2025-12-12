@@ -11,7 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $preco = trim($_POST['preco']);
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
-    $checkout_link = trim($_POST['checkout_link']);
     
     if (empty($nome) || empty($preco) || empty($categoria_id) || !isset($_FILES['imagem']) || $_FILES['imagem']['error'] !== 0) {
         $_SESSION['admin_message'] = "Nome, Preço, Categoria e Imagem são obrigatórios.";
@@ -27,8 +26,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     if (move_uploaded_file($_FILES['imagem']['tmp_name'], $target_file)) {
         $imagem_path = "assets/uploads/" . $new_filename;
         try {
-            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id, checkout_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id, $checkout_link]);
+            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id]);
             $_SESSION['admin_message'] = "Produto adicionado com sucesso!";
         } catch (PDOException $e) {
             $_SESSION['admin_message'] = "Erro ao salvar o produto: " . $e->getMessage();
@@ -50,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $preco = trim($_POST['preco']);
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
-    $checkout_link = trim($_POST['checkout_link']);
 
     if (empty($nome) || empty($preco) || empty($id) || empty($categoria_id)) {
         $_SESSION['admin_message'] = "Nome, Preço e Categoria são obrigatórios.";
@@ -78,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     }
 
     try {
-        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id, checkout_link = :link WHERE id = :id";
+        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         
         // A MÁGICA ESTÁ AQUI: bindParam força o tipo de dado correto
@@ -89,7 +87,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         $stmt->bindParam(':preco_antigo', $preco_antigo);
         $stmt->bindParam(':img', $imagem_path);
         $stmt->bindParam(':cat_id', $categoria_id, PDO::PARAM_INT);
-        $stmt->bindParam(':link', $checkout_link);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Forçamos o ID a ser um INTEIRO
         
         $stmt->execute();
