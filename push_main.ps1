@@ -46,3 +46,6 @@ if ($LASTEXITCODE -eq 0 -and $pending -notmatch 'fatal' -and $pending.Trim()) {
 Write-Host "`n=== CONCLUÍDO ===" -ForegroundColor Cyan
 Write-Host ""
 
+
+
+
