@@ -537,12 +537,30 @@ class SumUpAPI {
                             $pix_code = $content;
                         } elseif ($location) {
                             // Se não tiver content, faz requisição para obter do location
-                            // O location é uma URL completa, então precisamos extrair o path
-                            $location_path = parse_url($location, PHP_URL_PATH);
-                            if ($location_path) {
-                                $pix_content_response = $this->makeRequest('GET', $location_path);
+                            // O location pode ser uma URL completa ou um path relativo
+                            if (strpos($location, 'http') === 0) {
+                                // URL completa - faz requisição direta
+                                $ch = curl_init();
+                                curl_setopt_array($ch, [
+                                    CURLOPT_URL => $location,
+                                    CURLOPT_RETURNTRANSFER => true,
+                                    CURLOPT_HTTPHEADER => [
+                                        'Authorization: Bearer ' . $this->api_key
+                                    ],
+                                    CURLOPT_SSL_VERIFYPEER => true,
+                                    CURLOPT_TIMEOUT => 30
+                                ]);
+                                $pix_response = curl_exec($ch);
+                                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                curl_close($ch);
+                                
+                                if ($http_code >= 200 && $http_code < 300) {
+                                    $pix_code = trim($pix_response);
+                                }
+                            } else {
+                                // Path relativo - usa makeRequest
+                                $pix_content_response = $this->makeRequest('GET', $location);
                                 if ($pix_content_response['success']) {
-                                    // A resposta pode ser o código diretamente ou um objeto
                                     $pix_code = is_string($pix_content_response['data']) 
                                         ? $pix_content_response['data'] 
                                         : ($pix_content_response['data']['content'] ?? $pix_content_response['data']['code'] ?? null);
