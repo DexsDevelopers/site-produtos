@@ -99,9 +99,15 @@ require_once 'templates/header_admin.php';
                     </span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-admin-gray-400">API Key:</span>
+                    <span class="text-admin-gray-400">API Key Privada:</span>
                     <span class="text-white font-mono text-xs break-all">
                         <?= !empty($api_key_atual) ? substr($api_key_atual, 0, 20) . '...' . substr($api_key_atual, -10) : 'Não configurada' ?>
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-admin-gray-400">API Key Pública:</span>
+                    <span class="text-white font-mono text-xs break-all">
+                        <?= !empty($api_key_public_atual) ? substr($api_key_public_atual, 0, 20) . '...' . substr($api_key_public_atual, -10) : 'Não configurada' ?>
                     </span>
                 </div>
                 <div class="flex justify-between items-center">
