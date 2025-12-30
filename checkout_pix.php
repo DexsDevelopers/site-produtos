@@ -917,6 +917,112 @@ function copiarCodigoPixSumUp() {
     }
 }
 
+// Iniciar polling para verificar código PIX
+function iniciarPollingPix(checkoutId) {
+    const statusElement = document.getElementById('pix-polling-status');
+    const resultElement = document.getElementById('pix-sumup-result');
+    let tentativas = 0;
+    const maxTentativas = 10; // 10 tentativas = 30 segundos (3s cada)
+    
+    const verificarPix = async () => {
+        try {
+            tentativas++;
+            
+            if (statusElement) {
+                statusElement.textContent = `Verificando código PIX... (${tentativas}/${maxTentativas})`;
+            }
+            
+            const response = await fetch(`sumup_verificar_pix.php?checkout_id=${encodeURIComponent(checkoutId)}`);
+            
+            if (!response.ok) {
+                throw new Error('Erro HTTP: ' + response.status);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.pix_code) {
+                // Código PIX encontrado!
+                if (statusElement) {
+                    statusElement.textContent = '✓ Código PIX gerado com sucesso!';
+                }
+                
+                // Atualiza a interface com o código PIX
+                let html = '<div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">';
+                html += '<h3 class="text-white font-bold mb-3">Código PIX Gerado</h3>';
+                
+                html += '<div class="mb-4">';
+                html += '<label class="block text-sm text-white/70 mb-2">Código PIX (Copia e Cola):</label>';
+                html += '<div class="p-3 bg-black/50 rounded border border-white/10 font-mono text-sm text-white break-all" id="pix-code-sumup">' + data.pix_code + '</div>';
+                html += '<button onclick="copiarCodigoPixSumUp()" class="mt-2 copy-button">';
+                html += '<i class="fas fa-copy mr-2"></i>Copiar Código PIX';
+                html += '</button>';
+                html += '</div>';
+                
+                if (data.pix_qr_code) {
+                    html += '<div class="mb-4">';
+                    html += '<label class="block text-sm text-white/70 mb-2">QR Code PIX:</label>';
+                    html += '<div class="flex justify-center">';
+                    html += '<img src="' + data.pix_qr_code + '" alt="QR Code PIX" class="w-64 h-64 border border-white/10 rounded-lg p-2 bg-white">';
+                    html += '</div>';
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+                
+                if (resultElement) {
+                    resultElement.innerHTML = html;
+                    resultElement.classList.remove('hidden');
+                }
+                
+                return; // Para o polling
+            } else if (data.checkout_status === 'PAID' || data.checkout_status === 'FAILED') {
+                // Checkout finalizado (pago ou falhou)
+                if (statusElement) {
+                    statusElement.textContent = data.checkout_status === 'PAID' 
+                        ? '✓ Pagamento confirmado!' 
+                        : '✗ Pagamento falhou';
+                }
+                return; // Para o polling
+            } else if (tentativas >= maxTentativas) {
+                // Limite de tentativas atingido
+                if (statusElement) {
+                    statusElement.textContent = '⏱ Tempo esgotado. O código PIX pode não estar disponível via API.';
+                }
+                
+                // Mostra mensagem alternativa
+                if (resultElement) {
+                    let html = '<div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">';
+                    html += '<h3 class="text-white font-bold mb-3">Aguardando Código PIX</h3>';
+                    html += '<p class="text-white/90 text-sm mb-2">O código PIX pode não estar disponível imediatamente via API.</p>';
+                    html += '<p class="text-white/70 text-xs mb-4">ID do Checkout: ' + checkoutId + '</p>';
+                    html += '<p class="text-white/70 text-xs">Verifique o status do pagamento no painel da SumUp ou tente novamente mais tarde.</p>';
+                    html += '</div>';
+                    resultElement.innerHTML = html;
+                    resultElement.classList.remove('hidden');
+                }
+                return; // Para o polling
+            } else {
+                // Continua verificando
+                setTimeout(verificarPix, 3000); // Verifica novamente em 3 segundos
+            }
+        } catch (error) {
+            console.error('Erro ao verificar PIX:', error);
+            
+            if (tentativas >= maxTentativas) {
+                if (statusElement) {
+                    statusElement.textContent = '✗ Erro ao verificar código PIX. Tente novamente.';
+                }
+                return; // Para o polling
+            } else {
+                setTimeout(verificarPix, 3000); // Tenta novamente em 3 segundos
+            }
+        }
+    };
+    
+    // Inicia a primeira verificação após 3 segundos
+    setTimeout(verificarPix, 3000);
+}
+
 // Inicializa SumUpCard para pagamento com cartão
 <?php if ($cartao_sumup_habilitado && $sumup_habilitado): ?>
 let sumupCardInstance = null;
