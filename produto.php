@@ -77,6 +77,12 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, loja online';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
+// Verifica métodos de pagamento disponíveis
+require_once 'includes/payment_helper.php';
+$paymentHelper = new PaymentHelper($pdo);
+$checkout_url = $paymentHelper->getCheckoutUrl();
+$checkout_button_text = $paymentHelper->getCheckoutButtonText();
+
 require_once 'templates/header.php';
 ?>
 
