@@ -918,9 +918,38 @@ async function inicializarSumUpCard(checkoutId) {
             }
         } else {
             console.error('Erro ao obter chave pública SumUp:', data.message);
+            alert('Erro ao carregar formulário de pagamento. Tente novamente.');
         }
     } catch (error) {
         console.error('Erro ao inicializar SumUpCard:', error);
+        alert('Erro ao carregar formulário de pagamento. Tente novamente.');
+    }
+}
+
+async function processarPagamentoCartao(checkoutId, token) {
+    try {
+        const response = await fetch('sumup_processar_pagamento.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                checkout_id: checkoutId,
+                token: token
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Redireciona para página de sucesso
+            window.location.href = 'pagamento_sucesso.php?checkout_id=' + checkoutId;
+        } else {
+            alert('Erro ao processar pagamento: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Erro ao processar pagamento:', error);
+        alert('Erro ao processar pagamento. Tente novamente.');
     }
 }
 
@@ -938,10 +967,19 @@ function montarSumUpCard(checkoutId, publicKey) {
             containerId: 'sumup-card',
             onLoad: function() {
                 console.log('SumUpCard carregado com sucesso');
+                const btnPagar = document.getElementById('btn-pagar-cartao');
+                if (btnPagar) {
+                    btnPagar.classList.remove('hidden');
+                }
             },
             onError: function(error) {
                 console.error('Erro no SumUpCard:', error);
-                container.innerHTML = '<p class="text-red-400">Erro ao carregar formulário de cartão. Tente novamente.</p>';
+                container.innerHTML = '<p class="text-red-400 text-center">Erro ao carregar formulário de cartão. Tente novamente.</p>';
+            },
+            onTokenize: function(token) {
+                // Token gerado - processa o pagamento
+                console.log('Token gerado:', token);
+                processarPagamentoCartao(checkoutId, token);
             }
         });
     } catch (error) {
