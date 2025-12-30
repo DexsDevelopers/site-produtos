@@ -23,7 +23,7 @@ if ($produto_id <= 0) {
 
 try {
     // Busca dados do produto
-    $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, checkout_link FROM produtos WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, nome, preco, imagem FROM produtos WHERE id = ?");
     $stmt->execute([$produto_id]);
     $produto = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -46,7 +46,6 @@ try {
             'nome' => $produto['nome'],
             'preco' => $produto['preco'],
             'imagem' => $produto['imagem'],
-            'checkout_link' => $produto['checkout_link'],
             'quantidade' => $quantidade
         ];
     }
