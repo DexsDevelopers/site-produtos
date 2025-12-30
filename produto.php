@@ -747,11 +747,6 @@ require_once 'templates/header.php';
                         <i class="fas fa-shopping-bag"></i>
                         <?= htmlspecialchars($checkout_button_text) ?>
                     </a>
-                    <?php else: ?>
-                    <button class="btn-secondary" disabled title="Nenhum método de pagamento configurado">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Pagamento Indisponível
-                    </button>
                     <?php endif; ?>
                 </div>
             </div>
