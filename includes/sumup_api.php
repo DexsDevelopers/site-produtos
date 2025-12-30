@@ -478,12 +478,14 @@ class SumUpAPI {
         }
         
         // Prepara dados do checkout PIX
+        // Nota: A SumUp pode não suportar payment_type='pix' diretamente
+        // Pode ser necessário criar um checkout normal e depois obter o código PIX
         $data = [
             'merchant_code' => $this->merchant_code,
             'amount' => (float)$amount,
             'currency' => $currency,
-            'checkout_reference' => $checkout_reference,
-            'payment_type' => 'pix' // Especifica que é PIX
+            'checkout_reference' => $checkout_reference
+            // Removido 'payment_type' pois pode não ser suportado pela API
         ];
         
         // Adiciona dados do cliente se fornecidos
@@ -557,11 +559,26 @@ class SumUpAPI {
                 }
             }
             
+            // Tenta obter redirect_url de diferentes lugares
+            $redirect_url = $checkout_details['redirect_url'] ?? 
+                          $checkout_details['checkout_url'] ?? 
+                          $checkout_details['url'] ?? 
+                          $response['data']['redirect_url'] ?? 
+                          $response['data']['checkout_url'] ?? 
+                          $response['data']['url'] ?? 
+                          null;
+            
+            // Se não encontrou redirect_url, tenta construir a partir do checkout_id
+            if (!$redirect_url && $checkout_id) {
+                // A SumUp pode usar um padrão de URL para checkouts
+                $redirect_url = 'https://checkout.sumup.com/checkout/' . $checkout_id;
+            }
+            
             return [
                 'success' => true,
                 'checkout_id' => $checkout_id,
                 'checkout_reference' => $checkout_reference,
-                'redirect_url' => $checkout_details['redirect_url'] ?? $response['data']['redirect_url'] ?? null,
+                'redirect_url' => $redirect_url,
                 'pix_code' => $pix_code,
                 'pix_qr_code' => $pix_qr_code,
                 'data' => $checkout_details,

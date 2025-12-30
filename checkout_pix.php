@@ -761,9 +761,20 @@ async function processarPixSumUp() {
             // Se houver redirect_url, mostra botão para abrir checkout
             if (data.redirect_url) {
                 html += '<div class="mt-4">';
-                html += '<p class="text-white/70 text-sm mb-3">Clique no botão abaixo para acessar o checkout da SumUp e visualizar o código PIX:</p>';
-                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">';
-                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
+                html += '<p class="text-white/90 text-sm mb-3 font-semibold">✓ Checkout criado com sucesso!</p>';
+                html += '<p class="text-white/70 text-sm mb-3">O código PIX será exibido na página do checkout da SumUp. Clique no botão abaixo para acessar:</p>';
+                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center">';
+                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp para Gerar PIX';
+                html += '</a>';
+                html += '</div>';
+            } else if (data.checkout_id) {
+                // Se não houver redirect_url mas houver checkout_id, tenta construir a URL
+                const checkoutUrl = 'https://checkout.sumup.com/checkout/' + data.checkout_id;
+                html += '<div class="mt-4">';
+                html += '<p class="text-white/90 text-sm mb-3 font-semibold">✓ Checkout criado com sucesso!</p>';
+                html += '<p class="text-white/70 text-sm mb-3">O código PIX será exibido na página do checkout da SumUp. Clique no botão abaixo para acessar:</p>';
+                html += '<a href="' + checkoutUrl + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center">';
+                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp para Gerar PIX';
                 html += '</a>';
                 html += '</div>';
             }
