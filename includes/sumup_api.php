@@ -73,12 +73,13 @@ class SumUpAPI {
             $checkout_reference = 'CHECKOUT_' . time() . '_' . uniqid();
         }
         
-        // Prepara dados do checkout
+        // Prepara dados do checkout conforme documentação SumUp
+        // POST https://api.sumup.com/v0.1/checkouts
         $data = [
-            'merchant_code' => $this->merchant_code,
             'amount' => (float)$amount,
             'currency' => $currency,
-            'checkout_reference' => $checkout_reference
+            'checkout_reference' => $checkout_reference,
+            'merchant_code' => $this->merchant_code
         ];
         
         // Adiciona dados do cliente se fornecidos
@@ -477,15 +478,14 @@ class SumUpAPI {
             $checkout_reference = 'PIX_' . time() . '_' . uniqid();
         }
         
-        // Prepara dados do checkout PIX
-        // Nota: A SumUp pode não suportar payment_type='pix' diretamente
-        // Pode ser necessário criar um checkout normal e depois obter o código PIX
+        // Prepara dados do checkout PIX conforme documentação SumUp
+        // POST https://api.sumup.com/v0.1/checkouts
+        // Para PIX, a SumUp retorna o código em um objeto 'pix' com 'artefacts'
         $data = [
-            'merchant_code' => $this->merchant_code,
             'amount' => (float)$amount,
             'currency' => $currency,
-            'checkout_reference' => $checkout_reference
-            // Removido 'payment_type' pois pode não ser suportado pela API
+            'checkout_reference' => $checkout_reference,
+            'merchant_code' => $this->merchant_code
         ];
         
         // Adiciona dados do cliente se fornecidos

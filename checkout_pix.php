@@ -877,6 +877,62 @@ function copiarCodigoPixSumUp() {
     }
 }
 
+// Inicializa SumUpCard para pagamento com cartão
+<?php if ($cartao_sumup_habilitado && $sumup_habilitado): ?>
+let sumupCardInstance = null;
+
+async function inicializarSumUpCard(checkoutId) {
+    try {
+        // Obtém chave pública da SumUp
+        const response = await fetch('sumup_get_public_key.php');
+        const data = await response.json();
+        
+        if (data.success && data.public_key) {
+            // Carrega o SDK da SumUp se ainda não estiver carregado
+            if (typeof SumUpCard === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://gateway.sumup.com/gateway/ecom/card/v2/sumup-card.js';
+                script.onload = function() {
+                    montarSumUpCard(checkoutId, data.public_key);
+                };
+                document.head.appendChild(script);
+            } else {
+                montarSumUpCard(checkoutId, data.public_key);
+            }
+        } else {
+            console.error('Erro ao obter chave pública SumUp:', data.message);
+        }
+    } catch (error) {
+        console.error('Erro ao inicializar SumUpCard:', error);
+    }
+}
+
+function montarSumUpCard(checkoutId, publicKey) {
+    const container = document.getElementById('sumup-card-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div id="sumup-card"></div>';
+    container.classList.remove('hidden');
+    
+    try {
+        sumupCardInstance = SumUpCard.mount({
+            checkoutId: checkoutId,
+            publicKey: publicKey,
+            containerId: 'sumup-card',
+            onLoad: function() {
+                console.log('SumUpCard carregado com sucesso');
+            },
+            onError: function(error) {
+                console.error('Erro no SumUpCard:', error);
+                container.innerHTML = '<p class="text-red-400">Erro ao carregar formulário de cartão. Tente novamente.</p>';
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao montar SumUpCard:', error);
+    }
+}
+<?php endif; ?>
+
 // Se houver apenas um método, mostra automaticamente
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (!empty($metodos_disponiveis)): ?>
