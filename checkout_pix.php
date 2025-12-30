@@ -589,6 +589,18 @@ try {
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                         <p class="text-white/70 mt-2">Processando...</p>
                     </div>
+                    
+                    <!-- Container para SumUpCard (formulário de cartão) -->
+                    <div id="sumup-card-container" class="hidden mt-6">
+                        <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <h3 class="text-white font-bold mb-4">Dados do Cartão</h3>
+                            <div id="sumup-card"></div>
+                            <button id="btn-pagar-cartao" class="hidden mt-4 copy-button w-full">
+                                <i class="fas fa-lock mr-2"></i>
+                                Finalizar Pagamento
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -840,9 +852,14 @@ async function processarCartaoSumUp() {
         const data = await response.json();
         
         if (data.success) {
+            loading.classList.add('hidden');
+            
             if (data.redirect_url) {
-                // Redireciona para o checkout da SumUp
+                // Se houver redirect_url, redireciona para o checkout da SumUp
                 window.location.href = data.redirect_url;
+            } else if (data.checkout_id) {
+                // Se não houver redirect_url mas houver checkout_id, inicializa SumUpCard
+                await inicializarSumUpCard(data.checkout_id);
             } else {
                 alert('Checkout criado! ID: ' + data.checkout_id);
             }
