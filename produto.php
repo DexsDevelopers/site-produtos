@@ -741,11 +741,18 @@ require_once 'templates/header.php';
                         </button>
                     </form>
                     
-                    <!-- Botão Comprar Agora - Adiciona ao carrinho e vai para checkout PIX -->
-                    <a href="checkout_pix.php?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1" class="btn-secondary">
-                        <i class="fas fa-qrcode"></i>
-                        Comprar Agora (PIX)
+                    <!-- Botão Comprar Agora - Redireciona para checkout baseado nos métodos habilitados -->
+                    <?php if ($checkout_url): ?>
+                    <a href="<?= $checkout_url ?>?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1" class="btn-secondary">
+                        <i class="fas fa-shopping-bag"></i>
+                        <?= htmlspecialchars($checkout_button_text) ?>
                     </a>
+                    <?php else: ?>
+                    <button class="btn-secondary" disabled title="Nenhum método de pagamento configurado">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Pagamento Indisponível
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
 </section>

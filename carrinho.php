@@ -3,6 +3,12 @@
 session_start();
 require_once 'config.php';
 
+// Verifica métodos de pagamento disponíveis
+require_once 'includes/payment_helper.php';
+$paymentHelper = new PaymentHelper($pdo);
+$checkout_url = $paymentHelper->getCheckoutUrl();
+$checkout_button_text = $paymentHelper->getCheckoutButtonText();
+
 // Processa ações do carrinho ANTES do header para evitar HTML em respostas JSON
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Limpa output apenas se o buffer foi iniciado por nós (não por auto_prepend)
@@ -367,10 +373,17 @@ foreach ($carrinho_itens as $item) {
                         
                         <div class="mt-8 space-y-4">
                             <?php if (isset($_SESSION['user_id'])): ?>
-                                <a href="checkout_pix.php" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">
-                                    <i class="fas fa-qrcode mr-2"></i>
-                                    Finalizar Compra (PIX)
+                                <?php if ($checkout_url): ?>
+                                <a href="<?= $checkout_url ?>" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">
+                                    <i class="fas fa-shopping-bag mr-2"></i>
+                                    <?= htmlspecialchars($checkout_button_text) ?>
                                 </a>
+                                <?php else: ?>
+                                <button class="block w-full bg-gray-600 text-white font-bold py-4 rounded-lg cursor-not-allowed" disabled>
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    Nenhum método de pagamento configurado
+                                </button>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <a href="login.php" class="block w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 rounded-lg transition-colors text-center">
                                     Fazer Login para Finalizar Compra
