@@ -83,6 +83,7 @@ $payment_type = $post_data['payment_type'] ?? 'card'; // 'pix' ou 'card'
 $sumup = new SumUpAPI($pdo);
 
 if (!$sumup->isConfigured()) {
+    error_log("SumUp não está configurada. Verifique as credenciais no painel administrativo.");
     echo json_encode([
         'success' => false,
         'message' => 'SumUp não está configurada. Configure no painel administrativo.'

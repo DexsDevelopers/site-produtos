@@ -848,7 +848,21 @@ async function processarPixSumUp() {
             result.classList.remove('hidden'); // Mostra o resultado
         } else {
             console.error('Erro SumUp:', data);
-            alert('Erro: ' + (data.message || 'Erro desconhecido ao gerar PIX'));
+            
+            // Mensagem de erro mais detalhada
+            let errorMessage = 'Erro ao gerar checkout PIX.';
+            if (data.message) {
+                errorMessage = data.message;
+            } else if (data.http_code) {
+                errorMessage = `Erro HTTP ${data.http_code}: ${data.message || 'Erro desconhecido'}`;
+            }
+            
+            // Se houver resposta da API, mostra mais detalhes
+            if (data.response) {
+                console.error('Resposta completa da API:', data.response);
+            }
+            
+            alert(errorMessage + '\n\nVerifique se as credenciais da SumUp estão configuradas corretamente.');
             btn.disabled = false;
             loading.classList.add('hidden');
         }

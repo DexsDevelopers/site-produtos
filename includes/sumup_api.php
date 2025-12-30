@@ -191,10 +191,26 @@ class SumUpAPI {
             ];
         }
         
+        // Log detalhado do erro
+        error_log("SumUp API Error - HTTP Code: $http_code, URL: $url, Response: " . substr($response, 0, 500));
+        
+        // Tenta extrair mensagem de erro mais específica
+        $error_message = 'Erro na requisição à API SumUp';
+        if (isset($response_data['message'])) {
+            $error_message = $response_data['message'];
+        } elseif (isset($response_data['error'])) {
+            $error_message = is_string($response_data['error']) ? $response_data['error'] : ($response_data['error']['message'] ?? $error_message);
+        } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
+            $error_message = implode(', ', array_column($response_data['errors'], 'message'));
+        } elseif (!empty($response_data)) {
+            $error_message = 'Erro na API: ' . json_encode($response_data);
+        }
+        
         return [
             'success' => false,
-            'message' => $response_data['message'] ?? 'Erro na requisição à API SumUp',
+            'message' => $error_message,
             'http_code' => $http_code,
+            'response' => $response_data
             'data' => $response_data
         ];
     }
