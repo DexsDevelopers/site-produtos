@@ -768,14 +768,11 @@ async function processarPixSumUp() {
                 html += '</a>';
                 html += '</div>';
             } else if (data.checkout_id) {
-                // Se não houver redirect_url mas houver checkout_id, tenta construir a URL
-                const checkoutUrl = 'https://checkout.sumup.com/checkout/' + data.checkout_id;
-                html += '<div class="mt-4">';
-                html += '<p class="text-white/90 text-sm mb-3 font-semibold">✓ Checkout criado com sucesso!</p>';
-                html += '<p class="text-white/70 text-sm mb-3">O código PIX será exibido na página do checkout da SumUp. Clique no botão abaixo para acessar:</p>';
-                html += '<a href="' + checkoutUrl + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center">';
-                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp para Gerar PIX';
-                html += '</a>';
+                // Se não houver redirect_url, informa que o código PIX não está disponível via API
+                html += '<div class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded">';
+                html += '<p class="text-white/90 text-sm mb-2 font-semibold">⚠ Checkout criado, mas código PIX não disponível</p>';
+                html += '<p class="text-white/70 text-xs mb-2">ID do Checkout: ' + data.checkout_id + '</p>';
+                html += '<p class="text-white/70 text-xs">A SumUp pode não fornecer o código PIX diretamente via API. Verifique o painel administrativo da SumUp ou entre em contato com o suporte.</p>';
                 html += '</div>';
             }
             

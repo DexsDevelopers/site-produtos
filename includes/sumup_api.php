@@ -563,15 +563,31 @@ class SumUpAPI {
             $redirect_url = $checkout_details['redirect_url'] ?? 
                           $checkout_details['checkout_url'] ?? 
                           $checkout_details['url'] ?? 
+                          $checkout_details['links']['checkout_url'] ?? 
+                          $checkout_details['links']['redirect_url'] ?? 
                           $response['data']['redirect_url'] ?? 
                           $response['data']['checkout_url'] ?? 
                           $response['data']['url'] ?? 
+                          $response['data']['links']['checkout_url'] ?? 
+                          $response['data']['links']['redirect_url'] ?? 
                           null;
             
-            // Se não encontrou redirect_url, tenta construir a partir do checkout_id
+            // Se não encontrou redirect_url, verifica se há links na resposta
+            if (!$redirect_url && isset($checkout_details['links']) && is_array($checkout_details['links'])) {
+                foreach ($checkout_details['links'] as $link) {
+                    if (isset($link['rel']) && ($link['rel'] === 'checkout' || $link['rel'] === 'redirect')) {
+                        $redirect_url = $link['href'] ?? null;
+                        if ($redirect_url) break;
+                    }
+                }
+            }
+            
+            // Se ainda não encontrou, tenta usar o formato correto da SumUp
+            // A SumUp usa: https://me.sumup.com/checkout/{checkout_id} ou similar
             if (!$redirect_url && $checkout_id) {
-                // A SumUp pode usar um padrão de URL para checkouts
-                $redirect_url = 'https://checkout.sumup.com/checkout/' . $checkout_id;
+                // Não construímos URL manualmente - a SumUp deve fornecer
+                // Se não forneceu, pode ser que PIX não esteja disponível via API
+                error_log("SumUp não retornou redirect_url para checkout_id: " . $checkout_id);
             }
             
             return [
