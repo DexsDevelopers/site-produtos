@@ -931,6 +931,7 @@ function iniciarPollingPix(checkoutId) {
     const resultElement = document.getElementById('pix-sumup-result');
     let tentativas = 0;
     const maxTentativas = 10; // 10 tentativas = 30 segundos (3s cada)
+    const tentativasParaRedirecionar = 3; // Após 3 tentativas, redireciona para checkout SumUp
     
     const verificarPix = async () => {
         try {
@@ -996,6 +997,23 @@ function iniciarPollingPix(checkoutId) {
                         ? '✓ Pagamento confirmado!' 
                         : '✗ Pagamento falhou';
                 }
+                return; // Para o polling
+            } else if (tentativas >= tentativasParaRedirecionar && !data.has_pix) {
+                // Após 3 tentativas sem código PIX, redireciona para checkout SumUp
+                console.log('Após 3 tentativas, código PIX não disponível via API. Redirecionando para checkout SumUp...');
+                
+                if (statusElement) {
+                    statusElement.textContent = 'Gerando código de pagamento seguro...';
+                }
+                
+                // Constrói URL de checkout da SumUp
+                const checkoutUrl = 'https://checkout.sumup.com/checkouts/' + checkoutId;
+                
+                // Mostra mensagem amigável antes de redirecionar
+                setTimeout(() => {
+                    window.location.href = checkoutUrl;
+                }, 1000); // Aguarda 1 segundo para mostrar a mensagem
+                
                 return; // Para o polling
             } else if (tentativas >= maxTentativas) {
                 // Limite de tentativas atingido

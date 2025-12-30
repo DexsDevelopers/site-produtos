@@ -623,12 +623,11 @@ class SumUpAPI {
                 }
             }
             
-            // Se ainda não encontrou, tenta usar o formato correto da SumUp
-            // A SumUp usa: https://me.sumup.com/checkout/{checkout_id} ou similar
-            if (!$redirect_url && $checkout_id) {
-                // Não construímos URL manualmente - a SumUp deve fornecer
-                // Se não forneceu, pode ser que PIX não esteja disponível via API
-                error_log("SumUp não retornou redirect_url para checkout_id: " . $checkout_id);
+            // Se ainda não encontrou redirect_url e não há código PIX, constrói URL de checkout
+            // A SumUp usa: https://checkout.sumup.com/checkouts/{checkout_id}
+            if (!$redirect_url && !$pix_code && $checkout_id) {
+                $redirect_url = 'https://checkout.sumup.com/checkouts/' . $checkout_id;
+                error_log("SumUp não retornou redirect_url nem pix_code. Construindo URL: " . $redirect_url);
             }
             
             return [

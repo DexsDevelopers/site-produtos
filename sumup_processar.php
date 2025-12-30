@@ -129,11 +129,18 @@ if ($payment_type === 'pix') {
         $raw_data = $result['data'] ?? null;
         $has_pix = isset($raw_data['pix']) || isset($result['raw_response']['pix']);
         
+        // Se não encontrou código PIX, retorna URL de checkout da SumUp
+        $redirect_url = $result['redirect_url'] ?? $result['data']['redirect_url'] ?? null;
+        if (!$pix_code && !$redirect_url && isset($result['checkout_id'])) {
+            // Constrói URL de checkout da SumUp: https://checkout.sumup.com/checkouts/{checkout_id}
+            $redirect_url = 'https://checkout.sumup.com/checkouts/' . $result['checkout_id'];
+        }
+        
         echo json_encode([
             'success' => true,
             'checkout_id' => $result['checkout_id'],
             'checkout_reference' => $checkout_reference,
-            'redirect_url' => $result['redirect_url'] ?? $result['data']['redirect_url'] ?? null,
+            'redirect_url' => $redirect_url,
             'pix_code' => $pix_code,
             'pix_qr_code' => $pix_qr_code,
             'raw_data' => $raw_data, // Inclui dados completos para debug
