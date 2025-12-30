@@ -13,20 +13,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $api_key = trim($_POST['api_key'] ?? '');
     $merchant_code = trim($_POST['merchant_code'] ?? '');
     
+    // Configurações de métodos de pagamento
+    $pix_manual_enabled = isset($_POST['pix_manual_enabled']) && $_POST['pix_manual_enabled'] === '1';
+    $pix_sumup_enabled = isset($_POST['pix_sumup_enabled']) && $_POST['pix_sumup_enabled'] === '1';
+    $cartao_sumup_enabled = isset($_POST['cartao_sumup_enabled']) && $_POST['cartao_sumup_enabled'] === '1';
+    
     // Validações
     $erros = [];
     
-    if (empty($api_key)) {
-        $erros[] = 'A API Key é obrigatória.';
-    }
-    
-    if (empty($merchant_code)) {
-        $erros[] = 'O Merchant Code é obrigatório.';
+    // Só valida API Key e Merchant Code se SumUp estiver sendo usado
+    if ($pix_sumup_enabled || $cartao_sumup_enabled) {
+        if (empty($api_key)) {
+            $erros[] = 'A API Key é obrigatória quando SumUp está habilitado.';
+        }
+        
+        if (empty($merchant_code)) {
+            $erros[] = 'O Merchant Code é obrigatório quando SumUp está habilitado.';
+        }
     }
     
     if (empty($erros)) {
-        if ($sumup->saveCredentials($api_key, $merchant_code)) {
-            $mensagem = 'Configurações da SumUp salvas com sucesso!';
+        $sucesso = true;
+        
+        // Salva credenciais se SumUp estiver habilitado
+        if ($pix_sumup_enabled || $cartao_sumup_enabled) {
+            if (!$sumup->saveCredentials($api_key, $merchant_code)) {
+                $sucesso = false;
+            }
+        }
+        
+        // Salva configurações de métodos
+        if ($sucesso && $sumup->savePaymentMethods($pix_manual_enabled, $pix_sumup_enabled, $cartao_sumup_enabled)) {
+            $mensagem = 'Configurações salvas com sucesso!';
             $tipo_mensagem = 'success';
         } else {
             $mensagem = 'Erro ao salvar configurações. Verifique os logs.';
@@ -42,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $credenciais = $sumup->getCredentials();
 $api_key_atual = $credenciais['api_key'];
 $merchant_code_atual = $credenciais['merchant_code'];
+
+// Obtém configurações de métodos de pagamento
+$payment_methods = $sumup->getPaymentMethods();
 
 require_once 'templates/header_admin.php';
 ?>
@@ -164,6 +185,103 @@ require_once 'templates/header_admin.php';
                 </p>
             </div>
             
+            <!-- Configurações de Métodos de Pagamento -->
+            <div class="pt-6 border-t border-admin-gray-700">
+                <h3 class="text-lg font-semibold text-white mb-4">
+                    <i class="fas fa-cog mr-2"></i>
+                    Métodos de Pagamento
+                </h3>
+                <p class="text-sm text-admin-gray-400 mb-4">
+                    Escolha quais métodos de pagamento deseja habilitar no checkout:
+                </p>
+                
+                <div class="space-y-4">
+                    <!-- PIX Manual -->
+                    <div class="p-4 bg-admin-gray-800/50 border border-admin-gray-700 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <i class="fas fa-qrcode text-green-400 text-xl"></i>
+                                    <h4 class="text-white font-semibold">PIX Manual</h4>
+                                </div>
+                                <p class="text-sm text-admin-gray-400">
+                                    Cliente copia a chave PIX e paga manualmente no app do banco. Você precisa configurar a chave PIX em "Gerenciar PIX".
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="pix_manual_enabled" 
+                                    value="1"
+                                    <?= $payment_methods['pix_manual_enabled'] ? 'checked' : '' ?>
+                                    class="sr-only peer"
+                                >
+                                <div class="w-11 h-6 bg-admin-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-admin-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- PIX via SumUp -->
+                    <div class="p-4 bg-admin-gray-800/50 border border-admin-gray-700 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <i class="fas fa-qrcode text-blue-400 text-xl"></i>
+                                    <h4 class="text-white font-semibold">PIX via SumUp</h4>
+                                </div>
+                                <p class="text-sm text-admin-gray-400">
+                                    PIX processado automaticamente via API SumUp. Gera QR Code e código PIX automaticamente. Requer credenciais SumUp configuradas.
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="pix_sumup_enabled" 
+                                    value="1"
+                                    <?= $payment_methods['pix_sumup_enabled'] ? 'checked' : '' ?>
+                                    class="sr-only peer"
+                                    onchange="toggleSumUpRequired(this.checked)"
+                                >
+                                <div class="w-11 h-6 bg-admin-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-admin-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Cartão via SumUp -->
+                    <div class="p-4 bg-admin-gray-800/50 border border-admin-gray-700 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <i class="fas fa-credit-card text-purple-400 text-xl"></i>
+                                    <h4 class="text-white font-semibold">Cartão via SumUp</h4>
+                                </div>
+                                <p class="text-sm text-admin-gray-400">
+                                    Pagamento com cartão de crédito ou débito processado via SumUp. Requer credenciais SumUp configuradas.
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="cartao_sumup_enabled" 
+                                    value="1"
+                                    <?= $payment_methods['cartao_sumup_enabled'] ? 'checked' : '' ?>
+                                    class="sr-only peer"
+                                    onchange="toggleSumUpRequired(this.checked)"
+                                >
+                                <div class="w-11 h-6 bg-admin-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-admin-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                    <p class="text-xs text-blue-400">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Nota:</strong> Você pode habilitar múltiplos métodos simultaneamente. O cliente escolherá no checkout qual método deseja usar.
+                    </p>
+                </div>
+            </div>
+            
             <button 
                 type="submit" 
                 class="w-full mt-8 bg-admin-primary hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl"
@@ -210,6 +328,36 @@ function toggleApiKeyVisibility() {
         apiKeyInput.type = 'password';
     }
 }
+
+function toggleSumUpRequired(enabled) {
+    const apiKeyInput = document.getElementById('api_key');
+    const merchantCodeInput = document.getElementById('merchant_code');
+    
+    if (enabled) {
+        apiKeyInput.required = true;
+        merchantCodeInput.required = true;
+    } else {
+        // Verifica se outros métodos SumUp estão habilitados
+        const pixSumUp = document.querySelector('input[name="pix_sumup_enabled"]').checked;
+        const cartaoSumUp = document.querySelector('input[name="cartao_sumup_enabled"]').checked;
+        
+        if (!pixSumUp && !cartaoSumUp) {
+            apiKeyInput.required = false;
+            merchantCodeInput.required = false;
+        }
+    }
+}
+
+// Inicializa required baseado nos checkboxes ao carregar
+document.addEventListener('DOMContentLoaded', function() {
+    const pixSumUp = document.querySelector('input[name="pix_sumup_enabled"]').checked;
+    const cartaoSumUp = document.querySelector('input[name="cartao_sumup_enabled"]').checked;
+    
+    if (pixSumUp || cartaoSumUp) {
+        document.getElementById('api_key').required = true;
+        document.getElementById('merchant_code').required = true;
+    }
+});
 </script>
 
 <?php require_once 'templates/footer_admin.php'; ?>

@@ -325,5 +325,142 @@ class SumUpAPI {
             ];
         }
     }
+    
+    /**
+     * Salva configurações de métodos de pagamento
+     */
+    public function savePaymentMethods($pix_manual_enabled, $pix_sumup_enabled, $cartao_sumup_enabled) {
+        try {
+            // Cria tabela de configurações se não existir
+            $this->pdo->exec("
+                CREATE TABLE IF NOT EXISTS config (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    config_key VARCHAR(255) UNIQUE NOT NULL,
+                    config_value TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_config_key (config_key)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+            
+            // Salva configurações
+            $stmt = $this->pdo->prepare("
+                INSERT INTO config (config_key, config_value)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value), updated_at = CURRENT_TIMESTAMP
+            ");
+            
+            $stmt->execute(['payment_pix_manual_enabled', $pix_manual_enabled ? '1' : '0']);
+            $stmt->execute(['payment_pix_sumup_enabled', $pix_sumup_enabled ? '1' : '0']);
+            $stmt->execute(['payment_cartao_sumup_enabled', $cartao_sumup_enabled ? '1' : '0']);
+            
+            return true;
+        } catch (PDOException $e) {
+            error_log("Erro ao salvar métodos de pagamento: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Obtém configurações de métodos de pagamento
+     */
+    public function getPaymentMethods() {
+        try {
+            $stmt = $this->pdo->prepare("SELECT config_value FROM config WHERE config_key = ?");
+            
+            $stmt->execute(['payment_pix_manual_enabled']);
+            $pix_manual_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pix_manual_enabled = $pix_manual_row && $pix_manual_row['config_value'] === '1';
+            
+            $stmt->execute(['payment_pix_sumup_enabled']);
+            $pix_sumup_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pix_sumup_enabled = $pix_sumup_row && $pix_sumup_row['config_value'] === '1';
+            
+            $stmt->execute(['payment_cartao_sumup_enabled']);
+            $cartao_sumup_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $cartao_sumup_enabled = $cartao_sumup_row && $cartao_sumup_row['config_value'] === '1';
+            
+            // Se não houver configurações, define padrões
+            if (!$pix_manual_row && !$pix_sumup_row && !$cartao_sumup_row) {
+                $pix_manual_enabled = true; // PIX manual ativado por padrão
+                $pix_sumup_enabled = false;
+                $cartao_sumup_enabled = false;
+            }
+            
+            return [
+                'pix_manual_enabled' => $pix_manual_enabled,
+                'pix_sumup_enabled' => $pix_sumup_enabled,
+                'cartao_sumup_enabled' => $cartao_sumup_enabled
+            ];
+        } catch (PDOException $e) {
+            error_log("Erro ao obter métodos de pagamento: " . $e->getMessage());
+            // Retorna padrões em caso de erro
+            return [
+                'pix_manual_enabled' => true,
+                'pix_sumup_enabled' => false,
+                'cartao_sumup_enabled' => false
+            ];
+        }
+    }
+    
+    /**
+     * Cria checkout PIX via SumUp
+     */
+    public function createPixCheckout($amount, $currency = 'BRL', $checkout_reference = null, $customer = []) {
+        if (!$this->isConfigured()) {
+            return [
+                'success' => false,
+                'message' => 'SumUp não está configurada.'
+            ];
+        }
+        
+        // Gera referência única se não fornecida
+        if (empty($checkout_reference)) {
+            $checkout_reference = 'PIX_' . time() . '_' . uniqid();
+        }
+        
+        // Prepara dados do checkout PIX
+        $data = [
+            'merchant_code' => $this->merchant_code,
+            'amount' => (float)$amount,
+            'currency' => $currency,
+            'checkout_reference' => $checkout_reference,
+            'payment_type' => 'pix' // Especifica que é PIX
+        ];
+        
+        // Adiciona dados do cliente se fornecidos
+        if (!empty($customer['email'])) {
+            $data['customer_email'] = $customer['email'];
+        }
+        if (!empty($customer['name'])) {
+            $data['customer_name'] = $customer['name'];
+        }
+        if (!empty($customer['phone'])) {
+            $data['customer_phone'] = $customer['phone'];
+        }
+        
+        // Faz requisição para criar checkout PIX
+        $response = $this->makeRequest('POST', '/checkouts', $data);
+        
+        if ($response['success'] && isset($response['data']['id'])) {
+            // Salva checkout no banco para rastreamento
+            $this->saveCheckout($checkout_reference, $response['data']['id'], $amount, $customer);
+            
+            return [
+                'success' => true,
+                'checkout_id' => $response['data']['id'],
+                'checkout_reference' => $checkout_reference,
+                'redirect_url' => $response['data']['redirect_url'] ?? null,
+                'pix_code' => $response['data']['pix_code'] ?? null, // Código PIX gerado
+                'pix_qr_code' => $response['data']['pix_qr_code'] ?? null, // QR Code PIX
+                'data' => $response['data']
+            ];
+        }
+        
+        return [
+            'success' => false,
+            'message' => $response['message'] ?? 'Erro ao criar checkout PIX na SumUp'
+        ];
+    }
 }
 

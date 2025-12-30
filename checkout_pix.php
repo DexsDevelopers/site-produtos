@@ -86,10 +86,14 @@ try {
 
 // Usa apenas a chave PIX simples (sem QR Code, sem código EMV)
 
-// Verifica se SumUp está configurada
+// Verifica métodos de pagamento configurados
 require_once 'includes/sumup_api.php';
 $sumup = new SumUpAPI($pdo);
-$sumup_habilitado = $sumup->isConfigured();
+$payment_methods = $sumup->getPaymentMethods();
+
+$pix_manual_habilitado = $payment_methods['pix_manual_enabled'] && !empty($chave_pix);
+$pix_sumup_habilitado = $payment_methods['pix_sumup_enabled'] && $sumup->isConfigured();
+$cartao_sumup_habilitado = $payment_methods['cartao_sumup_enabled'] && $sumup->isConfigured();
 ?>
 
 <style>
@@ -520,6 +524,77 @@ $sumup_habilitado = $sumup->isConfigured();
             </div>
             </div>
             <?php endif; ?>
+            
+            <!-- Área de Pagamento PIX via SumUp -->
+            <?php if ($pix_sumup_habilitado): ?>
+            <div id="area-pix-sumup" class="<?= count($metodos_disponiveis) > 1 ? 'hidden' : '' ?> mb-8">
+                <div class="pix-card text-center">
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Pagamento via PIX SumUp
+                    </h2>
+                    <p class="text-white/70 mb-6">
+                        Clique no botão abaixo para gerar o código PIX automaticamente
+                    </p>
+                    <button 
+                        onclick="processarPixSumUp()" 
+                        id="btn-processar-pix-sumup"
+                        class="copy-button bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    >
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Gerar PIX SumUp
+                    </button>
+                    <div id="pix-sumup-loading" class="hidden mt-4">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        <p class="text-white/70 mt-2">Gerando código PIX...</p>
+                    </div>
+                    <div id="pix-sumup-result" class="hidden mt-6"></div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Área de Pagamento Cartão via SumUp -->
+            <?php if ($cartao_sumup_habilitado): ?>
+            <div id="area-cartao-sumup" class="<?= count($metodos_disponiveis) > 1 ? 'hidden' : '' ?> mb-8">
+                <div class="pix-card text-center">
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Pagamento via Cartão SumUp
+                    </h2>
+                    <p class="text-white/70 mb-6">
+                        Clique no botão abaixo para ser redirecionado ao checkout seguro da SumUp
+                    </p>
+                    <button 
+                        onclick="processarCartaoSumUp()" 
+                        id="btn-processar-cartao-sumup"
+                        class="copy-button bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                    >
+                        <i class="fas fa-lock mr-2"></i>
+                        Finalizar Pagamento com Cartão
+                    </button>
+                    <div id="cartao-sumup-loading" class="hidden mt-4">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        <p class="text-white/70 mt-2">Processando...</p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (empty($metodos_disponiveis)): ?>
+            <div class="pix-card text-center">
+                <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl mb-4"></i>
+                <h2 class="text-2xl font-bold text-white mb-4">Nenhum método de pagamento configurado</h2>
+                <p class="text-white/70 mb-6">
+                    Configure pelo menos um método de pagamento no painel administrativo.
+                </p>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="admin/gerenciar_sumup.php" class="copy-button inline-block">
+                        <i class="fas fa-cog mr-2"></i>
+                        Configurar Métodos de Pagamento
+                    </a>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -585,28 +660,109 @@ function mostrarFeedbackSucesso() {
 // Seleção de método de pagamento
 function selecionarMetodo(metodo) {
     // Oculta todas as áreas
-    document.getElementById('area-pix').classList.add('hidden');
-    document.getElementById('area-sumup').classList.add('hidden');
+    const areas = ['area-pix-manual', 'area-pix-sumup', 'area-cartao-sumup'];
+    areas.forEach(area => {
+        const el = document.getElementById(area);
+        if (el) el.classList.add('hidden');
+    });
     
     // Remove destaque dos botões
     document.querySelectorAll('.metodo-pagamento').forEach(btn => {
-        btn.classList.remove('ring-4', 'ring-blue-400', 'ring-green-400');
+        btn.classList.remove('ring-4', 'ring-blue-400', 'ring-green-400', 'ring-purple-400');
     });
     
     // Mostra área selecionada e destaca botão
-    if (metodo === 'pix') {
-        document.getElementById('area-pix').classList.remove('hidden');
-        document.getElementById('btn-pix').classList.add('ring-4', 'ring-green-400');
-    } else if (metodo === 'sumup') {
-        document.getElementById('area-sumup').classList.remove('hidden');
-        document.getElementById('btn-sumup').classList.add('ring-4', 'ring-blue-400');
+    if (metodo === 'pix_manual') {
+        const el = document.getElementById('area-pix-manual');
+        if (el) el.classList.remove('hidden');
+        const btn = document.getElementById('btn-pix-manual');
+        if (btn) btn.classList.add('ring-4', 'ring-green-400');
+    } else if (metodo === 'pix_sumup') {
+        const el = document.getElementById('area-pix-sumup');
+        if (el) el.classList.remove('hidden');
+        const btn = document.getElementById('btn-pix-sumup');
+        if (btn) btn.classList.add('ring-4', 'ring-blue-400');
+    } else if (metodo === 'cartao_sumup') {
+        const el = document.getElementById('area-cartao-sumup');
+        if (el) el.classList.remove('hidden');
+        const btn = document.getElementById('btn-cartao-sumup');
+        if (btn) btn.classList.add('ring-4', 'ring-purple-400');
     }
 }
 
-// Processar pagamento SumUp
-async function processarSumUp() {
-    const btn = document.getElementById('btn-processar-sumup');
-    const loading = document.getElementById('sumup-loading');
+// Processar PIX via SumUp
+async function processarPixSumUp() {
+    const btn = document.getElementById('btn-processar-pix-sumup');
+    const loading = document.getElementById('pix-sumup-loading');
+    const result = document.getElementById('pix-sumup-result');
+    
+    btn.disabled = true;
+    loading.classList.remove('hidden');
+    result.classList.add('hidden');
+    
+    try {
+        const response = await fetch('sumup_processar.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                payment_type: 'pix'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loading.classList.add('hidden');
+            result.classList.remove('hidden');
+            
+            // Mostra código PIX e QR Code se disponível
+            let html = '<div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">';
+            html += '<h3 class="text-white font-bold mb-3">Código PIX Gerado</h3>';
+            
+            if (data.pix_code) {
+                html += '<div class="mb-4">';
+                html += '<label class="block text-sm text-white/70 mb-2">Código PIX:</label>';
+                html += '<div class="p-3 bg-black/50 rounded border border-white/10 font-mono text-sm text-white break-all" id="pix-code-sumup">' + data.pix_code + '</div>';
+                html += '<button onclick="copiarCodigoPixSumUp()" class="mt-2 copy-button">';
+                html += '<i class="fas fa-copy mr-2"></i>Copiar Código PIX';
+                html += '</button>';
+                html += '</div>';
+            }
+            
+            if (data.pix_qr_code) {
+                html += '<div class="mb-4">';
+                html += '<label class="block text-sm text-white/70 mb-2">QR Code PIX:</label>';
+                html += '<img src="' + data.pix_qr_code + '" alt="QR Code PIX" class="mx-auto max-w-xs">';
+                html += '</div>';
+            }
+            
+            if (data.redirect_url) {
+                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block">';
+                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
+                html += '</a>';
+            }
+            
+            html += '</div>';
+            result.innerHTML = html;
+        } else {
+            alert('Erro: ' + data.message);
+            btn.disabled = false;
+            loading.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao processar PIX. Tente novamente.');
+        btn.disabled = false;
+        loading.classList.add('hidden');
+    }
+}
+
+// Processar pagamento Cartão via SumUp
+async function processarCartaoSumUp() {
+    const btn = document.getElementById('btn-processar-cartao-sumup');
+    const loading = document.getElementById('cartao-sumup-loading');
     
     btn.disabled = true;
     loading.classList.remove('hidden');
@@ -616,7 +772,10 @@ async function processarSumUp() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                payment_type: 'card'
+            })
         });
         
         const data = await response.json();
@@ -626,7 +785,6 @@ async function processarSumUp() {
                 // Redireciona para o checkout da SumUp
                 window.location.href = data.redirect_url;
             } else {
-                // Se não houver URL de redirecionamento, mostra mensagem
                 alert('Checkout criado! ID: ' + data.checkout_id);
             }
         } else {
@@ -642,12 +800,31 @@ async function processarSumUp() {
     }
 }
 
-// Se SumUp não estiver habilitado, mostra PIX automaticamente
-<?php if (!$sumup_habilitado): ?>
+// Copiar código PIX SumUp
+function copiarCodigoPixSumUp() {
+    const pixCodeElement = document.getElementById('pix-code-sumup');
+    if (!pixCodeElement) return;
+    
+    const codigo = pixCodeElement.textContent.trim();
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codigo).then(function() {
+            mostrarFeedbackSucesso();
+        }).catch(function(err) {
+            copiarTextoFallback(codigo);
+        });
+    } else {
+        copiarTextoFallback(codigo);
+    }
+}
+
+// Se houver apenas um método, mostra automaticamente
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('area-pix').classList.remove('hidden');
+    const metodos = <?= json_encode($metodos_disponiveis) ?>;
+    if (metodos.length === 1) {
+        selecionarMetodo(metodos[0]);
+    }
 });
-<?php endif; ?>
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
