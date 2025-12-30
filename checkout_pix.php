@@ -803,22 +803,29 @@ async function processarPixSumUp() {
                 html += '</a>';
                 html += '</div>';
             } else if (data.checkout_id) {
-                // Se não houver redirect_url, mostra opção para abrir checkout manualmente
-                // E também inicia polling para verificar se o código PIX fica disponível via API
+                // Se não houver código PIX nem redirect_url, mostra mensagem e inicia polling
+                // O polling irá redirecionar automaticamente após 3 tentativas
                 html += '<div class="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded">';
                 html += '<p class="text-white/90 text-sm mb-2 font-semibold">⏳ Aguardando geração do código PIX...</p>';
                 html += '<p class="text-white/70 text-xs mb-3">ID do Checkout: ' + data.checkout_id + '</p>';
                 html += '<div id="pix-polling-status" class="text-white/70 text-xs mb-3">Verificando código PIX via API...</div>';
-                
-                // Botão alternativo para abrir checkout na SumUp
-                html += '<p class="text-white/70 text-xs mb-2">Ou acesse diretamente o checkout da SumUp:</p>';
-                html += '<a href="https://me.sumup.com/checkout/' + data.checkout_id + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center text-sm py-2">';
-                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
-                html += '</a>';
+                html += '<p class="text-white/60 text-xs">Se o código não estiver disponível, você será redirecionado automaticamente para o checkout seguro da SumUp.</p>';
                 html += '</div>';
                 
                 // Inicia polling para verificar se o código PIX fica disponível
+                // Se não encontrar após 3 tentativas, redireciona automaticamente
                 iniciarPollingPix(data.checkout_id);
+            }
+            
+            // Se houver redirect_url mas não código PIX, mostra botão para abrir checkout
+            if (data.redirect_url && !data.pix_code) {
+                html += '<div class="mt-4">';
+                html += '<p class="text-white/90 text-sm mb-3 font-semibold">✓ Checkout criado com sucesso!</p>';
+                html += '<p class="text-white/70 text-sm mb-3">O código PIX será exibido na página do checkout da SumUp. Clique no botão abaixo para acessar:</p>';
+                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center">';
+                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp para Gerar PIX';
+                html += '</a>';
+                html += '</div>';
             }
             
             // Se não houver código PIX nem QR Code, mas houver checkout_id, informa o usuário
