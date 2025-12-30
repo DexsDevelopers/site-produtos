@@ -501,17 +501,41 @@ class SumUpAPI {
         $response = $this->makeRequest('POST', '/checkouts', $data);
         
         if ($response['success'] && isset($response['data']['id'])) {
+            $checkout_id = $response['data']['id'];
+            
             // Salva checkout no banco para rastreamento
-            $this->saveCheckout($checkout_reference, $response['data']['id'], $amount, $customer);
+            $this->saveCheckout($checkout_reference, $checkout_id, $amount, $customer);
+            
+            // Tenta obter detalhes completos do checkout (pode conter código PIX)
+            $details_response = $this->getCheckoutStatus($checkout_id);
+            $checkout_details = $details_response['success'] ? $details_response['data'] : $response['data'];
+            
+            // Log para debug
+            error_log("SumUp Checkout Details: " . json_encode($checkout_details));
+            
+            // Tenta obter código PIX de diferentes campos possíveis
+            $pix_code = $checkout_details['pix_code'] ?? 
+                       $checkout_details['pix']['code'] ?? 
+                       $checkout_details['payment_method']['pix_code'] ?? 
+                       $response['data']['pix_code'] ?? 
+                       null;
+            
+            $pix_qr_code = $checkout_details['pix_qr_code'] ?? 
+                          $checkout_details['pix']['qr_code'] ?? 
+                          $checkout_details['pix']['qr_code_url'] ?? 
+                          $checkout_details['payment_method']['pix_qr_code'] ?? 
+                          $response['data']['pix_qr_code'] ?? 
+                          null;
             
             return [
                 'success' => true,
-                'checkout_id' => $response['data']['id'],
+                'checkout_id' => $checkout_id,
                 'checkout_reference' => $checkout_reference,
-                'redirect_url' => $response['data']['redirect_url'] ?? null,
-                'pix_code' => $response['data']['pix_code'] ?? null, // Código PIX gerado
-                'pix_qr_code' => $response['data']['pix_qr_code'] ?? null, // QR Code PIX
-                'data' => $response['data']
+                'redirect_url' => $checkout_details['redirect_url'] ?? $response['data']['redirect_url'] ?? null,
+                'pix_code' => $pix_code,
+                'pix_qr_code' => $pix_qr_code,
+                'data' => $checkout_details,
+                'raw_response' => $response['data'] // Mantém resposta original para debug
             ];
         }
         
