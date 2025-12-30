@@ -1,5 +1,9 @@
 <?php
 // produto.php - Página de Produto no Estilo Adsly
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 session_start();
 require_once 'config.php';
 
@@ -63,7 +67,13 @@ try {
         $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
     }
 } catch (PDOException $e) {
-    die("Erro ao carregar a página do produto.");
+    error_log("Erro PDO em produto.php: " . $e->getMessage());
+    error_log("Trace: " . $e->getTraceAsString());
+    die("Erro ao carregar a página do produto. Verifique os logs para mais detalhes.");
+} catch (Exception $e) {
+    error_log("Erro geral em produto.php: " . $e->getMessage());
+    error_log("Trace: " . $e->getTraceAsString());
+    die("Erro ao carregar a página do produto. Verifique os logs para mais detalhes.");
 }
 
 if (!$produto_selecionado) {
@@ -77,11 +87,21 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, loja online';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// Verifica métodos de pagamento disponíveis
-require_once 'includes/payment_helper.php';
-$paymentHelper = new PaymentHelper($pdo);
-$checkout_url = $paymentHelper->getCheckoutUrl();
-$checkout_button_text = $paymentHelper->getCheckoutButtonText();
+// Verifica se há chave PIX configurada para habilitar checkout
+$checkout_url = null;
+$checkout_button_text = 'Comprar Agora (PIX)';
+
+try {
+    if (isset($fileStorage) && is_object($fileStorage)) {
+        $chave_pix = $fileStorage->getChavePix();
+        if (!empty($chave_pix)) {
+            $checkout_url = 'checkout_pix.php';
+            $checkout_button_text = 'Comprar Agora (PIX)';
+        }
+    }
+} catch (Exception $e) {
+    error_log("Erro ao verificar chave PIX: " . $e->getMessage());
+}
 
 require_once 'templates/header.php';
 ?>
