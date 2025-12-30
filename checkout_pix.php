@@ -1,7 +1,11 @@
 <?php
 // checkout_pix.php - Página de Checkout com QR Code PIX
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0); // Desabilita display de erros para evitar output antes do header
+ini_set('log_errors', 1); // Mantém log de erros
+
+// Inicia buffer de saída para capturar qualquer output inesperado
+ob_start();
 
 session_start();
 require_once 'config.php';
@@ -43,6 +47,13 @@ if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
 if (empty($_SESSION['carrinho'])) {
     header('Location: carrinho.php');
     exit();
+}
+
+// Limpa qualquer output inesperado antes do header
+$output = ob_get_clean();
+if (!empty($output)) {
+    error_log("Output inesperado antes do header: " . substr($output, 0, 200));
+    ob_start(); // Reinicia buffer
 }
 
 // Carrega header (config.php já foi carregado na linha 7)
