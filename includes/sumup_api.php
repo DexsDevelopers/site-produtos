@@ -515,48 +515,47 @@ class SumUpAPI {
             // Log para debug
             error_log("SumUp Checkout Details: " . json_encode($checkout_details));
             
-            // Para PIX, pode ser necessário buscar em um endpoint específico
-            // Tenta buscar informações de pagamento PIX
-            $pix_info = null;
-            if (isset($checkout_details['payment_methods']) && is_array($checkout_details['payment_methods'])) {
-                foreach ($checkout_details['payment_methods'] as $method) {
-                    if (isset($method['type']) && strtolower($method['type']) === 'pix') {
-                        $pix_info = $method;
-                        break;
+            // A SumUp retorna o código PIX em um objeto 'pix' com 'artefacts'
+            // Cada artefato tem: name (barcode/code), content_type, location, content
+            $pix_code = null;
+            $pix_qr_code = null;
+            
+            // Busca no objeto pix da resposta
+            $pix_data = $checkout_details['pix'] ?? $response['data']['pix'] ?? null;
+            
+            if ($pix_data && isset($pix_data['artefacts']) && is_array($pix_data['artefacts'])) {
+                foreach ($pix_data['artefacts'] as $artefact) {
+                    $name = $artefact['name'] ?? '';
+                    $content_type = $artefact['content_type'] ?? '';
+                    $location = $artefact['location'] ?? null;
+                    $content = $artefact['content'] ?? null;
+                    
+                    // Artefato "code" contém o código PIX em texto
+                    if ($name === 'code' && $content_type === 'text/plain') {
+                        // Prefere 'content' se disponível, senão busca em 'location'
+                        if ($content) {
+                            $pix_code = $content;
+                        } elseif ($location) {
+                            // Se não tiver content, faz requisição para obter do location
+                            $pix_content_response = $this->makeRequest('GET', $location);
+                            if ($pix_content_response['success']) {
+                                $pix_code = is_string($pix_content_response['data']) 
+                                    ? $pix_content_response['data'] 
+                                    : ($pix_content_response['data']['content'] ?? null);
+                            }
+                        }
+                    }
+                    
+                    // Artefato "barcode" contém a imagem do QR Code
+                    if ($name === 'barcode' && strpos($content_type, 'image/') === 0) {
+                        $pix_qr_code = $location ?? $content ?? null;
                     }
                 }
             }
             
-            // Tenta obter código PIX de diferentes campos possíveis
-            $pix_code = $pix_info['code'] ?? 
-                       $pix_info['pix_code'] ?? 
-                       $checkout_details['pix_code'] ?? 
-                       $checkout_details['pix']['code'] ?? 
-                       $checkout_details['payment_method']['pix_code'] ?? 
-                       $response['data']['pix_code'] ?? 
-                       null;
-            
-            $pix_qr_code = $pix_info['qr_code'] ?? 
-                          $pix_info['qr_code_url'] ?? 
-                          $checkout_details['pix_qr_code'] ?? 
-                          $checkout_details['pix']['qr_code'] ?? 
-                          $checkout_details['pix']['qr_code_url'] ?? 
-                          $checkout_details['payment_method']['pix_qr_code'] ?? 
-                          $response['data']['pix_qr_code'] ?? 
-                          null;
-            
-            // Se ainda não encontrou, tenta buscar em links ou transactions
-            if (!$pix_code && isset($checkout_details['links'])) {
-                foreach ($checkout_details['links'] as $link) {
-                    if (isset($link['rel']) && $link['rel'] === 'pix') {
-                        // Pode haver um link para obter o código PIX
-                        $pix_link_response = $this->makeRequest('GET', $link['href']);
-                        if ($pix_link_response['success']) {
-                            $pix_code = $pix_link_response['data']['code'] ?? $pix_link_response['data']['pix_code'] ?? null;
-                            $pix_qr_code = $pix_link_response['data']['qr_code'] ?? $pix_link_response['data']['qr_code_url'] ?? null;
-                        }
-                    }
-                }
+            // Log para debug
+            if ($pix_data) {
+                error_log("SumUp PIX Artefacts encontrados: " . json_encode($pix_data['artefacts'] ?? []));
             }
             
             // Tenta obter redirect_url de diferentes lugares
