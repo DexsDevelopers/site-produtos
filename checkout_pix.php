@@ -332,25 +332,30 @@ $cartao_sumup_habilitado = $payment_methods['cartao_sumup_enabled'] && $sumup->i
             
             <!-- Seleção de Método de Pagamento -->
             
-            <?php if (empty($chave_pix)): ?>
+            <?php 
+            // Verifica se há métodos disponíveis
+            $metodos_disponiveis = [];
+            if ($pix_manual_habilitado) $metodos_disponiveis[] = 'pix_manual';
+            if ($pix_sumup_habilitado) $metodos_disponiveis[] = 'pix_sumup';
+            if ($cartao_sumup_habilitado) $metodos_disponiveis[] = 'cartao_sumup';
+            
+            if (empty($metodos_disponiveis)): ?>
                 <div class="pix-card text-center">
                     <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl mb-4"></i>
-                    <h2 class="text-2xl font-bold text-white mb-4">Chave PIX não configurada</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">Nenhum método de pagamento configurado</h2>
                     <p class="text-white/70 mb-6">
-                        A chave PIX ainda não foi configurada no painel administrativo.
+                        Configure pelo menos um método de pagamento no painel administrativo.
                     </p>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="admin/gerenciar_pix.php" class="copy-button inline-block">
+                        <a href="admin/gerenciar_sumup.php" class="copy-button inline-block">
                             <i class="fas fa-cog mr-2"></i>
-                            Configurar Chave PIX
+                            Configurar Métodos de Pagamento
                         </a>
-                    <?php else: ?>
-                        <p class="text-white/50 text-sm">Entre em contato com o administrador para configurar a chave PIX.</p>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
+            <!-- Resumo do Pedido (sempre visível) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <!-- Resumo do Pedido -->
                 <div class="lg:col-span-1">
                     <div class="pix-card sticky top-24" style="z-index: 10; max-height: calc(100vh - 120px); overflow-y: auto;">
                         <h2 class="text-xl font-bold text-white mb-6 pb-4 border-b border-white/10">
@@ -376,104 +381,131 @@ $cartao_sumup_habilitado = $payment_methods['cartao_sumup_enabled'] && $sumup->i
                     </div>
                 </div>
                 
-                <!-- Chave PIX -->
-                <div class="lg:col-span-2" style="z-index: 1;">
-                    <div class="pix-card text-center">
-                        <div class="mb-8">
-                            <h2 class="text-2xl font-bold text-white mb-3">
-                                Chave PIX para Pagamento
-                            </h2>
-                            <p class="text-white/70 text-base">
-                                Copie a chave PIX abaixo e cole no app do seu banco
-                            </p>
-                        </div>
+                <!-- Métodos de Pagamento -->
+                <div class="lg:col-span-2">
+                    <!-- Seleção de Método de Pagamento -->
+                    <?php if (count($metodos_disponiveis) > 1): ?>
+                    <div class="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
+                        <?php if ($pix_manual_habilitado): ?>
+                        <button 
+                            onclick="selecionarMetodo('pix_manual')" 
+                            id="btn-pix-manual"
+                            class="metodo-pagamento flex-1 max-w-md bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                        >
+                            <i class="fas fa-qrcode mr-2"></i>
+                            PIX Manual
+                        </button>
+                        <?php endif; ?>
                         
-                        <!-- Chave PIX Copiável -->
-                        <div class="mb-8">
-                            <label class="block text-sm font-medium text-white/90 mb-3">
-                                Chave PIX:
-                            </label>
-                            <div class="pix-code text-center mb-4" id="pix-code" style="font-size: 1.1rem; padding: 1.5rem;">
-                                <?= htmlspecialchars($chave_pix) ?>
+                        <?php if ($pix_sumup_habilitado): ?>
+                        <button 
+                            onclick="selecionarMetodo('pix_sumup')" 
+                            id="btn-pix-sumup"
+                            class="metodo-pagamento flex-1 max-w-md bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                        >
+                            <i class="fas fa-qrcode mr-2"></i>
+                            PIX SumUp
+                        </button>
+                        <?php endif; ?>
+                        
+                        <?php if ($cartao_sumup_habilitado): ?>
+                        <button 
+                            onclick="selecionarMetodo('cartao_sumup')" 
+                            id="btn-cartao-sumup"
+                            class="metodo-pagamento flex-1 max-w-md bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                        >
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Cartão SumUp
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Área de Pagamento PIX Manual -->
+                    <?php if ($pix_manual_habilitado): ?>
+                    <div id="area-pix-manual" class="<?= count($metodos_disponiveis) > 1 ? 'hidden' : '' ?> mb-8">
+                        <div class="pix-card text-center">
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold text-white mb-3">
+                                    Chave PIX para Pagamento
+                                </h2>
+                                <p class="text-white/70 text-base">
+                                    Copie a chave PIX abaixo e cole no app do seu banco
+                                </p>
                             </div>
-                            <button onclick="copiarCodigoPix()" class="copy-button">
-                                <i class="fas fa-copy mr-2"></i>
-                                Copiar Chave PIX
-                            </button>
-                        </div>
-                        
-                        <!-- Informações do Recebedor -->
-                        <div class="mt-8 pt-8 border-t border-white/10">
-                            <h3 class="text-lg font-semibold text-white mb-4">Informações do Recebedor</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <p class="text-white/60 mb-1">Nome</p>
-                                    <p class="text-white font-medium"><?= htmlspecialchars($nome_pix) ?></p>
+                            
+                            <!-- Chave PIX Copiável -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-medium text-white/90 mb-3">
+                                    Chave PIX:
+                                </label>
+                                <div class="pix-code text-center mb-4" id="pix-code" style="font-size: 1.1rem; padding: 1.5rem;">
+                                    <?= htmlspecialchars($chave_pix) ?>
                                 </div>
-                                <div>
-                                    <p class="text-white/60 mb-1">Chave PIX</p>
-                                    <p class="text-white font-mono text-xs break-all"><?= htmlspecialchars($chave_pix) ?></p>
-                                </div>
-                                <div>
-                                    <p class="text-white/60 mb-1">Cidade</p>
-                                    <p class="text-white font-medium"><?= htmlspecialchars($cidade_pix) ?></p>
+                                <button onclick="copiarCodigoPix()" class="copy-button">
+                                    <i class="fas fa-copy mr-2"></i>
+                                    Copiar Chave PIX
+                                </button>
+                            </div>
+                            
+                            <!-- Informações do Recebedor -->
+                            <div class="mt-8 pt-8 border-t border-white/10">
+                                <h3 class="text-lg font-semibold text-white mb-4">Informações do Recebedor</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-white/60 mb-1">Nome</p>
+                                        <p class="text-white font-medium"><?= htmlspecialchars($nome_pix) ?></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-white/60 mb-1">Chave PIX</p>
+                                        <p class="text-white font-mono text-xs break-all"><?= htmlspecialchars($chave_pix) ?></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-white/60 mb-1">Cidade</p>
+                                        <p class="text-white font-medium"><?= htmlspecialchars($cidade_pix) ?></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Instruções -->
-                        <div class="mt-8 pt-8 border-t border-white/10">
-                            <h3 class="text-lg font-semibold text-white mb-4">
-                                Como Pagar
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">1</div>
-                                    <div>
-                                        <p class="text-white font-medium mb-1">Abra o app do banco</p>
-                                        <p class="text-white/60 text-sm">Acesse a opção PIX no seu aplicativo</p>
+                            
+                            <!-- Instruções -->
+                            <div class="mt-8 pt-8 border-t border-white/10">
+                                <h3 class="text-lg font-semibold text-white mb-4">
+                                    Como Pagar
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">1</div>
+                                        <div>
+                                            <p class="text-white font-medium mb-1">Abra o app do banco</p>
+                                            <p class="text-white/60 text-sm">Acesse a opção PIX no seu aplicativo</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">2</div>
-                                    <div>
-                                        <p class="text-white font-medium mb-1">Cole a chave PIX</p>
-                                        <p class="text-white/60 text-sm">Cole a chave PIX copiada no app do banco</p>
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">2</div>
+                                        <div>
+                                            <p class="text-white font-medium mb-1">Cole a chave PIX</p>
+                                            <p class="text-white/60 text-sm">Cole a chave PIX copiada no app do banco</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">3</div>
-                                    <div>
-                                        <p class="text-white font-medium mb-1">Confirme o pagamento</p>
-                                        <p class="text-white/60 text-sm">Verifique os dados e confirme</p>
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">3</div>
+                                        <div>
+                                            <p class="text-white font-medium mb-1">Confirme o pagamento</p>
+                                            <p class="text-white/60 text-sm">Verifique os dados e confirme</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">4</div>
-                                    <div>
-                                        <p class="text-white font-medium mb-1">Aguarde confirmação</p>
-                                        <p class="text-white/60 text-sm">O pagamento é confirmado instantaneamente</p>
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">4</div>
+                                        <div>
+                                            <p class="text-white font-medium mb-1">Aguarde confirmação</p>
+                                            <p class="text-white/60 text-sm">O pagamento é confirmado instantaneamente</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-                
-            <!-- Botões de Ação -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <a href="carrinho.php" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all border border-white/20">
-                    <i class="fas fa-arrow-left"></i>
-                    Voltar ao Carrinho
-                </a>
-                <a href="index.php" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all border border-white/20">
-                    <i class="fas fa-home"></i>
-                    Continuar Comprando
-                </a>
-            </div>
-            </div>
-            <?php endif; ?>
+                    <?php endif; ?>
             
             <!-- Área de Pagamento PIX via SumUp -->
             <?php if ($pix_sumup_habilitado): ?>
