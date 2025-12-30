@@ -512,16 +512,28 @@ class SumUpAPI {
             $details_response = $this->getCheckoutStatus($checkout_id);
             $checkout_details = $details_response['success'] ? $details_response['data'] : $response['data'];
             
-            // Log para debug
-            error_log("SumUp Checkout Details: " . json_encode($checkout_details));
+            // Log para debug - mostra toda a estrutura da resposta
+            error_log("SumUp Checkout Details completa: " . json_encode($checkout_details, JSON_PRETTY_PRINT));
+            error_log("SumUp Response original: " . json_encode($response['data'], JSON_PRETTY_PRINT));
             
             // A SumUp retorna o código PIX em um objeto 'pix' com 'artefacts'
             // Cada artefato tem: name (barcode/code), content_type, location, content
             $pix_code = null;
             $pix_qr_code = null;
             
-            // Busca no objeto pix da resposta
-            $pix_data = $checkout_details['pix'] ?? $response['data']['pix'] ?? null;
+            // Busca no objeto pix da resposta (pode estar em diferentes níveis)
+            $pix_data = $checkout_details['pix'] ?? 
+                       $checkout_details['payment_methods']['pix'] ?? 
+                       $response['data']['pix'] ?? 
+                       $response['data']['payment_methods']['pix'] ?? 
+                       null;
+            
+            // Log específico para objeto pix
+            if ($pix_data) {
+                error_log("SumUp PIX Data encontrado: " . json_encode($pix_data, JSON_PRETTY_PRINT));
+            } else {
+                error_log("SumUp PIX Data NÃO encontrado. Chaves disponíveis: " . implode(', ', array_keys($checkout_details)));
+            }
             
             if ($pix_data && isset($pix_data['artefacts']) && is_array($pix_data['artefacts'])) {
                 foreach ($pix_data['artefacts'] as $artefact) {
