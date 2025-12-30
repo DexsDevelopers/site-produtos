@@ -775,12 +775,15 @@ async function processarPixSumUp() {
                 html += '</a>';
                 html += '</div>';
             } else if (data.checkout_id) {
-                // Se não houver redirect_url, informa que o código PIX não está disponível via API
-                html += '<div class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded">';
-                html += '<p class="text-white/90 text-sm mb-2 font-semibold">⚠ Checkout criado, mas código PIX não disponível</p>';
+                // Se não houver código PIX, tenta fazer polling para verificar se fica disponível
+                html += '<div class="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded">';
+                html += '<p class="text-white/90 text-sm mb-2 font-semibold">⏳ Aguardando geração do código PIX...</p>';
                 html += '<p class="text-white/70 text-xs mb-2">ID do Checkout: ' + data.checkout_id + '</p>';
-                html += '<p class="text-white/70 text-xs">A SumUp pode não fornecer o código PIX diretamente via API. Verifique o painel administrativo da SumUp ou entre em contato com o suporte.</p>';
+                html += '<div id="pix-polling-status" class="text-white/70 text-xs">Verificando código PIX...</div>';
                 html += '</div>';
+                
+                // Inicia polling para verificar se o código PIX fica disponível
+                iniciarPollingPix(data.checkout_id);
             }
             
             // Se não houver código PIX nem QR Code, mas houver checkout_id, informa o usuário
