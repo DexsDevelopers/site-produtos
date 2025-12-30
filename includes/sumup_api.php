@@ -257,7 +257,7 @@ class SumUpAPI {
     /**
      * Salva configurações da SumUp
      */
-    public function saveCredentials($api_key, $merchant_code) {
+    public function saveCredentials($api_key, $merchant_code, $api_key_public = '') {
         try {
             // Cria tabela de configurações se não existir
             $this->pdo->exec("
@@ -271,13 +271,21 @@ class SumUpAPI {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
             
-            // Salva API Key
+            // Salva API Key Privada
             $stmt = $this->pdo->prepare("
                 INSERT INTO config (config_key, config_value)
                 VALUES ('sumup_api_key', ?)
                 ON DUPLICATE KEY UPDATE config_value = VALUES(config_value), updated_at = CURRENT_TIMESTAMP
             ");
             $stmt->execute([$api_key]);
+            
+            // Salva API Key Pública
+            $stmt = $this->pdo->prepare("
+                INSERT INTO config (config_key, config_value)
+                VALUES ('sumup_api_key_public', ?)
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value), updated_at = CURRENT_TIMESTAMP
+            ");
+            $stmt->execute([$api_key_public]);
             
             // Salva Merchant Code
             $stmt = $this->pdo->prepare("
@@ -303,11 +311,27 @@ class SumUpAPI {
      */
     public function getCredentials() {
         try {
+            // Garante que a tabela existe
+            $this->pdo->exec("
+                CREATE TABLE IF NOT EXISTS config (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    config_key VARCHAR(255) UNIQUE NOT NULL,
+                    config_value TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_config_key (config_key)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+            
             $stmt = $this->pdo->prepare("SELECT config_value FROM config WHERE config_key = ?");
             
             $stmt->execute(['sumup_api_key']);
             $api_key_row = $stmt->fetch(PDO::FETCH_ASSOC);
             $api_key = $api_key_row ? $api_key_row['config_value'] : '';
+            
+            $stmt->execute(['sumup_api_key_public']);
+            $api_key_public_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $api_key_public = $api_key_public_row ? $api_key_public_row['config_value'] : '';
             
             $stmt->execute(['sumup_merchant_code']);
             $merchant_row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -315,15 +339,25 @@ class SumUpAPI {
             
             return [
                 'api_key' => $api_key,
+                'api_key_public' => $api_key_public,
                 'merchant_code' => $merchant_code
             ];
         } catch (PDOException $e) {
             error_log("Erro ao obter credenciais SumUp: " . $e->getMessage());
             return [
                 'api_key' => '',
+                'api_key_public' => '',
                 'merchant_code' => ''
             ];
         }
+    }
+    
+    /**
+     * Obtém API Key pública para uso no frontend
+     */
+    public function getPublicKey() {
+        $credenciais = $this->getCredentials();
+        return $credenciais['api_key_public'] ?? '';
     }
     
     /**

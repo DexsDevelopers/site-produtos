@@ -10,7 +10,8 @@ $tipo_mensagem = '';
 
 // Processa formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $api_key = trim($_POST['api_key'] ?? '');
+    $api_key = trim($_POST['api_key'] ?? ''); // API Key Privada (backend)
+    $api_key_public = trim($_POST['api_key_public'] ?? ''); // API Key Pública (frontend)
     $merchant_code = trim($_POST['merchant_code'] ?? '');
     
     // Configurações de métodos de pagamento
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Só valida API Key e Merchant Code se SumUp estiver sendo usado
     if ($pix_sumup_enabled || $cartao_sumup_enabled) {
         if (empty($api_key)) {
-            $erros[] = 'A API Key é obrigatória quando SumUp está habilitado.';
+            $erros[] = 'A API Key Privada é obrigatória quando SumUp está habilitado.';
         }
         
         if (empty($merchant_code)) {
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Salva credenciais se SumUp estiver habilitado
         if ($pix_sumup_enabled || $cartao_sumup_enabled) {
-            if (!$sumup->saveCredentials($api_key, $merchant_code)) {
+            if (!$sumup->saveCredentials($api_key, $merchant_code, $api_key_public)) {
                 $sucesso = false;
             }
         }
@@ -59,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Obtém credenciais atuais
 $credenciais = $sumup->getCredentials();
 $api_key_atual = $credenciais['api_key'];
+$api_key_public_atual = $credenciais['api_key_public'] ?? '';
 $merchant_code_atual = $credenciais['merchant_code'];
 
 // Obtém configurações de métodos de pagamento
@@ -144,13 +146,13 @@ require_once 'templates/header_admin.php';
             <div>
                 <label for="api_key" class="block text-sm font-medium text-admin-gray-300 mb-2">
                     <i class="fas fa-key mr-2"></i>
-                    API Key <span class="text-red-400">*</span>
+                    API Key Privada (Backend) <span class="text-red-400">*</span>
                 </label>
                 <input 
                     type="password" 
                     name="api_key" 
                     id="api_key"
-                    value="<?= htmlspecialchars($api_key_atual) ?>"
+                    value="<?= htmlspecialchars($api_key_atual) ?>" 
                     required 
                     class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none font-mono text-sm"
                     placeholder="sk_live_..."
@@ -161,7 +163,26 @@ require_once 'templates/header_admin.php';
                     <label for="show_api_key" class="text-xs text-admin-gray-400 cursor-pointer">Mostrar API Key</label>
                 </div>
                 <p class="mt-1 text-xs text-admin-gray-400">
-                    Chave de API fornecida pela SumUp. Use <code class="bg-admin-gray-800 px-1 rounded">sk_live_...</code> para pagamentos reais ou <code class="bg-admin-gray-800 px-1 rounded">sk_test_...</code> para testes.
+                    Chave de API privada (backend) fornecida pela SumUp. Use <code class="bg-admin-gray-800 px-1 rounded">sk_live_...</code> para pagamentos reais ou <code class="bg-admin-gray-800 px-1 rounded">sk_test_...</code> para testes.
+                </p>
+            </div>
+            
+            <div>
+                <label for="api_key_public" class="block text-sm font-medium text-admin-gray-300 mb-2">
+                    <i class="fas fa-globe mr-2"></i>
+                    API Key Pública (Frontend)
+                </label>
+                <input 
+                    type="text" 
+                    name="api_key_public" 
+                    id="api_key_public"
+                    value="<?= htmlspecialchars($api_key_public_atual) ?>" 
+                    class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none font-mono text-sm"
+                    placeholder="sup_pk_..."
+                    autocomplete="off"
+                >
+                <p class="mt-1 text-xs text-admin-gray-400">
+                    Chave de API pública (frontend) da SumUp. Usada para integração com widgets JavaScript. Formato: <code class="bg-admin-gray-800 px-1 rounded">sup_pk_...</code>
                 </p>
             </div>
             
