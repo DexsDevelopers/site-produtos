@@ -591,19 +591,16 @@ try {
             </div>
             <?php endif; ?>
             
-            <?php if (empty($metodos_disponiveis)): ?>
-            <div class="pix-card text-center">
-                <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl mb-4"></i>
-                <h2 class="text-2xl font-bold text-white mb-4">Nenhum método de pagamento configurado</h2>
-                <p class="text-white/70 mb-6">
-                    Configure pelo menos um método de pagamento no painel administrativo.
-                </p>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="admin/gerenciar_sumup.php" class="copy-button inline-block">
-                        <i class="fas fa-cog mr-2"></i>
-                        Configurar Métodos de Pagamento
-                    </a>
-                <?php endif; ?>
+            <!-- Botões de Ação -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                <a href="carrinho.php" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all border border-white/20">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar ao Carrinho
+                </a>
+                <a href="index.php" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all border border-white/20">
+                    <i class="fas fa-home"></i>
+                    Continuar Comprando
+                </a>
             </div>
             <?php endif; ?>
         </div>
