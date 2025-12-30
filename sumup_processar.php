@@ -88,11 +88,22 @@ if ($payment_type === 'pix') {
         $_SESSION['sumup_checkout_id'] = $result['checkout_id'];
         
         // Log para debug
-        error_log("SumUp PIX Response: " . json_encode($result));
+        error_log("SumUp PIX Response completa: " . json_encode($result));
         
         // Tenta obter código PIX de diferentes campos possíveis
         $pix_code = $result['pix_code'] ?? $result['data']['pix_code'] ?? $result['data']['pix']['code'] ?? null;
         $pix_qr_code = $result['pix_qr_code'] ?? $result['data']['pix_qr_code'] ?? $result['data']['pix']['qr_code'] ?? $result['data']['pix']['qr_code_url'] ?? null;
+        
+        // Se não encontrou código PIX, tenta buscar em transactions ou payment_methods
+        if (!$pix_code && isset($result['data']['transactions']) && is_array($result['data']['transactions'])) {
+            foreach ($result['data']['transactions'] as $transaction) {
+                if (isset($transaction['payment_method']) && strtolower($transaction['payment_method']) === 'pix') {
+                    $pix_code = $transaction['pix_code'] ?? $transaction['code'] ?? null;
+                    $pix_qr_code = $transaction['qr_code'] ?? $transaction['qr_code_url'] ?? null;
+                    if ($pix_code) break;
+                }
+            }
+        }
         
         echo json_encode([
             'success' => true,

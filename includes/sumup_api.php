@@ -513,19 +513,49 @@ class SumUpAPI {
             // Log para debug
             error_log("SumUp Checkout Details: " . json_encode($checkout_details));
             
+            // Para PIX, pode ser necessário buscar em um endpoint específico
+            // Tenta buscar informações de pagamento PIX
+            $pix_info = null;
+            if (isset($checkout_details['payment_methods']) && is_array($checkout_details['payment_methods'])) {
+                foreach ($checkout_details['payment_methods'] as $method) {
+                    if (isset($method['type']) && strtolower($method['type']) === 'pix') {
+                        $pix_info = $method;
+                        break;
+                    }
+                }
+            }
+            
             // Tenta obter código PIX de diferentes campos possíveis
-            $pix_code = $checkout_details['pix_code'] ?? 
+            $pix_code = $pix_info['code'] ?? 
+                       $pix_info['pix_code'] ?? 
+                       $checkout_details['pix_code'] ?? 
                        $checkout_details['pix']['code'] ?? 
                        $checkout_details['payment_method']['pix_code'] ?? 
                        $response['data']['pix_code'] ?? 
                        null;
             
-            $pix_qr_code = $checkout_details['pix_qr_code'] ?? 
+            $pix_qr_code = $pix_info['qr_code'] ?? 
+                          $pix_info['qr_code_url'] ?? 
+                          $checkout_details['pix_qr_code'] ?? 
                           $checkout_details['pix']['qr_code'] ?? 
                           $checkout_details['pix']['qr_code_url'] ?? 
                           $checkout_details['payment_method']['pix_qr_code'] ?? 
                           $response['data']['pix_qr_code'] ?? 
                           null;
+            
+            // Se ainda não encontrou, tenta buscar em links ou transactions
+            if (!$pix_code && isset($checkout_details['links'])) {
+                foreach ($checkout_details['links'] as $link) {
+                    if (isset($link['rel']) && $link['rel'] === 'pix') {
+                        // Pode haver um link para obter o código PIX
+                        $pix_link_response = $this->makeRequest('GET', $link['href']);
+                        if ($pix_link_response['success']) {
+                            $pix_code = $pix_link_response['data']['code'] ?? $pix_link_response['data']['pix_code'] ?? null;
+                            $pix_qr_code = $pix_link_response['data']['qr_code'] ?? $pix_link_response['data']['qr_code_url'] ?? null;
+                        }
+                    }
+                }
+            }
             
             return [
                 'success' => true,
