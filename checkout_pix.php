@@ -87,13 +87,21 @@ try {
 // Usa apenas a chave PIX simples (sem QR Code, sem código EMV)
 
 // Verifica métodos de pagamento configurados
-require_once 'includes/sumup_api.php';
-$sumup = new SumUpAPI($pdo);
-$payment_methods = $sumup->getPaymentMethods();
-
-$pix_manual_habilitado = $payment_methods['pix_manual_enabled'] && !empty($chave_pix);
-$pix_sumup_habilitado = $payment_methods['pix_sumup_enabled'] && $sumup->isConfigured();
-$cartao_sumup_habilitado = $payment_methods['cartao_sumup_enabled'] && $sumup->isConfigured();
+try {
+    require_once 'includes/sumup_api.php';
+    $sumup = new SumUpAPI($pdo);
+    $payment_methods = $sumup->getPaymentMethods();
+    
+    $pix_manual_habilitado = isset($payment_methods['pix_manual_enabled']) && $payment_methods['pix_manual_enabled'] && !empty($chave_pix);
+    $pix_sumup_habilitado = isset($payment_methods['pix_sumup_enabled']) && $payment_methods['pix_sumup_enabled'] && $sumup->isConfigured();
+    $cartao_sumup_habilitado = isset($payment_methods['cartao_sumup_enabled']) && $payment_methods['cartao_sumup_enabled'] && $sumup->isConfigured();
+} catch (Exception $e) {
+    // Em caso de erro, define valores padrão seguros
+    error_log("Erro ao carregar métodos de pagamento: " . $e->getMessage());
+    $pix_manual_habilitado = !empty($chave_pix); // Se houver chave PIX, assume PIX manual habilitado
+    $pix_sumup_habilitado = false;
+    $cartao_sumup_habilitado = false;
+}
 ?>
 
 <style>
