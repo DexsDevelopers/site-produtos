@@ -509,8 +509,14 @@ class SumUpAPI {
             $this->saveCheckout($checkout_reference, $checkout_id, $amount, $customer);
             
             // Tenta obter detalhes completos do checkout (pode conter código PIX)
+            // Nota: O objeto pix pode não estar na resposta inicial, mas sim nos detalhes
             $details_response = $this->getCheckoutStatus($checkout_id);
             $checkout_details = $details_response['success'] ? $details_response['data'] : $response['data'];
+            
+            // Se não encontrou nos detalhes, tenta na resposta original também
+            if (!isset($checkout_details['pix']) && isset($response['data']['pix'])) {
+                $checkout_details['pix'] = $response['data']['pix'];
+            }
             
             // Log para debug - mostra toda a estrutura da resposta
             error_log("SumUp Checkout Details completa: " . json_encode($checkout_details, JSON_PRETTY_PRINT));

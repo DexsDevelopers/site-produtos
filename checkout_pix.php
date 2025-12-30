@@ -731,7 +731,14 @@ async function processarPixSumUp() {
             console.log('pix_code:', data.pix_code);
             console.log('pix_qr_code:', data.pix_qr_code);
             console.log('redirect_url:', data.redirect_url);
-            console.log('raw_data:', data.raw_data);
+            console.log('raw_data completo:', JSON.stringify(data.raw_data, null, 2));
+            
+            // Verifica se há objeto pix no raw_data
+            if (data.raw_data && data.raw_data.pix) {
+                console.log('PIX encontrado no raw_data:', JSON.stringify(data.raw_data.pix, null, 2));
+            } else {
+                console.log('PIX NÃO encontrado no raw_data. Chaves disponíveis:', Object.keys(data.raw_data || {}));
+            }
             
             // Mostra código PIX e QR Code se disponível
             let html = '<div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">';
