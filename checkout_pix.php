@@ -331,56 +331,6 @@ $cartao_sumup_habilitado = $payment_methods['cartao_sumup_enabled'] && $sumup->i
             </p>
             
             <!-- Seleção de Método de Pagamento -->
-            <?php if ($sumup_habilitado): ?>
-            <div class="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
-                    onclick="selecionarMetodo('sumup')" 
-                    id="btn-sumup"
-                    class="metodo-pagamento flex-1 max-w-md bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                    <i class="fas fa-credit-card mr-2"></i>
-                    Pagar com Cartão (SumUp)
-                </button>
-                <button 
-                    onclick="selecionarMetodo('pix')" 
-                    id="btn-pix"
-                    class="metodo-pagamento flex-1 max-w-md bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                    <i class="fas fa-qrcode mr-2"></i>
-                    Pagar com PIX
-                </button>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Área de Pagamento SumUp (oculta por padrão) -->
-            <?php if ($sumup_habilitado): ?>
-            <div id="area-sumup" class="hidden mb-8">
-                <div class="pix-card text-center">
-                    <h2 class="text-2xl font-bold text-white mb-4">
-                        <i class="fas fa-credit-card mr-2"></i>
-                        Pagamento via SumUp
-                    </h2>
-                    <p class="text-white/70 mb-6">
-                        Clique no botão abaixo para ser redirecionado ao checkout seguro da SumUp
-                    </p>
-                    <button 
-                        onclick="processarSumUp()" 
-                        id="btn-processar-sumup"
-                        class="copy-button bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                    >
-                        <i class="fas fa-lock mr-2"></i>
-                        Finalizar Pagamento com SumUp
-                    </button>
-                    <div id="sumup-loading" class="hidden mt-4">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                        <p class="text-white/70 mt-2">Processando...</p>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Área de Pagamento PIX -->
-            <div id="area-pix" class="<?= $sumup_habilitado ? 'hidden' : '' ?>">
             
             <?php if (empty($chave_pix)): ?>
                 <div class="pix-card text-center">
