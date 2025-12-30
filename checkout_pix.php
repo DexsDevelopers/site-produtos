@@ -559,7 +559,9 @@ try {
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                         <p class="text-white/70 mt-2">Gerando código PIX...</p>
                     </div>
-                    <div id="pix-sumup-result" class="hidden mt-6"></div>
+                    <div id="pix-sumup-result" class="hidden mt-6">
+                        <!-- Resultado será inserido aqui via JavaScript -->
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -723,10 +725,13 @@ async function processarPixSumUp() {
         
         if (data.success) {
             loading.classList.add('hidden');
-            result.classList.remove('hidden');
             
             // Log para debug
-            console.log('SumUp Response:', data);
+            console.log('SumUp Response completa:', data);
+            console.log('pix_code:', data.pix_code);
+            console.log('pix_qr_code:', data.pix_qr_code);
+            console.log('redirect_url:', data.redirect_url);
+            console.log('raw_data:', data.raw_data);
             
             // Mostra código PIX e QR Code se disponível
             let html = '<div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">';
@@ -756,6 +761,7 @@ async function processarPixSumUp() {
             // Se houver redirect_url, mostra botão para abrir checkout
             if (data.redirect_url) {
                 html += '<div class="mt-4">';
+                html += '<p class="text-white/70 text-sm mb-3">Clique no botão abaixo para acessar o checkout da SumUp e visualizar o código PIX:</p>';
                 html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">';
                 html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
                 html += '</a>';
@@ -763,15 +769,23 @@ async function processarPixSumUp() {
             }
             
             // Se não houver código PIX nem QR Code, mas houver checkout_id, informa o usuário
-            if (!data.pix_code && !data.pix_qr_code && data.checkout_id) {
-                html += '<div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">';
-                html += '<p class="text-white/90 text-sm">Checkout criado com sucesso! ID: ' + data.checkout_id + '</p>';
-                html += '<p class="text-white/70 text-xs mt-2">Use o botão abaixo para acessar o checkout e gerar o código PIX.</p>';
-                html += '</div>';
+            if (!data.pix_code && !data.pix_qr_code) {
+                if (data.redirect_url) {
+                    html += '<div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded">';
+                    html += '<p class="text-white/90 text-sm mb-2">✓ Checkout criado com sucesso!</p>';
+                    html += '<p class="text-white/70 text-xs">O código PIX será exibido na página do checkout da SumUp. Clique no botão acima para acessar.</p>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">';
+                    html += '<p class="text-white/90 text-sm">Checkout criado! ID: ' + (data.checkout_id || 'N/A') + '</p>';
+                    html += '<p class="text-white/70 text-xs mt-2">O código PIX pode não estar disponível imediatamente. Verifique o status do checkout.</p>';
+                    html += '</div>';
+                }
             }
             
             html += '</div>';
             result.innerHTML = html;
+            result.classList.remove('hidden'); // Mostra o resultado
         } else {
             console.error('Erro SumUp:', data);
             alert('Erro: ' + (data.message || 'Erro desconhecido ao gerar PIX'));
