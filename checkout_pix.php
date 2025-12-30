@@ -45,10 +45,11 @@ if (empty($_SESSION['carrinho'])) {
     exit();
 }
 
+// Carrega header (config.php já foi carregado na linha 7)
 try {
-    require_once 'config.php';
     require_once 'templates/header.php';
 } catch (Exception $e) {
+    error_log("Erro ao carregar header: " . $e->getMessage());
     die("Erro ao carregar arquivos: " . $e->getMessage());
 }
 
@@ -86,20 +87,32 @@ try {
 // Usa apenas a chave PIX simples (sem QR Code, sem código EMV)
 
 // Verifica métodos de pagamento configurados
+$pix_manual_habilitado = false;
+$pix_sumup_habilitado = false;
+$cartao_sumup_habilitado = false;
+$sumup_habilitado = false;
+$sumup = null;
+
 try {
-    require_once 'includes/sumup_api.php';
-    $sumup = new SumUpAPI($pdo);
-    $payment_methods = $sumup->getPaymentMethods();
-    
-    $pix_manual_habilitado = isset($payment_methods['pix_manual_enabled']) && $payment_methods['pix_manual_enabled'] && !empty($chave_pix);
-    $pix_sumup_habilitado = isset($payment_methods['pix_sumup_enabled']) && $payment_methods['pix_sumup_enabled'] && $sumup->isConfigured();
-    $cartao_sumup_habilitado = isset($payment_methods['cartao_sumup_enabled']) && $payment_methods['cartao_sumup_enabled'] && $sumup->isConfigured();
-} catch (Exception $e) {
-    // Em caso de erro, define valores padrão seguros
-    error_log("Erro ao carregar métodos de pagamento: " . $e->getMessage());
+    if (file_exists(__DIR__ . '/includes/sumup_api.php')) {
+        require_once __DIR__ . '/includes/sumup_api.php';
+        if (class_exists('SumUpAPI')) {
+            $sumup = new SumUpAPI($pdo);
+            $payment_methods = $sumup->getPaymentMethods();
+            $sumup_habilitado = $sumup->isConfigured();
+            
+            $pix_manual_habilitado = isset($payment_methods['pix_manual_enabled']) && $payment_methods['pix_manual_enabled'] && !empty($chave_pix);
+            $pix_sumup_habilitado = isset($payment_methods['pix_sumup_enabled']) && $payment_methods['pix_sumup_enabled'] && $sumup_habilitado;
+            $cartao_sumup_habilitado = isset($payment_methods['cartao_sumup_enabled']) && $payment_methods['cartao_sumup_enabled'] && $sumup_habilitado;
+        }
+    }
+} catch (Throwable $e) {
+    // Captura qualquer erro (Exception ou Error)
+    error_log("Erro ao carregar métodos de pagamento: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString());
     $pix_manual_habilitado = !empty($chave_pix); // Se houver chave PIX, assume PIX manual habilitado
     $pix_sumup_habilitado = false;
     $cartao_sumup_habilitado = false;
+    $sumup_habilitado = false;
 }
 ?>
 
