@@ -537,11 +537,16 @@ class SumUpAPI {
                             $pix_code = $content;
                         } elseif ($location) {
                             // Se não tiver content, faz requisição para obter do location
-                            $pix_content_response = $this->makeRequest('GET', $location);
-                            if ($pix_content_response['success']) {
-                                $pix_code = is_string($pix_content_response['data']) 
-                                    ? $pix_content_response['data'] 
-                                    : ($pix_content_response['data']['content'] ?? null);
+                            // O location é uma URL completa, então precisamos extrair o path
+                            $location_path = parse_url($location, PHP_URL_PATH);
+                            if ($location_path) {
+                                $pix_content_response = $this->makeRequest('GET', $location_path);
+                                if ($pix_content_response['success']) {
+                                    // A resposta pode ser o código diretamente ou um objeto
+                                    $pix_code = is_string($pix_content_response['data']) 
+                                        ? $pix_content_response['data'] 
+                                        : ($pix_content_response['data']['content'] ?? $pix_content_response['data']['code'] ?? null);
+                                }
                             }
                         }
                     }
