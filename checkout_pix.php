@@ -793,6 +793,7 @@ async function processarPixSumUp() {
             }
             
             // Se houver redirect_url, mostra botão para abrir checkout
+            // A SumUp pode não retornar o código PIX via API, mas sim através da página de checkout
             if (data.redirect_url) {
                 html += '<div class="mt-4">';
                 html += '<p class="text-white/90 text-sm mb-3 font-semibold">✓ Checkout criado com sucesso!</p>';
@@ -802,11 +803,18 @@ async function processarPixSumUp() {
                 html += '</a>';
                 html += '</div>';
             } else if (data.checkout_id) {
-                // Se não houver código PIX, tenta fazer polling para verificar se fica disponível
+                // Se não houver redirect_url, mostra opção para abrir checkout manualmente
+                // E também inicia polling para verificar se o código PIX fica disponível via API
                 html += '<div class="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded">';
                 html += '<p class="text-white/90 text-sm mb-2 font-semibold">⏳ Aguardando geração do código PIX...</p>';
-                html += '<p class="text-white/70 text-xs mb-2">ID do Checkout: ' + data.checkout_id + '</p>';
-                html += '<div id="pix-polling-status" class="text-white/70 text-xs">Verificando código PIX...</div>';
+                html += '<p class="text-white/70 text-xs mb-3">ID do Checkout: ' + data.checkout_id + '</p>';
+                html += '<div id="pix-polling-status" class="text-white/70 text-xs mb-3">Verificando código PIX via API...</div>';
+                
+                // Botão alternativo para abrir checkout na SumUp
+                html += '<p class="text-white/70 text-xs mb-2">Ou acesse diretamente o checkout da SumUp:</p>';
+                html += '<a href="https://me.sumup.com/checkout/' + data.checkout_id + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-center text-sm py-2">';
+                html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
+                html += '</a>';
                 html += '</div>';
                 
                 // Inicia polling para verificar se o código PIX fica disponível
@@ -942,6 +950,9 @@ function iniciarPollingPix(checkoutId) {
             
             // Log para debug
             console.log(`Polling tentativa ${tentativas}:`, data);
+            if (data.debug) {
+                console.log('Debug info:', data.debug);
+            }
             
             if (data.success && data.pix_code) {
                 // Código PIX encontrado!
