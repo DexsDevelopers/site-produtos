@@ -940,6 +940,9 @@ function iniciarPollingPix(checkoutId) {
             
             const data = await response.json();
             
+            // Log para debug
+            console.log(`Polling tentativa ${tentativas}:`, data);
+            
             if (data.success && data.pix_code) {
                 // Código PIX encontrado!
                 if (statusElement) {
@@ -985,17 +988,31 @@ function iniciarPollingPix(checkoutId) {
                 return; // Para o polling
             } else if (tentativas >= maxTentativas) {
                 // Limite de tentativas atingido
+                console.log('Limite de tentativas atingido. Última resposta:', data);
+                
                 if (statusElement) {
                     statusElement.textContent = '⏱ Tempo esgotado. O código PIX pode não estar disponível via API.';
                 }
                 
-                // Mostra mensagem alternativa
+                // Mostra mensagem alternativa com informações de debug
                 if (resultElement) {
                     let html = '<div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">';
                     html += '<h3 class="text-white font-bold mb-3">Aguardando Código PIX</h3>';
                     html += '<p class="text-white/90 text-sm mb-2">O código PIX pode não estar disponível imediatamente via API.</p>';
-                    html += '<p class="text-white/70 text-xs mb-4">ID do Checkout: ' + checkoutId + '</p>';
-                    html += '<p class="text-white/70 text-xs">Verifique o status do pagamento no painel da SumUp ou tente novamente mais tarde.</p>';
+                    html += '<p class="text-white/70 text-xs mb-2">ID do Checkout: ' + checkoutId + '</p>';
+                    html += '<p class="text-white/70 text-xs mb-2">Status: ' + (data.checkout_status || 'PENDING') + '</p>';
+                    
+                    // Mostra informações de debug se disponíveis
+                    if (data.debug) {
+                        html += '<details class="mt-2 text-xs">';
+                        html += '<summary class="text-white/70 cursor-pointer">Informações de Debug</summary>';
+                        html += '<pre class="mt-2 p-2 bg-black/50 rounded text-white/70 text-xs overflow-auto">';
+                        html += JSON.stringify(data.debug, null, 2);
+                        html += '</pre>';
+                        html += '</details>';
+                    }
+                    
+                    html += '<p class="text-white/70 text-xs mt-4">Verifique o status do pagamento no painel da SumUp ou tente novamente mais tarde.</p>';
                     html += '</div>';
                     resultElement.innerHTML = html;
                     resultElement.classList.remove('hidden');

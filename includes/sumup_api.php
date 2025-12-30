@@ -485,7 +485,8 @@ class SumUpAPI {
             'amount' => (float)$amount,
             'currency' => $currency,
             'checkout_reference' => $checkout_reference,
-            'merchant_code' => $this->merchant_code
+            'merchant_code' => $this->merchant_code,
+            'payment_type' => 'pix' // Especifica que é um checkout PIX
         ];
         
         // Adiciona dados do cliente se fornecidos
