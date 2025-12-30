@@ -725,13 +725,17 @@ async function processarPixSumUp() {
             loading.classList.add('hidden');
             result.classList.remove('hidden');
             
+            // Log para debug
+            console.log('SumUp Response:', data);
+            
             // Mostra código PIX e QR Code se disponível
             let html = '<div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">';
             html += '<h3 class="text-white font-bold mb-3">Código PIX Gerado</h3>';
             
+            // Verifica se há código PIX
             if (data.pix_code) {
                 html += '<div class="mb-4">';
-                html += '<label class="block text-sm text-white/70 mb-2">Código PIX:</label>';
+                html += '<label class="block text-sm text-white/70 mb-2">Código PIX (Copia e Cola):</label>';
                 html += '<div class="p-3 bg-black/50 rounded border border-white/10 font-mono text-sm text-white break-all" id="pix-code-sumup">' + data.pix_code + '</div>';
                 html += '<button onclick="copiarCodigoPixSumUp()" class="mt-2 copy-button">';
                 html += '<i class="fas fa-copy mr-2"></i>Copiar Código PIX';
@@ -739,23 +743,38 @@ async function processarPixSumUp() {
                 html += '</div>';
             }
             
+            // Verifica se há QR Code
             if (data.pix_qr_code) {
                 html += '<div class="mb-4">';
                 html += '<label class="block text-sm text-white/70 mb-2">QR Code PIX:</label>';
-                html += '<img src="' + data.pix_qr_code + '" alt="QR Code PIX" class="mx-auto max-w-xs">';
+                html += '<div class="flex justify-center">';
+                html += '<img src="' + data.pix_qr_code + '" alt="QR Code PIX" class="w-64 h-64 border border-white/10 rounded-lg p-2 bg-white">';
+                html += '</div>';
                 html += '</div>';
             }
             
+            // Se houver redirect_url, mostra botão para abrir checkout
             if (data.redirect_url) {
-                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block">';
+                html += '<div class="mt-4">';
+                html += '<a href="' + data.redirect_url + '" target="_blank" class="copy-button inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">';
                 html += '<i class="fas fa-external-link-alt mr-2"></i>Abrir Checkout SumUp';
                 html += '</a>';
+                html += '</div>';
+            }
+            
+            // Se não houver código PIX nem QR Code, mas houver checkout_id, informa o usuário
+            if (!data.pix_code && !data.pix_qr_code && data.checkout_id) {
+                html += '<div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">';
+                html += '<p class="text-white/90 text-sm">Checkout criado com sucesso! ID: ' + data.checkout_id + '</p>';
+                html += '<p class="text-white/70 text-xs mt-2">Use o botão abaixo para acessar o checkout e gerar o código PIX.</p>';
+                html += '</div>';
             }
             
             html += '</div>';
             result.innerHTML = html;
         } else {
-            alert('Erro: ' + data.message);
+            console.error('Erro SumUp:', data);
+            alert('Erro: ' + (data.message || 'Erro desconhecido ao gerar PIX'));
             btn.disabled = false;
             loading.classList.add('hidden');
         }
