@@ -733,7 +733,22 @@ async function processarPixSumUp() {
             })
         });
         
-        const data = await response.json();
+        // Verifica se a resposta é OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erro HTTP:', response.status, errorText);
+            throw new Error('Erro ao comunicar com o servidor: ' + response.status);
+        }
+        
+        // Tenta parsear JSON
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            const textResponse = await response.text();
+            console.error('Erro ao parsear JSON:', jsonError, 'Resposta:', textResponse);
+            throw new Error('Resposta inválida do servidor');
+        }
         
         if (data.success) {
             loading.classList.add('hidden');
@@ -823,8 +838,16 @@ async function processarPixSumUp() {
             loading.classList.add('hidden');
         }
     } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao processar PIX. Tente novamente.');
+        console.error('Erro completo:', error);
+        console.error('Stack trace:', error.stack);
+        
+        // Mensagem de erro mais detalhada
+        let errorMessage = 'Erro ao processar PIX.';
+        if (error.message) {
+            errorMessage += ' ' + error.message;
+        }
+        
+        alert(errorMessage + '\n\nVerifique o console para mais detalhes.');
         btn.disabled = false;
         loading.classList.add('hidden');
     }

@@ -1,9 +1,29 @@
 <?php
 // sumup_processar.php - Processa pagamento via SumUp
-session_start();
-require_once 'config.php';
-require_once 'includes/sumup_api.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
+// Inicia buffer para capturar erros
+ob_start();
+
+session_start();
+
+try {
+    require_once 'config.php';
+    require_once 'includes/sumup_api.php';
+} catch (Exception $e) {
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao carregar arquivos: ' . $e->getMessage()
+    ]);
+    exit;
+}
+
+// Limpa qualquer output inesperado
+ob_clean();
 header('Content-Type: application/json');
 
 // Verifica se há itens no carrinho
