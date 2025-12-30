@@ -149,9 +149,14 @@ if ($payment_type === 'pix') {
             'message' => 'Checkout PIX criado com sucesso'
         ]);
     } else {
+        // Log detalhado do erro
+        error_log("Erro ao criar checkout PIX: " . json_encode($result));
+        
         echo json_encode([
             'success' => false,
-            'message' => $result['message'] ?? 'Erro ao criar checkout PIX'
+            'message' => $result['message'] ?? 'Erro ao criar checkout PIX',
+            'http_code' => $result['http_code'] ?? null,
+            'response' => $result['response'] ?? null
         ]);
     }
 } else {
