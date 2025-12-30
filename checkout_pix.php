@@ -73,20 +73,18 @@ foreach ($carrinho_itens as $item) {
     $total_preco += $item['preco'] * $item['quantidade'];
 }
 
-// Busca configuração PIX
+// Busca configuração PIX (FileStorage já vem do config.php)
 try {
-    if (!isset($fileStorage) || !is_object($fileStorage)) {
-        // Tenta inicializar se não estiver disponível
-        if (file_exists(__DIR__ . '/includes/file_storage.php')) {
-            require_once __DIR__ . '/includes/file_storage.php';
-            $fileStorage = new FileStorage();
-        } else {
-            throw new Exception('FileStorage não disponível');
-        }
+    if (isset($fileStorage) && is_object($fileStorage)) {
+        $chave_pix = $fileStorage->getChavePix();
+        $nome_pix = $fileStorage->getNomePix();
+        $cidade_pix = $fileStorage->getCidadePix();
+    } else {
+        // Fallback se FileStorage não estiver disponível
+        $chave_pix = '';
+        $nome_pix = '';
+        $cidade_pix = '';
     }
-    $chave_pix = $fileStorage->getChavePix();
-    $nome_pix = $fileStorage->getNomePix();
-    $cidade_pix = $fileStorage->getCidadePix();
 } catch (Exception $e) {
     // Se houver erro, define valores vazios
     $chave_pix = '';
