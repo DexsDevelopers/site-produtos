@@ -1079,52 +1079,6 @@ require_once 'templates/header.php';
 </section>
 <?php endif; ?>
 
-<!-- Cards de Funcionalidades no Estilo Adsly -->
-<section class="adsly-cards">
-    <div class="container">
-        <h2>Por Que Escolher Nossa Plataforma?</h2>
-        <p class="subtitle">Oferecemos as melhores ferramentas e recursos para sua jornada digital</p>
-        
-        <div class="cards-grid">
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-rocket"></i>
-                </div>
-                <h3>Performance Otimizada</h3>
-                <p>Nossa plataforma foi desenvolvida com foco em velocidade e performance, garantindo uma experiência fluida para todos os usuários.</p>
-                <a href="performance.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
-            </div>
-            
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Segurança Garantida</h3>
-                <p>Proteção total dos seus dados com criptografia avançada e protocolos de segurança de última geração.</p>
-                <a href="seguranca.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
-            </div>
-            
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-headset"></i>
-                </div>
-                <h3>Suporte 24/7</h3>
-                <p>Nossa equipe de suporte está sempre disponível para ajudar você em qualquer momento do dia.</p>
-                <a href="suporte.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Produtos por Categoria no Estilo Adsly -->
 <?php if (!empty($produtos_por_categoria)): ?>
 <section class="adsly-products" id="produtos">
@@ -1354,6 +1308,52 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endforeach; ?>
 });
 </script>
+
+<!-- Cards de Funcionalidades no Estilo Adsly -->
+<section class="adsly-cards">
+    <div class="container">
+        <h2>Por Que Escolher Nossa Plataforma?</h2>
+        <p class="subtitle">Oferecemos as melhores ferramentas e recursos para sua jornada digital</p>
+        
+        <div class="cards-grid">
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Performance Otimizada</h3>
+                <p>Nossa plataforma foi desenvolvida com foco em velocidade e performance, garantindo uma experiência fluida para todos os usuários.</p>
+                <a href="performance.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+            
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Segurança Garantida</h3>
+                <p>Proteção total dos seus dados com criptografia avançada e protocolos de segurança de última geração.</p>
+                <a href="seguranca.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+            
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>Suporte 24/7</h3>
+                <p>Nossa equipe de suporte está sempre disponível para ajudar você em qualquer momento do dia.</p>
+                <a href="suporte.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <?php
 require_once 'templates/footer.php';
