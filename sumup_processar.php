@@ -105,6 +105,10 @@ if ($payment_type === 'pix') {
             }
         }
         
+        // Inclui dados completos para debug, especialmente o objeto pix se existir
+        $raw_data = $result['data'] ?? null;
+        $has_pix = isset($raw_data['pix']) || isset($result['raw_response']['pix']);
+        
         echo json_encode([
             'success' => true,
             'checkout_id' => $result['checkout_id'],
@@ -112,7 +116,8 @@ if ($payment_type === 'pix') {
             'redirect_url' => $result['redirect_url'] ?? $result['data']['redirect_url'] ?? null,
             'pix_code' => $pix_code,
             'pix_qr_code' => $pix_qr_code,
-            'raw_data' => $result['data'] ?? null, // Inclui dados completos para debug
+            'raw_data' => $raw_data, // Inclui dados completos para debug
+            'has_pix_object' => $has_pix, // Indica se há objeto pix na resposta
             'message' => 'Checkout PIX criado com sucesso'
         ]);
     } else {
