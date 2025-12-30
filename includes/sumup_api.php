@@ -17,6 +17,18 @@ class SumUpAPI {
      */
     private function loadCredentials() {
         try {
+            // Garante que a tabela config existe antes de consultar
+            $this->pdo->exec("
+                CREATE TABLE IF NOT EXISTS config (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    config_key VARCHAR(255) UNIQUE NOT NULL,
+                    config_value TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_config_key (config_key)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+            
             $stmt = $this->pdo->prepare("SELECT config_value FROM config WHERE config_key = ?");
             
             $stmt->execute(['sumup_api_key']);
