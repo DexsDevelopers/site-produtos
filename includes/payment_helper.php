@@ -17,6 +17,9 @@ class PaymentHelper {
     public function getCheckoutUrl() {
         $payment_methods = $this->sumup->getPaymentMethods();
         
+        // Sempre retorna checkout_pix.php se houver pelo menos um método habilitado
+        // O checkout_pix.php decide qual método mostrar baseado nas configurações
+        
         // Prioridade: PIX Manual > PIX SumUp > Cartão SumUp
         if ($payment_methods['pix_manual_enabled']) {
             // Verifica se há chave PIX configurada
@@ -29,12 +32,18 @@ class PaymentHelper {
             }
         }
         
-        if ($payment_methods['pix_sumup_enabled'] && $this->sumup->isConfigured()) {
-            return 'checkout_pix.php';
+        // PIX SumUp - só precisa estar habilitado e SumUp configurado
+        if ($payment_methods['pix_sumup_enabled']) {
+            if ($this->sumup->isConfigured()) {
+                return 'checkout_pix.php';
+            }
         }
         
-        if ($payment_methods['cartao_sumup_enabled'] && $this->sumup->isConfigured()) {
-            return 'checkout_pix.php';
+        // Cartão SumUp - só precisa estar habilitado e SumUp configurado
+        if ($payment_methods['cartao_sumup_enabled']) {
+            if ($this->sumup->isConfigured()) {
+                return 'checkout_pix.php';
+            }
         }
         
         return null;
