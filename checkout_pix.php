@@ -828,10 +828,12 @@ function copiarCodigoPixSumUp() {
 
 // Se houver apenas um método, mostra automaticamente
 document.addEventListener('DOMContentLoaded', function() {
-    const metodos = <?= json_encode($metodos_disponiveis) ?>;
-    if (metodos.length === 1) {
+    <?php if (!empty($metodos_disponiveis)): ?>
+    const metodos = <?= json_encode($metodos_disponiveis, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    if (metodos && metodos.length === 1) {
         selecionarMetodo(metodos[0]);
     }
+    <?php endif; ?>
 });
 </script>
 
