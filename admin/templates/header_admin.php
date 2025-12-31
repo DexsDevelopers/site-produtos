@@ -95,6 +95,7 @@ require_once '../config.php';
             }
         }
         
+        /* Sidebar - Desktop sempre visível, Mobile escondido */
         .admin-sidebar {
             background: rgba(15, 23, 42, 0.98);
             backdrop-filter: blur(20px);
@@ -106,26 +107,25 @@ require_once '../config.php';
             left: 0;
             z-index: 1000;
             overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         /* Desktop: sempre visível */
         @media (min-width: 1024px) {
             .admin-sidebar {
-                transform: translateX(0) !important;
-                position: fixed;
+                transform: translateX(0);
             }
         }
         
         /* Mobile: escondido por padrão */
         @media (max-width: 1023px) {
             .admin-sidebar {
-                width: 100%;
+                width: 85%;
                 max-width: 320px;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
             }
             
-            .admin-sidebar.menu-open {
+            .admin-sidebar.is-open {
                 transform: translateX(0);
             }
         }
@@ -181,26 +181,26 @@ require_once '../config.php';
         
         /* Overlay para mobile */
         .mobile-overlay {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 999;
-            backdrop-filter: blur(2px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
         }
         
-        @media (max-width: 1023px) {
-            .mobile-overlay.show {
-                display: block;
-            }
+        .mobile-overlay.is-visible {
+            opacity: 1;
+            visibility: visible;
         }
         
         @media (min-width: 1024px) {
             .mobile-overlay {
-                display: none !important;
+                display: none;
             }
         }
         
@@ -351,6 +351,24 @@ require_once '../config.php';
                 padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
             }
         }
+        
+        /* Main Content Wrapper */
+        .main-wrapper {
+            width: 100%;
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (min-width: 1024px) {
+            .main-wrapper {
+                margin-left: 280px;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            .main-wrapper {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-admin-dark text-white">
@@ -449,16 +467,8 @@ require_once '../config.php';
         </div>
     </nav>
     
-    <!-- Main Content -->
-    <div style="margin-left: 0;">
-        <style>
-            @media (min-width: 1024px) {
-                #main-content {
-                    margin-left: 280px;
-                }
-            }
-        </style>
-        <div id="main-content">
+    <!-- Main Content Wrapper -->
+    <div id="main-wrapper" class="main-wrapper">
         <!-- Top Bar -->
         <header class="bg-admin-gray-800/50 backdrop-blur-lg border-b border-admin-gray-700 sticky top-0 z-40 safe-area-top">
             <div class="px-4 sm:px-6 lg:px-8">

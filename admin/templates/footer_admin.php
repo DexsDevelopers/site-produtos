@@ -14,22 +14,22 @@
             
             function openMenu() {
                 if (sidebar && mobileOverlay) {
-                    sidebar.classList.add('menu-open');
-                    mobileOverlay.classList.add('show');
+                    sidebar.classList.add('is-open');
+                    mobileOverlay.classList.add('is-visible');
                     document.body.style.overflow = 'hidden';
                 }
             }
             
             function closeMenu() {
                 if (sidebar && mobileOverlay) {
-                    sidebar.classList.remove('menu-open');
-                    mobileOverlay.classList.remove('show');
+                    sidebar.classList.remove('is-open');
+                    mobileOverlay.classList.remove('is-visible');
                     document.body.style.overflow = '';
                 }
             }
             
             function toggleMenu() {
-                if (sidebar && sidebar.classList.contains('menu-open')) {
+                if (sidebar && sidebar.classList.contains('is-open')) {
                     closeMenu();
                 } else {
                     openMenu();
