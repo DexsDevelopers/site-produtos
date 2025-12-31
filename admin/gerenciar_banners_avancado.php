@@ -348,9 +348,41 @@ function openReorderModal() {
 }
 
 function closeReorder() {
-    document.getElementById('reorderModal').classList.add('hidden');
+    const modal = document.getElementById('reorderModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        console.log('Modal reorder fechado');
+    }
     isReorderMode = false;
 }
+
+function closeReorderOnOverlay(event) {
+    if (event.target === event.currentTarget) {
+        closeReorder();
+    }
+}
+
+// Event listeners para o modal
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.getElementById('closeReorderBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeReorder();
+        });
+    }
+    
+    // Fechar com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('reorderModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                closeReorder();
+            }
+        }
+    });
+});
 
 function saveReorder() {
     const reorderList = document.getElementById('reorderList');
