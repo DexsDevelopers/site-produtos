@@ -11,32 +11,52 @@
             const sidebar = document.getElementById('sidebar');
             const mobileOverlay = document.getElementById('mobile-overlay');
             
-            function toggleSidebar() {
+            function openMenu() {
                 if (sidebar && mobileOverlay) {
-                    sidebar.classList.toggle('open');
-                    mobileOverlay.classList.toggle('hidden');
-                    // Previne scroll do body quando menu está aberto
-                    if (sidebar.classList.contains('open')) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
+                    sidebar.classList.add('menu-open');
+                    mobileOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
                 }
             }
             
+            function closeMenu() {
+                if (sidebar && mobileOverlay) {
+                    sidebar.classList.remove('menu-open');
+                    mobileOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }
+            
+            function toggleMenu() {
+                if (sidebar && sidebar.classList.contains('menu-open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            }
+            
+            // Botão do header mobile
             if (mobileMenuBtn) {
-                mobileMenuBtn.addEventListener('click', toggleSidebar);
+                mobileMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
             }
             
+            // Botão do bottom nav
             if (bottomMenuBtn) {
-                bottomMenuBtn.addEventListener('click', toggleSidebar);
+                bottomMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
             }
             
+            // Fecha ao clicar no overlay
             if (mobileOverlay) {
                 mobileOverlay.addEventListener('click', function() {
-                    sidebar.classList.remove('open');
-                    mobileOverlay.classList.add('hidden');
-                    document.body.style.overflow = '';
+                    closeMenu();
                 });
             }
             
@@ -45,10 +65,8 @@
                 const navLinks = document.querySelectorAll('.admin-nav-item');
                 navLinks.forEach(link => {
                     link.addEventListener('click', function() {
-                        setTimeout(() => {
-                            sidebar.classList.remove('open');
-                            mobileOverlay.classList.add('hidden');
-                            document.body.style.overflow = '';
+                        setTimeout(function() {
+                            closeMenu();
                         }, 100);
                     });
                 });
@@ -57,9 +75,7 @@
             // Auto-hide mobile menu on window resize
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 1024) {
-                    sidebar.classList.remove('open');
-                    mobileOverlay.classList.add('hidden');
-                    document.body.style.overflow = '';
+                    closeMenu();
                 }
             });
             

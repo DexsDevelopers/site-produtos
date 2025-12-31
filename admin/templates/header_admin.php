@@ -100,12 +100,33 @@ require_once '../config.php';
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 280px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
         }
         
+        /* Desktop: sempre visível */
+        @media (min-width: 1024px) {
+            .admin-sidebar {
+                transform: translateX(0) !important;
+                position: fixed;
+            }
+        }
+        
+        /* Mobile: escondido por padrão */
         @media (max-width: 1023px) {
             .admin-sidebar {
                 width: 100%;
                 max-width: 320px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            .admin-sidebar.menu-open {
+                transform: translateX(0);
             }
         }
         
@@ -158,19 +179,29 @@ require_once '../config.php';
             }
         }
         
-        .mobile-menu {
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Overlay para mobile */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
         }
         
-        @media (min-width: 1024px) {
-            .mobile-menu {
-                transform: translateX(0) !important;
+        @media (max-width: 1023px) {
+            .mobile-overlay.show {
+                display: block;
             }
         }
         
-        .mobile-menu.open {
-            transform: translateX(0);
+        @media (min-width: 1024px) {
+            .mobile-overlay {
+                display: none !important;
+            }
         }
         
         .chart-container {
@@ -324,10 +355,10 @@ require_once '../config.php';
 </head>
 <body class="bg-admin-dark text-white">
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+    <div id="mobile-overlay" class="mobile-overlay"></div>
     
     <!-- Sidebar -->
-    <div id="sidebar" class="admin-sidebar fixed left-0 top-0 h-full w-64 z-50 lg:translate-x-0 mobile-menu">
+    <div id="sidebar" class="admin-sidebar">
         <div class="p-6">
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8">
@@ -419,7 +450,15 @@ require_once '../config.php';
     </nav>
     
     <!-- Main Content -->
-    <div class="lg:ml-64">
+    <div style="margin-left: 0;">
+        <style>
+            @media (min-width: 1024px) {
+                #main-content {
+                    margin-left: 280px;
+                }
+            }
+        </style>
+        <div id="main-content">
         <!-- Top Bar -->
         <header class="bg-admin-gray-800/50 backdrop-blur-lg border-b border-admin-gray-700 sticky top-0 z-40 safe-area-top">
             <div class="px-4 sm:px-6 lg:px-8">
