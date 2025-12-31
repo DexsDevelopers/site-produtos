@@ -509,17 +509,6 @@ try {
             <div class="flex justify-between items-center mb-10"><a href="index.php"><img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Logo" class="h-6 object-contain" /></a><button id="close-menu-btn" aria-label="Fechar menu" class="p-2 text-gray-500 hover:text-white transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>
             <nav class="flex-grow">
                 <ul class="flex flex-col gap-2 font-semibold text-lg">
-                    <li class="menu-item">
-                        <a href="index.php#destaques" class="menu-link block p-3 rounded-md text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
-                            Destaques
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="index.php#promocoes" class="menu-link block p-3 rounded-md text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
-                            Promoções
-                        </a>
-                    </li>
-                    
                     <!-- Categorias no Menu Mobile -->
                     <?php if (!empty($categorias_menu)): ?>
                         <li class="menu-item">
