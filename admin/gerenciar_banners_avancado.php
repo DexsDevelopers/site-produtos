@@ -249,12 +249,12 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
 </div>
 
 <!-- Modal de Reordenação -->
-<div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeReorderOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-4xl w-full">
+        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-4xl w-full" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Reordenar Banners</h3>
-                <button type="button" onclick="closeReorder()" class="text-admin-gray-400 hover:text-white transition-colors">
+                <button type="button" id="closeReorderBtn" class="text-admin-gray-400 hover:text-white hover:bg-admin-gray-700 p-2 rounded-lg transition-all">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>

@@ -188,12 +188,12 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
 </div>
 
 <!-- Modal de Reordenação -->
-<div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeReorderOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full">
+        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Reordenar Categorias</h3>
-                <button type="button" onclick="closeReorder()" class="text-admin-gray-400 hover:text-white transition-colors">
+                <button type="button" id="closeReorderBtn" class="text-admin-gray-400 hover:text-white hover:bg-admin-gray-700 p-2 rounded-lg transition-all">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -263,9 +263,38 @@ function closeReorder() {
     const modal = document.getElementById('reorderModal');
     if (modal) {
         modal.classList.add('hidden');
+        console.log('Modal reorder fechado');
     }
     isReorderMode = false;
 }
+
+function closeReorderOnOverlay(event) {
+    if (event.target === event.currentTarget) {
+        closeReorder();
+    }
+}
+
+// Event listeners para o modal
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.getElementById('closeReorderBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeReorder();
+        });
+    }
+    
+    // Fechar com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('reorderModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                closeReorder();
+            }
+        }
+    });
+});
 
 function saveReorder() {
     const reorderList = document.getElementById('reorderList');
