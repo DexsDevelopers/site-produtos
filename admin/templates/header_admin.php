@@ -163,6 +163,12 @@ require_once '../config.php';
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        @media (min-width: 1024px) {
+            .mobile-menu {
+                transform: translateX(0) !important;
+            }
+        }
+        
         .mobile-menu.open {
             transform: translateX(0);
         }
