@@ -7,6 +7,14 @@ if (session_status() === PHP_SESSION_NONE) {
 // Busca categorias do banco de dados para o menu
 $categorias_menu = [];
 try {
+    // Verifica se $pdo está disponível (config.php deve ser carregado antes)
+    if (!isset($pdo)) {
+        // Tenta carregar config.php se não estiver carregado
+        if (file_exists(__DIR__ . '/../config.php')) {
+            require_once __DIR__ . '/../config.php';
+        }
+    }
+    
     if (isset($pdo)) {
         $stmt_categorias = $pdo->query("SELECT id, nome, slug FROM categorias ORDER BY ordem ASC, nome ASC");
         $categorias_menu = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
