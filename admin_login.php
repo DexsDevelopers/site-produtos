@@ -93,14 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-sm font-medium text-white mb-2">Email</label>
                     <input type="email" name="email" required 
                            class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                           placeholder="admin@loja.com">
+                           placeholder="Digite seu email">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-white mb-2">Senha</label>
                     <input type="password" name="senha" required 
                            class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                           placeholder="admin123">
+                           placeholder="Digite sua senha">
                 </div>
 
                 <button type="submit" 
@@ -108,14 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Entrar no Admin
                 </button>
             </form>
-
-            <div class="mt-6 text-center">
-                <p class="text-sm text-brand-gray-text">
-                    Credenciais padrão:<br>
-                    <strong>Email:</strong> admin@loja.com<br>
-                    <strong>Senha:</strong> admin123
-                </p>
-            </div>
         </div>
 
         <div class="mt-6 text-center">
