@@ -1,4 +1,5 @@
         </main>
+        </div>
     </div>
     
     <!-- JavaScript para funcionalidades do admin -->
