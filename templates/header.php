@@ -509,25 +509,41 @@ try {
             <div class="flex justify-between items-center mb-10"><a href="index.php"><img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Logo" class="h-6 object-contain" /></a><button id="close-menu-btn" aria-label="Fechar menu" class="p-2 text-gray-500 hover:text-white transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>
             <nav class="flex-grow">
                 <ul class="flex flex-col gap-2 font-semibold text-lg">
+                    <!-- Link para Todos os Produtos -->
+                    <li class="menu-item">
+                        <a href="busca.php?todos=1" class="menu-link block p-3 rounded-md text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
+                            <i class="fas fa-th mr-2"></i>
+                            Todos os Produtos
+                        </a>
+                    </li>
+                    
                     <!-- Categorias no Menu Mobile -->
                     <?php if (!empty($categorias_menu)): ?>
                         <li class="menu-item">
-                            <div class="px-3 py-2 text-brand-gray-text text-sm font-semibold uppercase tracking-wider">
+                            <div class="px-3 py-2 text-brand-gray-text text-sm font-semibold uppercase tracking-wider border-t border-brand-gray-light pt-4 mt-2">
                                 Categorias
                             </div>
                         </li>
                         <?php foreach ($categorias_menu as $categoria): ?>
                         <li class="menu-item">
                             <a href="categoria.php?id=<?= $categoria['id'] ?>" class="menu-link block p-3 rounded-md text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
+                                <i class="fas fa-tag mr-2 text-brand-red"></i>
                                 <?= htmlspecialchars($categoria['nome']) ?>
                             </a>
                         </li>
                         <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="menu-item">
+                            <div class="px-3 py-2 text-brand-gray-text text-sm">
+                                Nenhuma categoria disponível
+                            </div>
+                        </li>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="menu-item">
+                    <li class="menu-item border-t border-brand-gray-light pt-4 mt-2">
                         <a href="afiliado_dashboard.php" class="menu-link block p-3 rounded-md text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
+                            <i class="fas fa-chart-line mr-2"></i>
                             Dashboard do Afiliado
                         </a>
                     </li>
