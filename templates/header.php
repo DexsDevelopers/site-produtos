@@ -16,11 +16,24 @@ try {
     }
     
     if (isset($pdo)) {
-        $stmt_categorias = $pdo->query("SELECT id, nome, slug FROM categorias ORDER BY ordem ASC, nome ASC");
+        // Busca apenas id e nome, ordena por ordem e depois por nome
+        $stmt_categorias = $pdo->query("SELECT id, nome FROM categorias ORDER BY ordem ASC, nome ASC");
         $categorias_menu = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Log para debug (apenas se não encontrar categorias)
+        if (empty($categorias_menu)) {
+            error_log("Nenhuma categoria encontrada no banco de dados para o menu");
+        } else {
+            error_log("Categorias encontradas para o menu: " . count($categorias_menu));
+        }
+    } else {
+        error_log("PDO não está disponível no header.php para buscar categorias");
     }
+} catch (PDOException $e) {
+    error_log("Erro PDO ao buscar categorias para o menu: " . $e->getMessage());
+    $categorias_menu = [];
 } catch (Exception $e) {
-    error_log("Erro ao buscar categorias para o menu: " . $e->getMessage());
+    error_log("Erro geral ao buscar categorias para o menu: " . $e->getMessage());
     $categorias_menu = [];
 }
 ?>
