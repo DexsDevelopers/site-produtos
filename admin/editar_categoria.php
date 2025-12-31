@@ -210,12 +210,12 @@ if ($categoria_id > 0) {
 </div>
 
 <!-- Modal de Seleção de Ícones -->
-<div id="iconModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div id="iconModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeIconPickerOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
+        <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Selecionar Ícone</h3>
-                <button type="button" onclick="closeIconPicker()" class="text-admin-gray-400 hover:text-white transition-colors">
+                <button type="button" id="closeIconBtn" class="text-admin-gray-400 hover:text-white hover:bg-admin-gray-700 p-2 rounded-lg transition-all">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -261,8 +261,34 @@ function closeIconPicker() {
     const modal = document.getElementById('iconModal');
     if (modal) {
         modal.classList.add('hidden');
+        console.log('Modal fechado');
     }
 }
+
+function closeIconPickerOnOverlay(event) {
+    if (event.target === event.currentTarget) {
+        closeIconPicker();
+    }
+}
+
+// Adicionar event listener para o botão X
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.getElementById('closeIconBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeIconPicker();
+        });
+    }
+    
+    // Fechar com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeIconPicker();
+        }
+    });
+});
 
 function selectIcon(icon) {
     document.getElementById('icone').value = icon;
