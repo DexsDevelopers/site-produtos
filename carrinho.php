@@ -1,13 +1,27 @@
 <?php
 // carrinho.php - Página do Carrinho de Compras
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 session_start();
 require_once 'config.php';
 
-// Verifica métodos de pagamento disponíveis
-require_once 'includes/payment_helper.php';
-$paymentHelper = new PaymentHelper($pdo);
-$checkout_url = $paymentHelper->getCheckoutUrl();
-$checkout_button_text = $paymentHelper->getCheckoutButtonText();
+// Verifica se há chave PIX configurada para habilitar checkout
+$checkout_url = null;
+$checkout_button_text = 'Finalizar Compra';
+
+try {
+    if (isset($fileStorage) && is_object($fileStorage)) {
+        $chave_pix = $fileStorage->getChavePix();
+        if (!empty($chave_pix)) {
+            $checkout_url = 'checkout_pix.php';
+            $checkout_button_text = 'Finalizar Compra';
+        }
+    }
+} catch (Exception $e) {
+    error_log("Erro ao verificar chave PIX em carrinho.php: " . $e->getMessage());
+}
 
 // Processa ações do carrinho ANTES do header para evitar HTML em respostas JSON
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
