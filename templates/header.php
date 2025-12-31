@@ -370,6 +370,27 @@ try {
                             <img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Logo" class="h-6 lg:h-8 object-contain" />
                         </a>
                     </div>
+                    
+                    <!-- Menu de Categorias Desktop -->
+                    <?php if (!empty($categorias_menu)): ?>
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 text-white hover:text-brand-red transition-colors px-3 py-2">
+                            <span class="font-medium">Categorias</span>
+                            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="absolute top-full left-0 mt-2 w-64 bg-brand-black border border-brand-gray-light rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="py-2">
+                                <?php foreach ($categorias_menu as $categoria): ?>
+                                <a href="categoria.php?id=<?= $categoria['id'] ?>" class="block px-4 py-2 text-white hover:bg-brand-gray-light hover:text-brand-red transition-colors">
+                                    <?= htmlspecialchars($categoria['nome']) ?>
+                                </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="flex-1 justify-center px-8">
