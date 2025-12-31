@@ -7,18 +7,50 @@
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const bottomMenuBtn = document.getElementById('bottom-menu-btn');
             const sidebar = document.getElementById('sidebar');
             const mobileOverlay = document.getElementById('mobile-overlay');
             
-            if (mobileMenuBtn && sidebar) {
-                mobileMenuBtn.addEventListener('click', function() {
+            function toggleSidebar() {
+                if (sidebar && mobileOverlay) {
                     sidebar.classList.toggle('open');
                     mobileOverlay.classList.toggle('hidden');
-                });
-                
+                    // Previne scroll do body quando menu está aberto
+                    if (sidebar.classList.contains('open')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                }
+            }
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', toggleSidebar);
+            }
+            
+            if (bottomMenuBtn) {
+                bottomMenuBtn.addEventListener('click', toggleSidebar);
+            }
+            
+            if (mobileOverlay) {
                 mobileOverlay.addEventListener('click', function() {
                     sidebar.classList.remove('open');
                     mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+            }
+            
+            // Fecha menu ao clicar em link (mobile)
+            if (window.innerWidth < 1024) {
+                const navLinks = document.querySelectorAll('.admin-nav-item');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        setTimeout(() => {
+                            sidebar.classList.remove('open');
+                            mobileOverlay.classList.add('hidden');
+                            document.body.style.overflow = '';
+                        }, 100);
+                    });
                 });
             }
             
@@ -27,8 +59,19 @@
                 if (window.innerWidth >= 1024) {
                     sidebar.classList.remove('open');
                     mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = '';
                 }
             });
+            
+            // Previne zoom duplo toque
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
             
             // Animate cards on scroll
             const observerOptions = {
@@ -50,10 +93,11 @@
             });
         });
         
-        // Função para mostrar notificações
+        // Função para mostrar notificações (mobile-friendly)
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ${
+            const isMobile = window.innerWidth < 640;
+            notification.className = `fixed ${isMobile ? 'top-20 left-4 right-4' : 'top-4 right-4'} p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ${
                 type === 'success' ? 'bg-admin-success text-white' :
                 type === 'error' ? 'bg-admin-danger text-white' :
                 type === 'warning' ? 'bg-admin-warning text-white' :
@@ -68,7 +112,7 @@
                         type === 'warning' ? 'fa-exclamation-triangle' :
                         'fa-info-circle'
                     }"></i>
-                    <span>${message}</span>
+                    <span class="${isMobile ? 'text-sm' : ''}">${message}</span>
                 </div>
             `;
             
@@ -83,7 +127,9 @@
             setTimeout(() => {
                 notification.classList.add('translate-x-full');
                 setTimeout(() => {
-                    document.body.removeChild(notification);
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
                 }, 300);
             }, 3000);
         }

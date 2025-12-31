@@ -6,7 +6,12 @@ require_once '../config.php';
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Admin Panel">
+    <meta name="mobile-web-app-capable" content="yes">
     <title><?= isset($page_title) ? $page_title . ' - ' : '' ?>Painel Administrativo</title>
     
     <!-- Fonts Modernas -->
@@ -73,47 +78,83 @@ require_once '../config.php';
     </script>
     
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body { 
             font-family: 'Inter', sans-serif; 
             background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             min-height: 100vh;
+            padding-bottom: 80px; /* Espaço para bottom nav no mobile */
+        }
+        
+        @media (min-width: 1024px) {
+            body {
+                padding-bottom: 0;
+            }
         }
         
         .admin-sidebar {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(15, 23, 42, 0.98);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 280px;
+        }
+        
+        @media (max-width: 1023px) {
+            .admin-sidebar {
+                width: 100%;
+                max-width: 320px;
+            }
         }
         
         .admin-card {
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         
-        .admin-nav-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        @media (max-width: 640px) {
+            .admin-card {
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+            }
         }
         
-        .admin-nav-item:hover {
-            background: rgba(59, 130, 246, 0.1);
-            transform: translateX(4px);
+        .admin-nav-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .admin-nav-item:active {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(0.98);
+        }
+        
+        @media (min-width: 1024px) {
+            .admin-nav-item:hover {
+                background: rgba(59, 130, 246, 0.1);
+                transform: translateX(4px);
+            }
         }
         
         .admin-nav-item.active {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.25);
             border-right: 3px solid #3B82F6;
         }
         
         .stat-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
         
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        @media (min-width: 1024px) {
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            }
         }
         
         .mobile-menu {
@@ -130,11 +171,147 @@ require_once '../config.php';
             height: 300px;
         }
         
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+        
         .gradient-text {
             background: linear-gradient(135deg, #3B82F6, #8B5CF6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        /* Bottom Navigation Bar (Mobile) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 0;
+            z-index: 50;
+            display: none;
+        }
+        
+        @media (max-width: 1023px) {
+            .bottom-nav {
+                display: block;
+            }
+        }
+        
+        .bottom-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: rgba(148, 163, 184, 0.7);
+            transition: all 0.2s;
+            text-decoration: none;
+            -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+        }
+        
+        .bottom-nav-item.active {
+            color: #3B82F6;
+        }
+        
+        .bottom-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .bottom-nav-item span {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 640px) {
+            h1, h2, h3 {
+                font-size: 1.5rem !important;
+            }
+            
+            input, textarea, select {
+                font-size: 16px !important; /* Previne zoom no iOS */
+            }
+            
+            table {
+                font-size: 0.875rem;
+            }
+            
+            .btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                min-height: 44px; /* Tamanho mínimo para touch */
+            }
+        }
+        
+        /* Table Responsive */
+        @media (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            thead {
+                display: none;
+            }
+            
+            tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                background: rgba(30, 41, 59, 0.6);
+                border-radius: 0.5rem;
+                padding: 1rem;
+            }
+            
+            tbody td {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.5rem 0;
+                border: none;
+            }
+            
+            tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: rgba(148, 163, 184, 0.8);
+                margin-right: 1rem;
+            }
+        }
+        
+        /* Form Mobile */
+        @media (max-width: 640px) {
+            form {
+                padding: 0;
+            }
+            
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        /* Safe Area for Notch */
+        @supports (padding: max(0px)) {
+            .bottom-nav {
+                padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
@@ -212,32 +389,58 @@ require_once '../config.php';
         </div>
     </div>
     
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="flex justify-around items-center">
+            <a href="index.php" class="bottom-nav-item <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : '' ?>">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="gerenciar_produtos.php" class="bottom-nav-item <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : '' ?>">
+                <i class="fas fa-box"></i>
+                <span>Produtos</span>
+            </a>
+            <a href="adicionar_produto.php" class="bottom-nav-item <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : '' ?>">
+                <i class="fas fa-plus-circle"></i>
+                <span>Adicionar</span>
+            </a>
+            <a href="pedidos.php" class="bottom-nav-item <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : '' ?>">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Pedidos</span>
+            </a>
+            <button id="bottom-menu-btn" class="bottom-nav-item">
+                <i class="fas fa-bars"></i>
+                <span>Mais</span>
+            </button>
+        </div>
+    </nav>
+    
     <!-- Main Content -->
     <div class="lg:ml-64">
         <!-- Top Bar -->
-        <header class="bg-admin-gray-800/50 backdrop-blur-lg border-b border-admin-gray-700 sticky top-0 z-40">
+        <header class="bg-admin-gray-800/50 backdrop-blur-lg border-b border-admin-gray-700 sticky top-0 z-40 safe-area-top">
             <div class="px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
+                <div class="flex justify-between items-center h-14 lg:h-16">
                     <!-- Mobile menu button -->
-                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-admin-gray-400 hover:text-white hover:bg-admin-gray-700">
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-admin-gray-400 active:bg-admin-gray-700 active:scale-95 transition-all" aria-label="Menu">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                     
                     <!-- Page Title -->
-                    <div class="flex-1 lg:flex-none">
-                        <h2 class="text-xl font-semibold text-white">
+                    <div class="flex-1 lg:flex-none ml-2 lg:ml-0">
+                        <h2 class="text-lg lg:text-xl font-semibold text-white truncate">
                             <?= isset($page_title) ? $page_title : 'Dashboard' ?>
                         </h2>
                     </div>
                     
                     <!-- User Info -->
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 lg:gap-4">
                         <div class="hidden sm:block text-right">
-                            <p class="text-sm font-medium text-white"><?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin') ?></p>
-                            <p class="text-xs text-admin-gray-400">Administrador</p>
+                            <p class="text-sm font-medium text-white truncate max-w-[120px]"><?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin') ?></p>
+                            <p class="text-xs text-admin-gray-400 hidden lg:block">Administrador</p>
                         </div>
-                        <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
+                        <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-white text-xs lg:text-sm"></i>
                         </div>
                     </div>
                 </div>
@@ -245,4 +448,4 @@ require_once '../config.php';
         </header>
         
         <!-- Page Content -->
-        <main class="p-4 sm:p-6 lg:p-8">
+        <main class="p-3 sm:p-4 lg:p-6 xl:p-8 pb-20 lg:pb-8">
