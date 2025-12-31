@@ -193,7 +193,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Reordenar Categorias</h3>
-                <button onclick="closeReorder()" class="text-admin-gray-400 hover:text-white">
+                <button type="button" onclick="closeReorder()" class="text-admin-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -260,7 +260,10 @@ function openReorderModal() {
 }
 
 function closeReorder() {
-    document.getElementById('reorderModal').classList.add('hidden');
+    const modal = document.getElementById('reorderModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
     isReorderMode = false;
 }
 

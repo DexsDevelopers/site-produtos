@@ -215,7 +215,7 @@ if ($categoria_id > 0) {
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Selecionar Ícone</h3>
-                <button onclick="closeIconPicker()" class="text-admin-gray-400 hover:text-white">
+                <button type="button" onclick="closeIconPicker()" class="text-admin-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -258,7 +258,10 @@ function showIconPicker() {
 }
 
 function closeIconPicker() {
-    document.getElementById('iconModal').classList.add('hidden');
+    const modal = document.getElementById('iconModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 function selectIcon(icon) {

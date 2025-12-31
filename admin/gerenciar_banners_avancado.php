@@ -254,7 +254,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-4xl w-full">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-white">Reordenar Banners</h3>
-                <button onclick="closeReorder()" class="text-admin-gray-400 hover:text-white">
+                <button type="button" onclick="closeReorder()" class="text-admin-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
