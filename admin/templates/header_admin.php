@@ -148,6 +148,7 @@ require_once '../config.php';
         .stat-card {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
             border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
         }
         
         @media (min-width: 1024px) {

@@ -94,27 +94,36 @@
         });
         
         // Função para mostrar notificações (mobile-friendly)
-        function showNotification(message, type = 'info') {
+        function showNotification(message, type) {
+            type = type || 'info';
             const notification = document.createElement('div');
             const isMobile = window.innerWidth < 640;
-            notification.className = `fixed ${isMobile ? 'top-20 left-4 right-4' : 'top-4 right-4'} p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ${
-                type === 'success' ? 'bg-admin-success text-white' :
-                type === 'error' ? 'bg-admin-danger text-white' :
-                type === 'warning' ? 'bg-admin-warning text-white' :
-                'bg-admin-primary text-white'
-            }`;
+            const positionClass = isMobile ? 'top-20 left-4 right-4' : 'top-4 right-4';
+            let colorClass = 'bg-admin-primary text-white';
+            if (type === 'success') {
+                colorClass = 'bg-admin-success text-white';
+            } else if (type === 'error') {
+                colorClass = 'bg-admin-danger text-white';
+            } else if (type === 'warning') {
+                colorClass = 'bg-admin-warning text-white';
+            }
             
-            notification.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <i class="fas ${
-                        type === 'success' ? 'fa-check-circle' :
-                        type === 'error' ? 'fa-exclamation-circle' :
-                        type === 'warning' ? 'fa-exclamation-triangle' :
-                        'fa-info-circle'
-                    }"></i>
-                    <span class="${isMobile ? 'text-sm' : ''}">${message}</span>
-                </div>
-            `;
+            notification.className = 'fixed ' + positionClass + ' p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ' + colorClass;
+            
+            let iconClass = 'fa-info-circle';
+            if (type === 'success') {
+                iconClass = 'fa-check-circle';
+            } else if (type === 'error') {
+                iconClass = 'fa-exclamation-circle';
+            } else if (type === 'warning') {
+                iconClass = 'fa-exclamation-triangle';
+            }
+            
+            const textSizeClass = isMobile ? 'text-sm' : '';
+            notification.innerHTML = '<div class="flex items-center gap-3">' +
+                '<i class="fas ' + iconClass + '"></i>' +
+                '<span class="' + textSizeClass + '">' + message + '</span>' +
+                '</div>';
             
             document.body.appendChild(notification);
             
