@@ -932,10 +932,22 @@ require_once 'templates/header.php';
     }
 }
 
-/* Desktop - banner ultra compacto */
+/* Desktop - banner tamanho igual aos cards de produtos */
 @media (min-width: 769px) {
     .adsly-hero {
-        padding: 15px 0 10px;
+        padding: 10px 0 10px;
+        min-height: auto;
+    }
+    
+    .adsly-hero h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.3rem;
+        line-height: 1;
+    }
+    
+    .adsly-hero .subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 0;
     }
 }
 
