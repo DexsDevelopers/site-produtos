@@ -75,7 +75,7 @@ require_once 'templates/header.php';
 /* Estilo Adsly - Cores Vermelho e Preto com Efeitos Dopaminérgicos */
 .adsly-hero {
     background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    padding: 100px 0 50px;
+    padding: 80px 0 40px;
     color: white;
     text-align: center;
     position: relative;
@@ -102,9 +102,9 @@ require_once 'templates/header.php';
 }
 
 .adsly-hero h1 {
-    font-size: 2.8rem;
+    font-size: 2.3rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
     line-height: 1.2;
     position: relative;
     z-index: 2;
@@ -118,8 +118,8 @@ require_once 'templates/header.php';
 }
 
 .adsly-hero .subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
     opacity: 0.9;
     position: relative;
     z-index: 2;
@@ -929,6 +929,21 @@ require_once 'templates/header.php';
 @media (max-width: 1200px) {
     .banners-principais-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+/* Desktop - tamanho extra compacto */
+@media (min-width: 769px) {
+    .adsly-hero {
+        padding: 70px 0 35px;
+    }
+    
+    .adsly-hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .adsly-hero .subtitle {
+        font-size: 0.95rem;
     }
 }
 
