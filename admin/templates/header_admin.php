@@ -155,9 +155,9 @@ require_once '../config.php';
         }
         
         @media (min-width: 1024px) {
-            .admin-nav-item:hover {
-                background: rgba(59, 130, 246, 0.1);
-                transform: translateX(4px);
+        .admin-nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
             }
         }
         
@@ -173,10 +173,10 @@ require_once '../config.php';
         }
         
         @media (min-width: 1024px) {
-            .stat-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
-            }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
         }
         
         /* Overlay para mobile */
@@ -378,6 +378,11 @@ require_once '../config.php';
     <!-- Sidebar -->
     <div id="sidebar" class="admin-sidebar">
         <div class="p-6">
+            <!-- Close Button (Mobile Only) -->
+            <button id="close-menu-btn" class="absolute top-4 right-4 p-2 rounded-lg text-admin-gray-400 hover:text-white hover:bg-admin-gray-700 transition-all lg:hidden">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8">
                 <div class="w-10 h-10 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">

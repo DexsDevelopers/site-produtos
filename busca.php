@@ -470,4 +470,3 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $
 
 <?php
 require_once 'templates/footer.php';
-?>

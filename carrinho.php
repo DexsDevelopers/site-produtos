@@ -885,3 +885,403 @@ document.getElementById('success-delete-popup').addEventListener('click', functi
 <?php
 require_once 'templates/footer.php';
 ?>
+
+        const formData = new FormData(form);
+        
+        fetch('carrinho.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                // Sucesso - mostra popup e recarrega
+                mostrarSucessoRemover(produtoNome);
+                setTimeout(() => {
+                    window.location.href = 'carrinho.php';
+                }, 1500);
+            } else {
+                throw new Error('Erro ao remover produto');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao remover produto. Tente novamente.');
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        });
+    });
+    
+    return false;
+}
+
+// Função para limpar carrinho
+function clearCart(form) {
+    if (confirm('Limpar todo o carrinho? Esta ação não pode ser desfeita.')) {
+        const button = form.querySelector('button[type="submit"]');
+        button.textContent = 'Limpando...';
+        button.disabled = true;
+        form.submit();
+    }
+    return false;
+}
+
+// Atualiza totais em tempo real (opcional)
+document.addEventListener('DOMContentLoaded', function() {
+    // Adiciona animação aos itens do carrinho
+    const cartItems = document.querySelectorAll('.cart-item');
+    cartItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    });
+</script>
+
+<style>
+/* Popup de Confirmação de Remoção */
+.delete-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.delete-popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.delete-popup-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid rgba(255, 69, 0, 0.4);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(255, 69, 0, 0.4);
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.delete-popup.show .delete-popup-content {
+    transform: scale(1) translateY(0);
+}
+
+.delete-popup-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #ff4500, #ff6347);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popupIconBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4);
+}
+
+@keyframes popupIconBounce {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.delete-popup-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.delete-popup-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    animation: fadeInUp 0.5s ease 0.2s both;
+}
+
+.delete-popup-message {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.5s ease 0.3s both;
+}
+
+.delete-popup-produto {
+    font-weight: 600;
+    color: #ff6347;
+    margin: 0.5rem 0;
+}
+
+.delete-popup-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    animation: fadeInUp 0.5s ease 0.4s both;
+}
+
+.delete-popup-btn {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.delete-popup-btn-danger {
+    background: linear-gradient(135deg, #ff4500, #ff6347);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+}
+
+.delete-popup-btn-danger:hover {
+    background: linear-gradient(135deg, #ff6347, #ff4500);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+}
+
+.delete-popup-btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.delete-popup-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Popup de Sucesso de Remoção */
+.success-delete-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.success-delete-popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.success-delete-popup-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3);
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.success-delete-popup.show .success-delete-popup-content {
+    transform: scale(1) translateY(0);
+}
+
+.success-delete-popup-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popupIconBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+}
+
+.success-delete-popup-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.success-delete-popup-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    animation: fadeInUp 0.5s ease 0.2s both;
+}
+
+.success-delete-popup-message {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.5s ease 0.3s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+    .delete-popup-content,
+    .success-delete-popup-content {
+        padding: 2rem 1.5rem;
+    }
+    
+    .delete-popup-title,
+    .success-delete-popup-title {
+        font-size: 1.5rem;
+    }
+    
+    .delete-popup-buttons {
+        flex-direction: column;
+    }
+    
+    .delete-popup-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<!-- Popup de Confirmação -->
+<div id="delete-confirm-popup" class="delete-popup">
+    <div class="delete-popup-content">
+        <div class="delete-popup-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 class="delete-popup-title">Remover Produto?</h2>
+        <p class="delete-popup-message">
+            Tem certeza que deseja remover
+            <span class="delete-popup-produto" id="delete-produto-nome"></span>
+            do seu carrinho?
+        </p>
+        <div class="delete-popup-buttons">
+            <button onclick="confirmarRemover()" class="delete-popup-btn delete-popup-btn-danger">
+                <i class="fas fa-trash"></i>
+                Sim, Remover
+            </button>
+            <button onclick="cancelarRemover()" class="delete-popup-btn delete-popup-btn-cancel">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Popup de Sucesso -->
+<div id="success-delete-popup" class="success-delete-popup">
+    <div class="success-delete-popup-content">
+        <div class="success-delete-popup-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2 class="success-delete-popup-title">Produto Removido!</h2>
+        <p class="success-delete-popup-message" id="success-delete-message">
+            O produto foi removido do seu carrinho com sucesso.
+        </p>
+    </div>
+</div>
+
+<script>
+let confirmCallback = null;
+let produtoNomeParaRemover = '';
+
+function mostrarConfirmacaoRemover(nome, callback) {
+    produtoNomeParaRemover = nome;
+    confirmCallback = callback;
+    document.getElementById('delete-produto-nome').textContent = nome;
+    document.getElementById('delete-confirm-popup').classList.add('show');
+}
+
+function confirmarRemover() {
+    if (confirmCallback) {
+        confirmCallback();
+    }
+    fecharConfirmacaoRemover();
+}
+
+function cancelarRemover() {
+    fecharConfirmacaoRemover();
+}
+
+function fecharConfirmacaoRemover() {
+    document.getElementById('delete-confirm-popup').classList.remove('show');
+    confirmCallback = null;
+    produtoNomeParaRemover = '';
+}
+
+function mostrarSucessoRemover(nome) {
+    document.getElementById('success-delete-message').textContent = 
+        `${nome} foi removido do seu carrinho com sucesso.`;
+    document.getElementById('success-delete-popup').classList.add('show');
+    
+    setTimeout(() => {
+        fecharSucessoRemover();
+    }, 2000);
+}
+
+function fecharSucessoRemover() {
+    document.getElementById('success-delete-popup').classList.remove('show');
+}
+
+// Fecha popups ao clicar fora
+document.getElementById('delete-confirm-popup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cancelarRemover();
+    }
+});
+
+document.getElementById('success-delete-popup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        fecharSucessoRemover();
+    }
+});
+</script>
+
+<?php
+require_once 'templates/footer.php';
+?>
