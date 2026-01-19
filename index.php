@@ -1,6 +1,8 @@
 <?php
 // index.php - Página Principal no Estilo Adsly
-session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'config.php';
 
 // --- RASTREAMENTO AUTOMÁTICO DE AFILIAÇÃO ---
