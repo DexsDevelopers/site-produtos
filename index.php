@@ -73,7 +73,7 @@ require_once 'templates/header.php';
 /* Estilo Adsly - Cores Vermelho e Preto com Efeitos Dopaminérgicos */
 .adsly-hero {
     background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    padding: 140px 0 80px;
+    padding: 100px 0 50px;
     color: white;
     text-align: center;
     position: relative;
@@ -100,9 +100,9 @@ require_once 'templates/header.php';
 }
 
 .adsly-hero h1 {
-    font-size: 3.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     line-height: 1.2;
     position: relative;
     z-index: 2;
@@ -116,8 +116,8 @@ require_once 'templates/header.php';
 }
 
 .adsly-hero .subtitle {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
     opacity: 0.9;
     position: relative;
     z-index: 2;
@@ -657,7 +657,7 @@ require_once 'templates/header.php';
 
 /* Banners Principais */
 .adsly-banners-principais {
-    padding: 20px 0 60px;
+    padding: 40px 0 60px;
     background: #000000;
     position: relative;
 }
@@ -931,8 +931,16 @@ require_once 'templates/header.php';
 }
 
 @media (max-width: 768px) {
+    .adsly-hero {
+        padding: 80px 0 40px;
+    }
+    
     .adsly-hero h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+    }
+
+    .adsly-hero .subtitle {
+        font-size: 1rem;
     }
 
     .adsly-hero .cta-buttons {
@@ -1358,3 +1366,222 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php
 require_once 'templates/footer.php';
 ?>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <!-- Setas de Navegação (Desktop) -->
+                    <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;"></div>
+                    <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;"></div>
+                    
+                    <!-- Paginação (Opcional) -->
+                    <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>" style="position: relative; margin-top: 2rem;"></div>
+                </div>
+            </div>
+            <?php endif; ?>
+        <?php endforeach; ?>
+        
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="busca.php?todos=1" class="btn-large" style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
+                <i class="fas fa-arrow-right"></i>
+                Ver Todos os Produtos
+            </a>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+
+<!-- CTA Final no Estilo Adsly -->
+<section class="adsly-cta">
+    <div class="container">
+        <h2>Pronto Para Dominar o Jogo?</h2>
+        <p>Junte-se à elite do mercado digital. Tenha acesso às estratégias e ferramentas que realmente trazem resultado.</p>
+        <a href="busca.php" class="btn-large">
+            <i class="fas fa-rocket"></i>
+                Começar Agora
+            </a>
+    </div>
+</section>
+
+<!-- CSS para Carrossel Swiper de Produtos -->
+<style>
+/* Setas de navegação - Desktop */
+@media (min-width: 768px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: flex !important;
+        width: 50px !important;
+        height: 50px !important;
+        background: rgba(255, 0, 0, 0.1) !important;
+        border-radius: 50% !important;
+        border: 2px solid rgba(255, 0, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .swiper-button-next:hover,
+    .swiper-button-prev:hover {
+        background: rgba(255, 0, 0, 0.2) !important;
+        border-color: rgba(255, 0, 0, 0.5) !important;
+        transform: scale(1.1) !important;
+    }
+    
+    .swiper-button-next::after,
+    .swiper-button-prev::after {
+        font-size: 20px !important;
+        font-weight: bold !important;
+    }
+}
+
+/* Esconde setas no mobile */
+@media (max-width: 767px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none !important;
+    }
+    
+    .produtos-swiper {
+        padding: 0 20px 50px !important;
+    }
+}
+
+/* Paginação customizada */
+.swiper-pagination-bullet {
+    background: rgba(255, 0, 0, 0.5) !important;
+    opacity: 1 !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.swiper-pagination-bullet-active {
+    background: #ff0000 !important;
+    width: 30px !important;
+    border-radius: 6px !important;
+}
+
+/* Ajustes nos cards dentro do Swiper */
+.swiper-slide .product-card-adsly {
+    height: 100%;
+    margin: 0;
+}
+
+/* Padding do carrossel */
+.produtos-swiper {
+    padding: 0 60px 50px !important;
+}
+
+@media (max-width: 767px) {
+    .produtos-swiper {
+        padding: 0 20px 50px !important;
+    }
+}
+</style>
+
+<!-- JavaScript Específico da Homepage -->
+<script src="assets/js/homepage.js"></script>
+
+<!-- Swiper JS para Carrossel de Produtos -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa carrosséis de produtos por categoria
+    <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+    const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+        },
+        // Deslize para mobile/Android
+        touchEventsTarget: 'container',
+        allowTouchMove: true,
+        grabCursor: true,
+        touchRatio: 1,
+        touchAngle: 45,
+        
+        // Setas de navegação (visíveis no desktop)
+        navigation: {
+            nextEl: '.produtos-next-<?= $categoria_id ?>',
+            prevEl: '.produtos-prev-<?= $categoria_id ?>',
+        },
+        
+        // Paginação
+        pagination: {
+            el: '.produtos-pagination-<?= $categoria_id ?>',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        
+        // Responsividade
+        breakpoints: {
+            480: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+            },
+            768: {
+                slidesPerView: 3,
+                spaceBetween: 24,
+            },
+            1024: {
+                slidesPerView: 4,
+                spaceBetween: 30,
+            }
+        }
+    });
+    <?php endforeach; ?>
+});
+</script>
+
+<!-- Cards de Funcionalidades no Estilo Adsly -->
+<section class="adsly-cards">
+    <div class="container">
+        <h2>Por Que Escolher Nossa Plataforma?</h2>
+        <p class="subtitle">Oferecemos as melhores ferramentas e recursos para sua jornada digital</p>
+        
+        <div class="cards-grid">
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Performance Otimizada</h3>
+                <p>Nossa plataforma foi desenvolvida com foco em velocidade e performance, garantindo uma experiência fluida para todos os usuários.</p>
+                <a href="performance.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+            
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Segurança Garantida</h3>
+                <p>Proteção total dos seus dados com criptografia avançada e protocolos de segurança de última geração.</p>
+                <a href="seguranca.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+            
+            <div class="adsly-card">
+                <div class="icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>Suporte 24/7</h3>
+                <p>Nossa equipe de suporte está sempre disponível para ajudar você em qualquer momento do dia.</p>
+                <a href="suporte.php" class="btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Saiba Mais
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<?php
+require_once 'templates/footer.php';
