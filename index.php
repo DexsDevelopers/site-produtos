@@ -313,7 +313,7 @@ require_once 'templates/header.php';
                                                     </div>
 
                                                     <a href="produto.php?id=<?= $produto['id'] ?>"
-                                                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black py-3 transition-all shadow-[0_10px_25px_rgba(220,38,38,0.22)] hover:shadow-[0_14px_34px_rgba(220,38,38,0.30)]">
+                                                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-black py-3 transition-all shadow-[0_10px_25px_rgba(255,165,0,0.22)] hover:shadow-[0_14px_34px_rgba(255,165,0,0.30)]">
                                                         Ver planos
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -330,9 +330,9 @@ require_once 'templates/header.php';
                             </div>
 
                             <!-- Setas de Navegação (Desktop) -->
-                            <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;">
+                            <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #FF9900; right: 0;">
                             </div>
-                            <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;">
+                            <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #FF9900; left: 0;">
                             </div>
 
                             <!-- Paginação (Opcional) -->
@@ -345,7 +345,7 @@ require_once 'templates/header.php';
 
             <div style="text-align: center; margin-top: 3rem;">
                 <a href="busca.php?todos=1" class="btn-large"
-                    style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
+                    style="background: linear-gradient(45deg, #FF9900, #ff5e00); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);">
                     <i class="fas fa-arrow-right"></i>
                     Ver Todos os Produtos
                 </a>
@@ -361,7 +361,7 @@ require_once 'templates/header.php';
         <h2>Pronto Para Dominar o Jogo?</h2>
         <p>Junte-se à elite do mercado digital. Tenha acesso às estratégias e ferramentas que realmente trazem
             resultado.</p>
-        <a href="busca.php" class="btn-large">
+        <a href="busca.php" class="btn-large" style="background: linear-gradient(45deg, #FF9900, #ff5e00); box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);">
             <i class="fas fa-rocket"></i>
             Começar Agora
         </a>
@@ -420,7 +420,7 @@ require_once 'templates/header.php';
     }
 
     .swiper-pagination-bullet-active {
-        background: #ff0000 !important;
+        background: #FF9900 !important;
         width: 30px !important;
         border-radius: 6px !important;
     }
