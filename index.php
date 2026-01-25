@@ -144,6 +144,7 @@ require_once 'templates/header.php';
     .btn-shine {
         position: relative;
         overflow: hidden;
+        background: linear-gradient(45deg, #FF9900, #ff5e00);
     }
 
     .btn-shine::after {
@@ -187,20 +188,20 @@ require_once 'templates/header.php';
             <!-- Image as Title -->
             <div class="relative flex justify-center w-full reveal is-in">
                 <img src="assets/img/logo-thunder.png" alt="THUNDER STORE"
-                    class="w-full max-w-3xl drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] transform hover:scale-105 transition-transform duration-500"
+                    class="w-full max-w-3xl drop-shadow-[0_0_30px_rgba(255,165,0,0.2)] transform hover:scale-105 transition-transform duration-500"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
                 <!-- Fallback Text if image not found -->
                 <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-none hidden">
                     <span class="block text-white">THUNDER</span>
-                    <span class="block text-gray-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">STORE</span>
+                    <span class="block text-gray-400 drop-shadow-[0_0_15px_rgba(255,165,0,0.5)]">STORE</span>
                 </h1>
             </div>
 
             <p class="text-gray-400 text-lg md:text-2xl max-w-2xl font-medium leading-relaxed reveal is-in"
                 style="transition-delay: 100ms;">
-                A melhor loja do cenário.
+                A melhor loja para seus produtos digitais.
                 <br />
-                Produtos exclusivos, entrega rápida e segurança total.
+                Qualidade premium, entrega rápida e segurança total via PIX.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-6 justify-center w-full reveal is-in"
@@ -233,119 +234,124 @@ require_once 'templates/header.php';
 
 <!-- Produtos por Categoria no Estilo Adsly -->
 <?php if (!empty($produtos_por_categoria)): ?>
-        <section class="adsly-products" id="produtos">
-            <div class="container">
-                <h2>Nossos Produtos</h2>
-                <p class="subtitle">Organizados por categoria para facilitar sua busca</p>
+    <section class="adsly-products" id="produtos">
+        <div class="container">
+            <h2>Nossos Produtos</h2>
+            <p class="subtitle">Organizados por categoria para facilitar sua busca</p>
 
-                <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-                        <?php
-                        // Busca informações da categoria
-                        $categoria_info = null;
-                        foreach ($categorias as $cat) {
-                            if ($cat['id'] == $categoria_id) {
-                                $categoria_info = $cat;
-                                break;
-                            }
-                        }
-                        ?>
+            <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+                <?php
+                // Busca informações da categoria
+                $categoria_info = null;
+                foreach ($categorias as $cat) {
+                    if ($cat['id'] == $categoria_id) {
+                        $categoria_info = $cat;
+                        break;
+                    }
+                }
+                ?>
 
-                        <?php if ($categoria_info): ?>
-                                <div class="categoria-section" style="margin-bottom: 4rem;">
-                                    <h3 class="categoria-titulo"
-                                        style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: white; text-align: center; text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);">
-                                        <?= htmlspecialchars($categoria_info['nome']) ?>
-                                    </h3>
+                <?php if ($categoria_info): ?>
+                    <div class="categoria-section" style="margin-bottom: 4rem;">
+                        <h3 class="categoria-titulo"
+                            style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: white; text-align: center; text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);">
+                            <?= htmlspecialchars($categoria_info['nome']) ?>
+                        </h3>
 
-                                    <!-- Carrossel Swiper para Produtos -->
-                                    <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?>" style="position: relative;">
-                                        <div class="swiper-wrapper">
-                                            <?php foreach ($produtos as $produto): ?>
-                                                    <div class="swiper-slide">
-                                                        <div class="product-card reveal group rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-red-600/40 hover:shadow-[0_0_45px_rgba(220,38,38,0.18)] h-full flex flex-col" data-reveal>
-                                                            <div class="relative h-52 overflow-hidden shine flex-shrink-0">
-                                                                <?php
-                                                                $imagem_produto = $produto['imagem'];
-                                                                $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
-                                                                ?>
-                                                
-                                                                <?php if ($imagem_existe): ?>
-                                                                        <img src="<?= htmlspecialchars($imagem_produto) ?>"
-                                                                            alt="<?= htmlspecialchars($produto['nome']) ?>"
-                                                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                                            loading="lazy">
-                                                                <?php else: ?>
-                                                                        <!-- Fallback image/placeholder if needed, keeping style -->
-                                                                        <div class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500">
-                                                                            <i class="fas fa-image text-4xl"></i>
-                                                                        </div>
-                                                                <?php endif; ?>
-                                                
-                                                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                                                
-                                                                <div class="absolute top-4 left-4 flex items-center gap-2">
-                                                                    <span class="px-3 py-1 rounded-full text-xs font-black tracking-wide bg-green-500/10 border border-green-500/20 text-green-300">
-                                                                        ATIVO
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                        <!-- Carrossel Swiper para Produtos -->
+                        <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?>" style="position: relative;">
+                            <div class="swiper-wrapper">
+                                <?php foreach ($produtos as $produto): ?>
+                                    <div class="swiper-slide">
+                                        <div class="product-card reveal group rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-red-600/40 hover:shadow-[0_0_45px_rgba(220,38,38,0.18)] h-full flex flex-col"
+                                            data-reveal>
+                                            <div class="relative h-52 overflow-hidden shine flex-shrink-0">
+                                                <?php
+                                                $imagem_produto = $produto['imagem'];
+                                                $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
+                                                ?>
 
-                                                            <div class="p-6 flex flex-col flex-grow">
-                                                                <div class="mb-4 flex-grow">
-                                                                    <h3 class="text-2xl font-black text-white tracking-tight leading-tight mb-2">
-                                                                        <?= htmlspecialchars($produto['nome']) ?>
-                                                                    </h3>
-                                                                    <p class="text-gray-300/80 text-sm leading-relaxed line-clamp-3">
-                                                                        <?= htmlspecialchars($produto['descricao_curta']) ?>
-                                                                    </p>
-                                                                </div>
-
-                                                                <div class="mt-auto">
-                                                                    <div class="flex items-end justify-between gap-4 mb-4">
-                                                                        <div class="text-xs uppercase tracking-widest text-white/50 font-bold">A partir de</div>
-                                                                        <div class="text-lg font-black text-white"><?= formatarPreco($produto['preco']) ?></div>
-                                                                    </div>
-                                                    
-                                                                    <a href="produto.php?id=<?= $produto['id'] ?>"
-                                                                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black py-3 transition-all shadow-[0_10px_25px_rgba(220,38,38,0.22)] hover:shadow-[0_14px_34px_rgba(220,38,38,0.30)]">
-                                                                        Ver planos
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                            stroke-linejoin="round">
-                                                                            <path d="M5 12h14"></path>
-                                                                            <path d="m13 5 7 7-7 7"></path>
-                                                                        </svg>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                <?php if ($imagem_existe): ?>
+                                                    <img src="<?= htmlspecialchars($imagem_produto) ?>"
+                                                        alt="<?= htmlspecialchars($produto['nome']) ?>"
+                                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        loading="lazy">
+                                                <?php else: ?>
+                                                    <!-- Fallback image/placeholder if needed, keeping style -->
+                                                    <div class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500">
+                                                        <i class="fas fa-image text-4xl"></i>
                                                     </div>
-                                            <?php endforeach; ?>
-                                        </div>
+                                                <?php endif; ?>
 
-                                        <!-- Setas de Navegação (Desktop) -->
-                                        <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;">
-                                        </div>
-                                        <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;">
-                                        </div>
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent">
+                                                </div>
 
-                                        <!-- Paginação (Opcional) -->
-                                        <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>"
-                                            style="position: relative; margin-top: 2rem;"></div>
+                                                <div class="absolute top-4 left-4 flex items-center gap-2">
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-black tracking-wide bg-green-500/10 border border-green-500/20 text-green-300">
+                                                        ATIVO
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-6 flex flex-col flex-grow">
+                                                <div class="mb-4 flex-grow">
+                                                    <h3 class="text-2xl font-black text-white tracking-tight leading-tight mb-2">
+                                                        <?= htmlspecialchars($produto['nome']) ?>
+                                                    </h3>
+                                                    <p class="text-gray-300/80 text-sm leading-relaxed line-clamp-3">
+                                                        <?= htmlspecialchars($produto['descricao_curta']) ?>
+                                                    </p>
+                                                </div>
+
+                                                <div class="mt-auto">
+                                                    <div class="flex items-end justify-between gap-4 mb-4">
+                                                        <div class="text-xs uppercase tracking-widest text-white/50 font-bold">A partir
+                                                            de</div>
+                                                        <div class="text-lg font-black text-white">
+                                                            <?= formatarPreco($produto['preco']) ?></div>
+                                                    </div>
+
+                                                    <a href="produto.php?id=<?= $produto['id'] ?>"
+                                                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black py-3 transition-all shadow-[0_10px_25px_rgba(220,38,38,0.22)] hover:shadow-[0_14px_34px_rgba(220,38,38,0.30)]">
+                                                        Ver planos
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round">
+                                                            <path d="M5 12h14"></path>
+                                                            <path d="m13 5 7 7-7 7"></path>
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                        <?php endif; ?>
-                <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
 
-                <div style="text-align: center; margin-top: 3rem;">
-                    <a href="busca.php?todos=1" class="btn-large"
-                        style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
-                        <i class="fas fa-arrow-right"></i>
-                        Ver Todos os Produtos
-                    </a>
-                </div>
+                            <!-- Setas de Navegação (Desktop) -->
+                            <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;">
+                            </div>
+                            <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;">
+                            </div>
+
+                            <!-- Paginação (Opcional) -->
+                            <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>"
+                                style="position: relative; margin-top: 2rem;"></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="busca.php?todos=1" class="btn-large"
+                    style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
+                    <i class="fas fa-arrow-right"></i>
+                    Ver Todos os Produtos
+                </a>
             </div>
-        </section>
+        </div>
+    </section>
 <?php endif; ?>
 
 
@@ -446,50 +452,50 @@ require_once 'templates/header.php';
     document.addEventListener('DOMContentLoaded', function () {
         // Inicializa carrosséis de produtos por categoria
         <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-                const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
-                    slidesPerView: 1,
-                    spaceBetween: 20,
-                    loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
-                    autoplay: {
-                        delay: 3000,
-                        disableOnInteraction: false,
-                    },
-                    // Deslize para mobile/Android
-                    touchEventsTarget: 'container',
-                    allowTouchMove: true,
-                    grabCursor: true,
-                    touchRatio: 1,
-                    touchAngle: 45,
+            const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                // Deslize para mobile/Android
+                touchEventsTarget: 'container',
+                allowTouchMove: true,
+                grabCursor: true,
+                touchRatio: 1,
+                touchAngle: 45,
 
-                    // Setas de navegação (visíveis no desktop)
-                    navigation: {
-                        nextEl: '.produtos-next-<?= $categoria_id ?>',
-                        prevEl: '.produtos-prev-<?= $categoria_id ?>',
-                    },
+                // Setas de navegação (visíveis no desktop)
+                navigation: {
+                    nextEl: '.produtos-next-<?= $categoria_id ?>',
+                    prevEl: '.produtos-prev-<?= $categoria_id ?>',
+                },
 
-                    // Paginação
-                    pagination: {
-                        el: '.produtos-pagination-<?= $categoria_id ?>',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
+                // Paginação
+                pagination: {
+                    el: '.produtos-pagination-<?= $categoria_id ?>',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
 
-                    // Responsividade
-                    breakpoints: {
-                        480: {
-                            slidesPerView: 2,
-                            spaceBetween: 20,
-                        },
-                        768: {
-                            slidesPerView: 3,
-                            spaceBetween: 24,
-                        },
-                        1024: {
-                            slidesPerView: 4,
-                            spaceBetween: 30,
-                        }
+                // Responsividade
+                breakpoints: {
+                    480: {
+                        slidesPerView: 2,
+                        spaceBetween: 20,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                        spaceBetween: 24,
+                    },
+                    1024: {
+                        slidesPerView: 4,
+                        spaceBetween: 30,
                     }
-                });
+                }
+            });
         <?php endforeach; ?>
     });
 </script>
@@ -497,20 +503,26 @@ require_once 'templates/header.php';
 <!-- Alta Performance Section -->
 <section class="relative py-20">
     <!-- Background Mesh Effect -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.05)_0%,_transparent_70%)] pointer-events-none"></div>
+    <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.05)_0%,_transparent_70%)] pointer-events-none">
+    </div>
 
     <div class="container relative z-10">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-black uppercase tracking-wider text-white">
-                ALTA <span class="relative inline-block text-red-600 after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-red-600">PERFORMANCE</span>
+                ALTA <span
+                    class="relative inline-block text-red-600 after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-red-600">PERFORMANCE</span>
             </h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             <!-- Velocidade Card -->
-            <div class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+            <div
+                class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
                 <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="m12 14 4-4" />
                         <path d="M3.34 19a10 10 0 1 1 17.32 0" />
                     </svg>
@@ -520,9 +532,12 @@ require_once 'templates/header.php';
             </div>
 
             <!-- Segurança Card -->
-            <div class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+            <div
+                class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
                 <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                         <circle cx="9" cy="7" r="4" />
                         <path d="M22 11c0 3-1.5 5.5-3.5 7.5S14 21 14 21s1.5-4.5 3.5-6.5S22 8 22 11Z" />
@@ -533,10 +548,14 @@ require_once 'templates/header.php';
             </div>
 
             <!-- Suporte Card -->
-            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener" class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener"
+                class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
                 <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                     </svg>
                 </div>
                 <h3 class="text-2xl font-black text-white uppercase tracking-wide mb-3">SUPORTE</h3>
@@ -544,9 +563,12 @@ require_once 'templates/header.php';
             </a>
 
             <!-- Comunidade VIP Card -->
-            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener" class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener"
+                class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
                 <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                     </svg>
                 </div>
