@@ -9,13 +9,13 @@ require_once 'config.php';
 if (isset($_GET['ref'])) {
     require_once 'includes/affiliate_system.php';
     $affiliateSystem = new AffiliateSystem($pdo);
-    
+
     $affiliate_code = $_GET['ref'];
     $product_id = null;
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    
+
     $result = $affiliateSystem->registerClick($affiliate_code, $product_id, $ip_address);
-    
+
     if ($result['success']) {
         $_SESSION['affiliate_tracking'] = [
             'affiliate_code' => $affiliate_code,
@@ -23,7 +23,7 @@ if (isset($_GET['ref'])) {
             'timestamp' => time()
         ];
     }
-    
+
     $params = $_GET;
     unset($params['ref']);
     $redirect_url = 'index.php';
@@ -40,10 +40,10 @@ try {
     $banners_categorias = $pdo->query("SELECT * FROM banners WHERE tipo = 'categoria' AND ativo = 1 ORDER BY id DESC LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
     // Busca TODAS as categorias (sem limite)
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Busca produtos em destaque (todos os produtos)
     $produtos_destaque = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Busca produtos por categoria (todos os produtos de cada categoria)
     $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
@@ -70,1118 +70,282 @@ require_once 'templates/header.php';
 ?>
 
 <!-- CSS Específico da Homepage no Estilo Adsly -->
-<link rel="stylesheet" href="assets/css/homepage.css">
+<!-- Thunder Store CSS -->
 <style>
-/* Estilo Adsly - Cores Vermelho e Preto com Efeitos Dopaminérgicos */
-.adsly-hero {
-    background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    padding: 5px 0 5px;
-    color: white;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    margin-top: 0;
-}
-
-.adsly-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.1) 0%, transparent 50%);
-    animation: pulse 4s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
-}
-
-.adsly-hero h1 {
-    font-size: 2.8rem;
-    font-weight: 700;
-    margin-bottom: 0.2rem;
-    line-height: 1;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-    from { text-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
-    to { text-shadow: 0 0 30px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.3); }
-}
-
-.adsly-hero .subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 0;
-    opacity: 0.9;
-    position: relative;
-    z-index: 2;
-}
-
-.adsly-hero .cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 2;
-}
-
-.adsly-hero .btn-primary {
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-}
-
-.adsly-hero .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.adsly-hero .btn-primary:hover::before {
-    left: 100%;
-}
-
-.adsly-hero .btn-primary:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-
-.adsly-hero .btn-secondary {
-    background: transparent;
-    color: white;
-    border: 2px solid #ff0000;
-    padding: 15px 30px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.adsly-hero .btn-secondary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 100%;
-    background: #ff0000;
-    transition: width 0.3s ease;
-    z-index: -1;
-}
-
-.adsly-hero .btn-secondary:hover::before {
-    width: 100%;
-}
-
-.adsly-hero .btn-secondary:hover {
-    color: white;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3);
-}
-
-/* Cards no estilo Adsly */
-.adsly-cards {
-    padding: 80px 0;
-    background: #000000;
-    position: relative;
-}
-
-.adsly-cards::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.adsly-cards .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    position: relative;
-    z-index: 2;
-}
-
-.adsly-cards h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.adsly-cards .subtitle {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #cccccc;
-    margin-bottom: 3rem;
-}
-
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
-}
-
-.adsly-card {
-    background: linear-gradient(145deg, #1a0000, #000000);
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1), 0 0 0 1px rgba(255, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.adsly-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
-    transition: left 0.6s;
-}
-
-.adsly-card:hover::before {
-    left: 100%;
-}
-
-.adsly-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2), 0 0 20px rgba(255, 0, 0, 0.1);
-}
-
-.adsly-card .icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    color: white;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-    animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.adsly-card h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.adsly-card p {
-    color: #cccccc;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.adsly-card .btn {
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-}
-
-.adsly-card .btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.adsly-card .btn:hover::before {
-    left: 100%;
-}
-
-.adsly-card .btn:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-
-/* Seção de produtos no estilo Adsly */
-.adsly-products {
-    padding: 80px 0;
-    background: #000000;
-    position: relative;
-}
-
-.adsly-products::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.adsly-products h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: white;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-}
-
-.adsly-products .subtitle {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #cccccc;
-    margin-bottom: 3rem;
-    position: relative;
-    z-index: 2;
-}
-
-.products-grid-adsly {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    margin-top: 3rem;
-    position: relative;
-    z-index: 2;
-}
-
-@media (max-width: 1200px) {
-    .products-grid-adsly {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .products-grid-adsly {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .products-grid-adsly {
-        grid-template-columns: 1fr;
-    }
-}
-
-.product-card-adsly {
-    background: linear-gradient(145deg, #1a0000, #000000);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1), 0 0 0 1px rgba(255, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 0, 0, 0.2);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.product-card-adsly:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2), 0 0 20px rgba(255, 0, 0, 0.1);
-}
-
-.product-card-adsly .product-image {
-    height: 200px;
-    overflow: hidden;
-    position: relative;
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.product-card-adsly .product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-    border-radius: 0;
-}
-
-.product-card-adsly:hover .product-image img {
-    transform: scale(1.1);
-}
-
-/* Fallback para quando não há imagem */
-.product-card-adsly .product-image::before {
-    content: '🛍️';
-    font-size: 3rem;
-    color: white;
-    position: absolute;
-    z-index: 1;
-    opacity: 0.3;
-}
-
-.product-image-fallback {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    text-align: center;
-    padding: 1rem;
-}
-
-.fallback-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.fallback-content i {
-    font-size: 2rem;
-    opacity: 0.8;
-}
-
-.fallback-content span {
-    font-size: 0.9rem;
-    font-weight: 500;
-    opacity: 0.9;
-}
-
-.product-card-adsly .product-info {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-.product-card-adsly .product-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: white;
-    flex-shrink: 0;
-}
-
-.product-card-adsly .product-description {
-    color: #cccccc;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-    flex-grow: 1;
-}
-
-.product-card-adsly .product-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ff0000;
-    margin-bottom: 1rem;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-    flex-shrink: 0;
-}
-
-.product-card-adsly .btn {
-    width: 100%;
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    padding: 12px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    text-align: center;
-    transition: all 0.3s ease;
-    display: block;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-    flex-shrink: 0;
-    margin-top: auto;
-}
-
-.product-card-adsly .btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.product-card-adsly .btn:hover::before {
-    left: 100%;
-}
-
-.product-card-adsly .btn:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-
-/* CTA Final no estilo Adsly */
-.adsly-cta {
-    background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    padding: 80px 0;
-    color: white;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.adsly-cta::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30% 40%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 70% 60%, rgba(255, 0, 0, 0.1) 0%, transparent 50%);
-    animation: pulse 4s ease-in-out infinite;
-}
-
-.adsly-cta h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-}
-
-.adsly-cta p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-    position: relative;
-    z-index: 2;
-}
-
-.adsly-cta .btn-large {
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    padding: 18px 40px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    z-index: 2;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-}
-
-.adsly-cta .btn-large::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.adsly-cta .btn-large:hover::before {
-    left: 100%;
-}
-
-.adsly-cta .btn-large:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-
-/* Banners Principais */
-.adsly-banners-principais {
-    padding: 40px 0 60px;
-    background: #000000;
-    position: relative;
-}
-
-.adsly-banners-principais::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.banners-principais-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    position: relative;
-    z-index: 2;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.banner-principal {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(255, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 0, 0, 0.2);
-}
-
-.banner-principal:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 25px 50px rgba(255, 0, 0, 0.2);
-}
-
-.banner-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-}
-
-.banner-image {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-}
-
-.banner-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
-
-.banner-principal:hover .banner-image img {
-    transform: scale(1.1);
-}
-
-.banner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(255, 0, 0, 0.3) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: all 0.4s ease;
-}
-
-.banner-principal:hover .banner-overlay {
-    opacity: 1;
-}
-
-.banner-content {
-    text-align: center;
-    color: white;
-    padding: 2rem;
-}
-
-.banner-content h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.banner-content p {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-}
-
-.banner-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    padding: 12px 24px;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-}
-
-.banner-cta:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-
-/* Banners de Categorias */
-.adsly-banners-categorias {
-    padding: 80px 0;
-    background: #000000;
-    position: relative;
-}
-
-.adsly-banners-categorias::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.section-title {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: white;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    position: relative;
-    z-index: 2;
-}
-
-.section-subtitle {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #cccccc;
-    margin-bottom: 3rem;
-    position: relative;
-    z-index: 2;
-}
-
-.banners-categorias-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2rem;
-    position: relative;
-    z-index: 2;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.banner-categoria {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: all 0.3s ease;
-    width: 120px;
-}
-
-.banner-categoria:hover {
-    transform: translateY(-5px) scale(1.05);
-}
-
-.banner-categoria .banner-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: inherit;
-    width: 100%;
-}
-
-.banner-categoria .banner-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid rgba(255, 0, 0, 0.3);
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    position: relative;
-    background: linear-gradient(135deg, #ff0000, #ff3333);
-    padding: 3px;
-}
-
-.banner-categoria:hover .banner-image {
-    border-color: rgba(255, 0, 0, 0.6);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
-    transform: scale(1.05);
-}
-
-.banner-categoria .banner-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-}
-
-.banner-categoria:hover .banner-image img {
-    transform: scale(1.1);
-}
-
-.banner-categoria .banner-overlay {
-    display: none;
-}
-
-.banner-categoria .category-name {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: white;
-    text-align: center;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Estilo Instagram Stories para categorias */
-.banner-categoria .banner-image::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #ff0000, #ff3333, #ff0000);
-    background-size: 200% 200%;
-    animation: gradientRotate 3s ease infinite;
-    z-index: -1;
-}
-
-@keyframes gradientRotate {
-    0%, 100% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-}
-
-/* Responsividade */
-@media (max-width: 1200px) {
-    .banners-principais-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-}
-
-/* Desktop - banner extremamente compacto mantendo títulos originais */
-@media (min-width: 769px) {
-    .adsly-hero {
-        padding: 5px 0 5px;
-        min-height: auto;
-    }
-}
-
-@media (max-width: 768px) {
-    .adsly-hero {
-        padding: 80px 0 40px;
-    }
-    
-    .adsly-hero h1 {
-        font-size: 2rem;
+    /* Thunder Store Custom Styles */
+    html {
+        scroll-behavior: smooth;
     }
 
-    .adsly-hero .subtitle {
-        font-size: 1rem;
+    html,
+    body {
+        touch-action: pan-x pan-y;
     }
 
-    .adsly-hero .cta-buttons {
-        flex-direction: column;
-        align-items: center;
+    /* body background handled in header.php or main tag */
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        filter: blur(6px);
+        transition: opacity 700ms cubic-bezier(.2, .8, .2, 1), transform 700ms cubic-bezier(.2, .8, .2, 1), filter 700ms cubic-bezier(.2, .8, .2, 1);
     }
 
-    .banners-principais-grid {
-        grid-template-columns: 1fr;
+    .reveal.is-in {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
     }
 
-    .banners-categorias-grid {
-        gap: 1.5rem;
-        padding: 0 1rem;
+    .shine {
+        background: radial-gradient(900px 280px at var(--mx, 50%) var(--my, 50%), rgba(220, 38, 38, 0.18), transparent 55%),
+            radial-gradient(900px 280px at calc(var(--mx, 50%) + 120px) calc(var(--my, 50%) + 80px), rgba(255, 255, 255, 0.08), transparent 60%);
     }
 
-    .banner-categoria {
-        width: 100px;
+    @media (prefers-reduced-motion: reduce) {
+        .reveal {
+            opacity: 1;
+            transform: none;
+            filter: none;
+            transition: none;
+        }
     }
 
-    .banner-categoria .banner-image {
-        width: 100px;
-        height: 100px;
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
-    .banner-categoria .category-name {
-        font-size: 0.85rem;
-        max-width: 100px;
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
 
-    .banner-principal .banner-image {
-        aspect-ratio: 1 / 1;
+    .animate-float-delayed {
+        animation: float 6s ease-in-out 3s infinite;
     }
 
-    .banner-categoria .banner-image {
-        aspect-ratio: 1 / 1;
+    @keyframes shine-sweep {
+        0% {
+            transform: translateX(-100%) skewX(-15deg);
+        }
+
+        100% {
+            transform: translateX(200%) skewX(-15deg);
+        }
     }
 
-    .section-title {
-        font-size: 2rem;
+    .btn-shine {
+        position: relative;
+        overflow: hidden;
     }
 
-    .cards-grid {
-        grid-template-columns: 1fr;
+    .btn-shine::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: translateX(-100%) skewX(-15deg);
     }
 
-    .products-grid-adsly {
-        grid-template-columns: 1fr;
+    .btn-shine:hover::after {
+        animation: shine-sweep 0.75s;
     }
-}
-
-@media (max-width: 480px) {
-    .banners-categorias-grid {
-        gap: 1rem;
-    }
-
-    .banner-categoria {
-        width: 80px;
-    }
-
-    .banner-categoria .banner-image {
-        width: 80px;
-        height: 80px;
-    }
-
-    .banner-categoria .category-name {
-        font-size: 0.75rem;
-        max-width: 80px;
-    }
-
-    .banner-content {
-        padding: 1.5rem;
-    }
-
-    .banner-content h3 {
-        font-size: 1.5rem;
-    }
-}
 </style>
 
-<!-- Hero Section no Estilo Adsly -->
-<section class="adsly-hero">
-    <div class="container">
-        <h1>O Mercado é dos <span style="color: #ff0000;">Tubarões</span></h1>
-        <p class="subtitle">Descubra produtos incríveis com qualidade premium e preços imbatíveis</p>
-    </div>
-</section>
-
-<!-- Banners Principais -->
-<?php if (!empty($banners_principais)): ?>
-<section class="adsly-banners-principais">
-    <div class="container">
-        <div class="banners-principais-grid">
-            <?php foreach ($banners_principais as $banner): ?>
-            <div class="banner-principal">
-                <a href="<?= htmlspecialchars($banner['link']) ?>" class="banner-link">
-                    <div class="banner-image">
-                        <img src="<?= htmlspecialchars($banner['imagem']) ?>" 
-                             alt="<?= htmlspecialchars($banner['titulo']) ?>"
-                             loading="lazy">
-                        <div class="banner-overlay">
-                            <div class="banner-content">
-                                <h3><?= htmlspecialchars($banner['titulo']) ?></h3>
-                                <?php if (!empty($banner['descricao'])): ?>
-                                <p><?= htmlspecialchars($banner['descricao']) ?></p>
-                                <?php endif; ?>
-                                <span class="banner-cta">
-                                    <i class="fas fa-arrow-right"></i>
-                                    Saiba Mais
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <?php endforeach; ?>
+<!-- Hero Section -->
+<div class="relative min-h-[90vh] bg-black flex items-center overflow-hidden">
+    <!-- Background Effect -->
+    <div class="absolute inset-0 z-0">
+        <div
+            class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900/40 via-black to-black opacity-80">
+        </div>
+        <!-- Cross Pattern Background -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-20"
+            style="background-image: url('data:image/svg+xml,%3Csvg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 11H9v2h2v2h2v-2h2v-2h-2V9h-2v2z\' fill=\'%23ffffff\' fill-rule=\'evenodd\'/%3E%3C/svg%3E'); background-size: 40px 40px;">
+        </div>
+        <!-- White/Gray glow spots for Thunder theme -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-[128px] animate-float"></div>
+        <div
+            class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-600/5 rounded-full blur-[128px] animate-float-delayed">
         </div>
     </div>
-</section>
-<?php endif; ?>
 
-<!-- Banners de Categorias -->
-<?php if (!empty($banners_categorias)): ?>
-<section class="adsly-banners-categorias">
-    <div class="container">
-        <h2 class="section-title">Nossas Categorias</h2>
-        <p class="section-subtitle">Explore nossa seleção de produtos</p>
-        
-        <div class="banners-categorias-grid">
-            <?php foreach ($banners_categorias as $banner): ?>
-            <div class="banner-categoria">
-                <a href="<?= htmlspecialchars($banner['link']) ?>" class="banner-link">
-                    <div class="banner-image">
-                        <img src="<?= htmlspecialchars($banner['imagem']) ?>" 
-                             alt="<?= htmlspecialchars($banner['titulo']) ?>"
-                             loading="lazy">
-                    </div>
-                    <h3 class="category-name"><?= htmlspecialchars($banner['titulo']) ?></h3>
-                </a>
+    <div
+        class="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center text-center justify-center pt-20 pb-10">
+        <!-- Content -->
+        <div class="space-y-8 flex flex-col items-center max-w-4xl mx-auto">
+            <!-- Image as Title -->
+            <div class="relative flex justify-center w-full reveal is-in">
+                <img src="assets/img/logo-thunder.png" alt="THUNDER STORE"
+                    class="w-full max-w-3xl drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] transform hover:scale-105 transition-transform duration-500"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <!-- Fallback Text if image not found -->
+                <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-none hidden">
+                    <span class="block text-white">THUNDER</span>
+                    <span class="block text-gray-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">STORE</span>
+                </h1>
             </div>
-            <?php endforeach; ?>
+
+            <p class="text-gray-400 text-lg md:text-2xl max-w-2xl font-medium leading-relaxed reveal is-in"
+                style="transition-delay: 100ms;">
+                A melhor loja do cenário.
+                <br />
+                Produtos exclusivos, entrega rápida e segurança total.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-6 justify-center w-full reveal is-in"
+                style="transition-delay: 200ms;">
+                <a href="#produtos"
+                    class="btn-shine bg-white text-black hover:bg-gray-200 font-bold py-4 px-10 rounded-full flex items-center justify-center gap-2 transition-all uppercase tracking-wide text-sm sm:text-base hover:-translate-y-1 shadow-lg group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:scale-110 transition-transform"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Ver Produtos
+                </a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="/painel"
+                        class="btn-shine bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,0,51,0.4)] hover:shadow-[0_0_30px_rgba(255,0,51,0.6)] transition-all uppercase tracking-wide text-sm sm:text-base hover:-translate-y-1">
+                        Acessar Painel
+                    </a>
+                <?php else: ?>
+                    <a href="/login.php"
+                        class="btn-shine bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,0,51,0.4)] hover:shadow-[0_0_30px_rgba(255,0,51,0.6)] transition-all uppercase tracking-wide text-sm sm:text-base hover:-translate-y-1">
+                        Acessar Painel
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-</section>
-<?php endif; ?>
+</div>
 
 <!-- Produtos por Categoria no Estilo Adsly -->
 <?php if (!empty($produtos_por_categoria)): ?>
-<section class="adsly-products" id="produtos">
-    <div class="container">
-        <h2>Nossos Produtos</h2>
-        <p class="subtitle">Organizados por categoria para facilitar sua busca</p>
+        <section class="adsly-products" id="produtos">
+            <div class="container">
+                <h2>Nossos Produtos</h2>
+                <p class="subtitle">Organizados por categoria para facilitar sua busca</p>
 
-        <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-            <?php 
-            // Busca informações da categoria
-            $categoria_info = null;
-            foreach ($categorias as $cat) {
-                if ($cat['id'] == $categoria_id) {
-                    $categoria_info = $cat;
-                    break;
-                }
-            }
-            ?>
-            
-            <?php if ($categoria_info): ?>
-            <div class="categoria-section" style="margin-bottom: 4rem;">
-                <h3 class="categoria-titulo" style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: white; text-align: center; text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);">
-                    <?= htmlspecialchars($categoria_info['nome']) ?>
-                </h3>
-                
-                <!-- Carrossel Swiper para Produtos -->
-                <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?>" style="position: relative;">
-                    <div class="swiper-wrapper">
-                        <?php foreach ($produtos as $produto): ?>
-                        <div class="swiper-slide">
-                            <div class="product-card-adsly">
-                                <div class="product-image">
-                                    <?php 
-                                    $imagem_produto = $produto['imagem'];
-                                    $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
-                                    ?>
-                                    
-                                    <?php if ($imagem_existe): ?>
-                                        <img src="<?= htmlspecialchars($imagem_produto) ?>"
-                                             alt="<?= htmlspecialchars($produto['nome']) ?>"
-                                             loading="lazy"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <?php endif; ?>
+                <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+                        <?php
+                        // Busca informações da categoria
+                        $categoria_info = null;
+                        foreach ($categorias as $cat) {
+                            if ($cat['id'] == $categoria_id) {
+                                $categoria_info = $cat;
+                                break;
+                            }
+                        }
+                        ?>
 
-                                    <!-- Fallback para quando não há imagem -->
-                                    <div class="product-image-fallback" style="<?= $imagem_existe ? 'display: none;' : 'display: flex;' ?>">
-                                        <div class="fallback-content">
-                                            <i class="fas fa-image"></i>
-                                            <span><?= htmlspecialchars($produto['nome']) ?></span>
+                        <?php if ($categoria_info): ?>
+                                <div class="categoria-section" style="margin-bottom: 4rem;">
+                                    <h3 class="categoria-titulo"
+                                        style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: white; text-align: center; text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);">
+                                        <?= htmlspecialchars($categoria_info['nome']) ?>
+                                    </h3>
+
+                                    <!-- Carrossel Swiper para Produtos -->
+                                    <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?>" style="position: relative;">
+                                        <div class="swiper-wrapper">
+                                            <?php foreach ($produtos as $produto): ?>
+                                                    <div class="swiper-slide">
+                                                        <div class="product-card reveal group rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-red-600/40 hover:shadow-[0_0_45px_rgba(220,38,38,0.18)] h-full flex flex-col" data-reveal>
+                                                            <div class="relative h-52 overflow-hidden shine flex-shrink-0">
+                                                                <?php
+                                                                $imagem_produto = $produto['imagem'];
+                                                                $imagem_existe = !empty($imagem_produto) && file_exists(__DIR__ . '/' . $imagem_produto);
+                                                                ?>
+                                                
+                                                                <?php if ($imagem_existe): ?>
+                                                                        <img src="<?= htmlspecialchars($imagem_produto) ?>"
+                                                                            alt="<?= htmlspecialchars($produto['nome']) ?>"
+                                                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                                            loading="lazy">
+                                                                <?php else: ?>
+                                                                        <!-- Fallback image/placeholder if needed, keeping style -->
+                                                                        <div class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500">
+                                                                            <i class="fas fa-image text-4xl"></i>
+                                                                        </div>
+                                                                <?php endif; ?>
+                                                
+                                                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                                                
+                                                                <div class="absolute top-4 left-4 flex items-center gap-2">
+                                                                    <span class="px-3 py-1 rounded-full text-xs font-black tracking-wide bg-green-500/10 border border-green-500/20 text-green-300">
+                                                                        ATIVO
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="p-6 flex flex-col flex-grow">
+                                                                <div class="mb-4 flex-grow">
+                                                                    <h3 class="text-2xl font-black text-white tracking-tight leading-tight mb-2">
+                                                                        <?= htmlspecialchars($produto['nome']) ?>
+                                                                    </h3>
+                                                                    <p class="text-gray-300/80 text-sm leading-relaxed line-clamp-3">
+                                                                        <?= htmlspecialchars($produto['descricao_curta']) ?>
+                                                                    </p>
+                                                                </div>
+
+                                                                <div class="mt-auto">
+                                                                    <div class="flex items-end justify-between gap-4 mb-4">
+                                                                        <div class="text-xs uppercase tracking-widest text-white/50 font-bold">A partir de</div>
+                                                                        <div class="text-lg font-black text-white"><?= formatarPreco($produto['preco']) ?></div>
+                                                                    </div>
+                                                    
+                                                                    <a href="produto.php?id=<?= $produto['id'] ?>"
+                                                                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black py-3 transition-all shadow-[0_10px_25px_rgba(220,38,38,0.22)] hover:shadow-[0_14px_34px_rgba(220,38,38,0.30)]">
+                                                                        Ver planos
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                            stroke-linejoin="round">
+                                                                            <path d="M5 12h14"></path>
+                                                                            <path d="m13 5 7 7-7 7"></path>
+                                                                        </svg>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            <?php endforeach; ?>
                                         </div>
+
+                                        <!-- Setas de Navegação (Desktop) -->
+                                        <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;">
+                                        </div>
+                                        <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;">
+                                        </div>
+
+                                        <!-- Paginação (Opcional) -->
+                                        <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>"
+                                            style="position: relative; margin-top: 2rem;"></div>
                                     </div>
                                 </div>
-                                <div class="product-info">
-                                    <h3 class="product-name"><?= htmlspecialchars($produto['nome']) ?></h3>
-                                    <p class="product-description"><?= htmlspecialchars($produto['descricao_curta']) ?></p>
-                                    <div class="product-price"><?= formatarPreco($produto['preco']) ?></div>
-                                    <a href="produto.php?id=<?= $produto['id'] ?>" class="btn">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Comprar Agora
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <!-- Setas de Navegação (Desktop) -->
-                    <div class="swiper-button-next produtos-next-<?= $categoria_id ?>" style="color: #ff0000; right: 0;"></div>
-                    <div class="swiper-button-prev produtos-prev-<?= $categoria_id ?>" style="color: #ff0000; left: 0;"></div>
-                    
-                    <!-- Paginação (Opcional) -->
-                    <div class="swiper-pagination produtos-pagination-<?= $categoria_id ?>" style="position: relative; margin-top: 2rem;"></div>
+                        <?php endif; ?>
+                <?php endforeach; ?>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <a href="busca.php?todos=1" class="btn-large"
+                        style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
+                        <i class="fas fa-arrow-right"></i>
+                        Ver Todos os Produtos
+                    </a>
                 </div>
             </div>
-            <?php endif; ?>
-        <?php endforeach; ?>
-        
-        <div style="text-align: center; margin-top: 3rem;">
-            <a href="busca.php?todos=1" class="btn-large" style="background: linear-gradient(45deg, #ff0000, #ff3333); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);">
-                <i class="fas fa-arrow-right"></i>
-                Ver Todos os Produtos
-            </a>
-        </div>
-    </div>
-</section>
+        </section>
 <?php endif; ?>
 
 
@@ -1189,189 +353,250 @@ require_once 'templates/header.php';
 <section class="adsly-cta">
     <div class="container">
         <h2>Pronto Para Dominar o Jogo?</h2>
-        <p>Junte-se à elite do mercado digital. Tenha acesso às estratégias e ferramentas que realmente trazem resultado.</p>
+        <p>Junte-se à elite do mercado digital. Tenha acesso às estratégias e ferramentas que realmente trazem
+            resultado.</p>
         <a href="busca.php" class="btn-large">
             <i class="fas fa-rocket"></i>
-                Começar Agora
-            </a>
+            Começar Agora
+        </a>
     </div>
 </section>
 
 <!-- CSS para Carrossel Swiper de Produtos -->
 <style>
-/* Setas de navegação - Desktop */
-@media (min-width: 768px) {
-    .swiper-button-next,
-    .swiper-button-prev {
-        display: flex !important;
-        width: 50px !important;
-        height: 50px !important;
-        background: rgba(255, 0, 0, 0.1) !important;
-        border-radius: 50% !important;
-        border: 2px solid rgba(255, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .swiper-button-next:hover,
-    .swiper-button-prev:hover {
-        background: rgba(255, 0, 0, 0.2) !important;
-        border-color: rgba(255, 0, 0, 0.5) !important;
-        transform: scale(1.1) !important;
-    }
-    
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
-        font-size: 20px !important;
-        font-weight: bold !important;
-    }
-}
+    /* Setas de navegação - Desktop */
+    @media (min-width: 768px) {
 
-/* Esconde setas no mobile */
-@media (max-width: 767px) {
-    .swiper-button-next,
-    .swiper-button-prev {
-        display: none !important;
+        .swiper-button-next,
+        .swiper-button-prev {
+            display: flex !important;
+            width: 50px !important;
+            height: 50px !important;
+            background: rgba(255, 0, 0, 0.1) !important;
+            border-radius: 50% !important;
+            border: 2px solid rgba(255, 0, 0, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background: rgba(255, 0, 0, 0.2) !important;
+            border-color: rgba(255, 0, 0, 0.5) !important;
+            transform: scale(1.1) !important;
+        }
+
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+            font-size: 20px !important;
+            font-weight: bold !important;
+        }
     }
-    
+
+    /* Esconde setas no mobile */
+    @media (max-width: 767px) {
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            display: none !important;
+        }
+
+        .produtos-swiper {
+            padding: 0 20px 50px !important;
+        }
+    }
+
+    /* Paginação customizada */
+    .swiper-pagination-bullet {
+        background: rgba(255, 0, 0, 0.5) !important;
+        opacity: 1 !important;
+        width: 12px !important;
+        height: 12px !important;
+    }
+
+    .swiper-pagination-bullet-active {
+        background: #ff0000 !important;
+        width: 30px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Ajustes nos cards dentro do Swiper */
+    .swiper-slide .product-card-adsly {
+        height: 100%;
+        margin: 0;
+    }
+
+    /* Padding do carrossel */
     .produtos-swiper {
-        padding: 0 20px 50px !important;
+        padding: 0 60px 50px !important;
     }
-}
 
-/* Paginação customizada */
-.swiper-pagination-bullet {
-    background: rgba(255, 0, 0, 0.5) !important;
-    opacity: 1 !important;
-    width: 12px !important;
-    height: 12px !important;
-}
-
-.swiper-pagination-bullet-active {
-    background: #ff0000 !important;
-    width: 30px !important;
-    border-radius: 6px !important;
-}
-
-/* Ajustes nos cards dentro do Swiper */
-.swiper-slide .product-card-adsly {
-    height: 100%;
-    margin: 0;
-}
-
-/* Padding do carrossel */
-.produtos-swiper {
-    padding: 0 60px 50px !important;
-}
-
-@media (max-width: 767px) {
-    .produtos-swiper {
-        padding: 0 20px 50px !important;
+    @media (max-width: 767px) {
+        .produtos-swiper {
+            padding: 0 20px 50px !important;
+        }
     }
-}
 </style>
 
 <!-- JavaScript Específico da Homepage -->
-<script src="assets/js/homepage.js"></script>
+
 
 <!-- Swiper JS para Carrossel de Produtos -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializa carrosséis de produtos por categoria
-    <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-    const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
-        slidesPerView: 1,
-        spaceBetween: 20,
-        loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
-        autoplay: {
-            delay: 3000,
-            disableOnInteraction: false,
-        },
-        // Deslize para mobile/Android
-        touchEventsTarget: 'container',
-        allowTouchMove: true,
-        grabCursor: true,
-        touchRatio: 1,
-        touchAngle: 45,
-        
-        // Setas de navegação (visíveis no desktop)
-        navigation: {
-            nextEl: '.produtos-next-<?= $categoria_id ?>',
-            prevEl: '.produtos-prev-<?= $categoria_id ?>',
-        },
-        
-        // Paginação
-        pagination: {
-            el: '.produtos-pagination-<?= $categoria_id ?>',
-            clickable: true,
-            dynamicBullets: true,
-        },
-        
-        // Responsividade
-        breakpoints: {
-            480: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-            },
-            768: {
-                slidesPerView: 3,
-                spaceBetween: 24,
-            },
-            1024: {
-                slidesPerView: 4,
-                spaceBetween: 30,
-            }
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializa carrosséis de produtos por categoria
+        <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+                const swiper<?= $categoria_id ?> = new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    loop: <?= count($produtos) > 4 ? 'true' : 'false' ?>,
+                    autoplay: {
+                        delay: 3000,
+                        disableOnInteraction: false,
+                    },
+                    // Deslize para mobile/Android
+                    touchEventsTarget: 'container',
+                    allowTouchMove: true,
+                    grabCursor: true,
+                    touchRatio: 1,
+                    touchAngle: 45,
+
+                    // Setas de navegação (visíveis no desktop)
+                    navigation: {
+                        nextEl: '.produtos-next-<?= $categoria_id ?>',
+                        prevEl: '.produtos-prev-<?= $categoria_id ?>',
+                    },
+
+                    // Paginação
+                    pagination: {
+                        el: '.produtos-pagination-<?= $categoria_id ?>',
+                        clickable: true,
+                        dynamicBullets: true,
+                    },
+
+                    // Responsividade
+                    breakpoints: {
+                        480: {
+                            slidesPerView: 2,
+                            spaceBetween: 20,
+                        },
+                        768: {
+                            slidesPerView: 3,
+                            spaceBetween: 24,
+                        },
+                        1024: {
+                            slidesPerView: 4,
+                            spaceBetween: 30,
+                        }
+                    }
+                });
+        <?php endforeach; ?>
     });
-    <?php endforeach; ?>
-});
 </script>
 
-<!-- Cards de Funcionalidades no Estilo Adsly -->
-<section class="adsly-cards">
-    <div class="container">
-        <h2>Por Que Escolher Nossa Plataforma?</h2>
-        <p class="subtitle">Oferecemos as melhores ferramentas e recursos para sua jornada digital</p>
-        
-        <div class="cards-grid">
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-rocket"></i>
+<!-- Alta Performance Section -->
+<section class="relative py-20">
+    <!-- Background Mesh Effect -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.05)_0%,_transparent_70%)] pointer-events-none"></div>
+
+    <div class="container relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-black uppercase tracking-wider text-white">
+                ALTA <span class="relative inline-block text-red-600 after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-red-600">PERFORMANCE</span>
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <!-- Velocidade Card -->
+            <div class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+                <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 14 4-4" />
+                        <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+                    </svg>
                 </div>
-                <h3>Performance Otimizada</h3>
-                <p>Nossa plataforma foi desenvolvida com foco em velocidade e performance, garantindo uma experiência fluida para todos os usuários.</p>
-                <a href="performance.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide mb-3">VELOCIDADE</h3>
+                <p class="text-gray-400 font-medium">Entrega instantânea via PIX.</p>
             </div>
-            
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-shield-alt"></i>
+
+            <!-- Segurança Card -->
+            <div class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+                <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 11c0 3-1.5 5.5-3.5 7.5S14 21 14 21s1.5-4.5 3.5-6.5S22 8 22 11Z" />
+                    </svg>
                 </div>
-                <h3>Segurança Garantida</h3>
-                <p>Proteção total dos seus dados com criptografia avançada e protocolos de segurança de última geração.</p>
-                <a href="seguranca.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide mb-3">SEGURANÇA</h3>
+                <p class="text-gray-400 font-medium">Tecnologia de proteção Triple-Layer.</p>
             </div>
-            
-            <div class="adsly-card">
-                <div class="icon">
-                    <i class="fas fa-headset"></i>
+
+            <!-- Suporte Card -->
+            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener" class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+                <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg>
                 </div>
-                <h3>Suporte 24/7</h3>
-                <p>Nossa equipe de suporte está sempre disponível para ajudar você em qualquer momento do dia.</p>
-                <a href="suporte.php" class="btn">
-                    <i class="fas fa-arrow-right"></i>
-                    Saiba Mais
-                </a>
-            </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide mb-3">SUPORTE</h3>
+                <p class="text-gray-400 font-medium">Nossa equipe entra via AnyDesk.</p>
+            </a>
+
+            <!-- Comunidade VIP Card -->
+            <a href="https://discord.gg/hpjCtT7CU7" target="_blank" rel="noopener" class="bg-[#0a0a0a] border border-white/5 p-10 rounded-xl flex flex-col items-center text-center hover:bg-[#111] transition-all duration-300 group hover:-translate-y-1">
+                <div class="mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wide mb-3">COMUNIDADE VIP</h3>
+                <p class="text-gray-400 font-medium">Acesso exclusivo ao Discord.</p>
+            </a>
         </div>
     </div>
 </section>
+
+<!-- Scripts for Animation -->
+<script>
+    (function () {
+        const items = document.querySelectorAll('[data-reveal]');
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!items.length) return;
+
+        if (prefersReduced || !('IntersectionObserver' in window)) {
+            items.forEach(el => el.classList.add('is-in'));
+            return;
+        }
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('is-in');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.18 });
+        items.forEach(el => io.observe(el));
+    })();
+
+    (function () {
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+        cards.forEach((card) => {
+            const onMove = (e) => {
+                const r = card.getBoundingClientRect();
+                const x = ((e.clientX - r.left) / r.width) * 100;
+                const y = ((e.clientY - r.top) / r.height) * 100;
+                card.style.setProperty('--mx', x + '%');
+                card.style.setProperty('--my', y + '%');
+            };
+            card.addEventListener('mousemove', onMove);
+            card.addEventListener('mouseleave', () => {
+                card.style.removeProperty('--mx');
+                card.style.removeProperty('--my');
+            });
+        });
+    })();
+</script>
 
 <?php
 require_once 'templates/footer.php';
