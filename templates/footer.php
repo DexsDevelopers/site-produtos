@@ -5,9 +5,9 @@
 
 <footer class="bg-black border-t border-red-900/20 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <img src="assets/img/logo-thunder.png" alt="Thunder Store"
+        <img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Minha Loja"
             class="h-12 w-auto mx-auto mb-6 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-        <p class="text-gray-500 text-sm">© 2026 Thunder Store. Todos os direitos reservados.</p>
+        <p class="text-gray-500 text-sm">© 2026 Minha Loja. Todos os direitos reservados.</p>
     </div>
 </footer>
 

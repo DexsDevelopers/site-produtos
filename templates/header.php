@@ -45,7 +45,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- SEO Meta Tags -->
-    <title><?= isset($page_title) ? $page_title . ' - ' : '' ?>Thunder Store | Produtos</title>
+    <title><?= isset($page_title) ? $page_title . ' - ' : '' ?>Minha Loja | O Mercado é dos Tubarões</title>
     <meta name="description"
         content="<?= isset($page_description) ? $page_description : 'Produtos para vários jogos: entrega rápida, segurança e suporte.' ?>" />
     <meta name="keywords"
@@ -77,8 +77,8 @@ try {
 
     <!-- Favicon -->
     <!-- Favicon -->
-    <link rel="icon" href="assets/img/logo-thunder.png" type="image/png">
-    <link rel="apple-touch-icon" href="assets/img/logo-thunder.png">
+    <link rel="icon" href="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" />
@@ -106,7 +106,7 @@ try {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Syncopate:wght@400;700&display=swap"
         rel="stylesheet">
 
     <!-- CSS Libraries Essenciais -->
@@ -158,9 +158,9 @@ try {
                         }
                     },
                     fontFamily: {
-                        sans: ['Chakra Petch', 'sans-serif'],
-                        heading: ['Russo One', 'sans-serif'],
-                        display: ['Russo One', 'sans-serif'],
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Syncopate', 'sans-serif'],
+                        display: ['Syncopate', 'sans-serif'],
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -451,7 +451,7 @@ try {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
                         <a href="index.php" class="flex items-center">
-                            <img src="assets/img/logo-thunder.png" alt="Thunder Store"
+                            <img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Minha Loja"
                                 class="h-6 lg:h-8 object-contain" />
                         </a>
                     </div>
@@ -550,7 +550,8 @@ try {
                 </button>
 
                 <a href="index.php" class="flex items-center">
-                    <img src="assets/img/logo-thunder.png" alt="Thunder Store" class="h-6 object-contain" />
+                    <img src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Minha Loja"
+                        class="h-6 object-contain" />
                 </a>
 
                 <div class="flex items-center gap-2">
@@ -612,8 +613,8 @@ try {
         <div id="side-menu-panel"
             class="relative h-full w-4/5 max-w-xs bg-brand-black p-6 flex flex-col transition-transform duration-300 ease-in-out -translate-x-full border-r border-brand-gray-light">
             <div class="flex justify-between items-center mb-10"><a href="index.php"><img
-                        src="assets/img/logo-thunder.png" alt="Thunder Store" class="h-6 object-contain" /></a><button
-                    id="close-menu-btn" aria-label="Fechar menu"
+                        src="https://i.ibb.co/xq66KBdr/Design-sem-nome-4.png" alt="Minha Loja"
+                        class="h-6 object-contain" /></a><button id="close-menu-btn" aria-label="Fechar menu"
                     class="p-2 text-gray-500 hover:text-white transition-colors"><svg class="w-6 h-6" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
