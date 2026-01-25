@@ -17,6 +17,19 @@ body {
     color: var(--text-main);
     font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
+    width: 100%;
+}
+
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* Prevent iOS zoom on inputs */
+input,
+select,
+textarea {
+    font-size: 16px !important;
 }
 
 h1,
@@ -105,6 +118,8 @@ h6 {
     position: absolute;
     width: 60vw;
     height: 60vw;
+    max-width: 100%;
+    /* Ensure it doesn't overflow */
     background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, transparent 70%);
     top: 50%;
     left: 50%;
