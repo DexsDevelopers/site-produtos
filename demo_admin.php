@@ -37,23 +37,25 @@ $categorias_demo = [
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Demo - Painel Administrativo Moderno</title>
-    
+
     <!-- Fonts Modernas -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" />
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -85,65 +87,65 @@ $categorias_demo = [
             }
         }
     </script>
-    
+
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
+        body {
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             min-height: 100vh;
         }
-        
+
         .admin-sidebar {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .admin-card {
             background: rgba(30, 41, 59, 0.6);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        
+
         .admin-nav-item {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .admin-nav-item:hover {
             background: rgba(59, 130, 246, 0.1);
             transform: translateX(4px);
         }
-        
+
         .admin-nav-item.active {
             background: rgba(59, 130, 246, 0.2);
             border-right: 3px solid #3B82F6;
         }
-        
+
         .stat-card {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             border: 1px solid rgba(59, 130, 246, 0.2);
         }
-        
+
         .stat-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
         }
-        
+
         .mobile-menu {
             transform: translateX(-100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .mobile-menu.open {
             transform: translateX(0);
         }
-        
+
         .chart-container {
             position: relative;
             height: 300px;
         }
-        
+
         .gradient-text {
             background: linear-gradient(135deg, #3B82F6, #8B5CF6);
             -webkit-background-clip: text;
@@ -152,16 +154,18 @@ $categorias_demo = [
         }
     </style>
 </head>
+
 <body class="bg-admin-dark text-white">
     <!-- Mobile Menu Overlay -->
     <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
-    
+
     <!-- Sidebar -->
     <div id="sidebar" class="admin-sidebar fixed left-0 top-0 h-full w-64 z-50 lg:translate-x-0 mobile-menu">
         <div class="p-6">
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8">
-                <div class="w-10 h-10 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
+                <div
+                    class="w-10 h-10 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
                     <i class="fas fa-shield-alt text-white text-lg"></i>
                 </div>
                 <div>
@@ -169,44 +173,49 @@ $categorias_demo = [
                     <p class="text-xs text-admin-gray-400">Painel Administrativo</p>
                 </div>
             </div>
-            
+
             <!-- Navigation -->
             <nav class="space-y-2">
                 <a href="#" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-white active">
                     <i class="fas fa-tachometer-alt w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                
-                <a href="#" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
+
+                <a href="#"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
                     <i class="fas fa-plus-circle w-5"></i>
                     <span>Adicionar Produto</span>
                 </a>
-                
-                <a href="#" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
+
+                <a href="#"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
                     <i class="fas fa-tags w-5"></i>
                     <span>Categorias</span>
                 </a>
-                
-                <a href="#" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
+
+                <a href="#"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
                     <i class="fas fa-image w-5"></i>
                     <span>Banners</span>
                 </a>
-                
-                <a href="#" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
+
+                <a href="#"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
                     <i class="fas fa-shopping-cart w-5"></i>
                     <span>Pedidos</span>
                 </a>
-                
+
                 <div class="border-t border-admin-gray-700 my-4"></div>
-                
-                <a href="index.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
+
+                <a href="index.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white">
                     <i class="fas fa-external-link-alt w-5"></i>
                     <span>Ver Loja</span>
                 </a>
             </nav>
         </div>
     </div>
-    
+
     <!-- Main Content -->
     <div class="lg:ml-64">
         <!-- Top Bar -->
@@ -214,29 +223,31 @@ $categorias_demo = [
             <div class="px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <!-- Mobile menu button -->
-                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-admin-gray-400 hover:text-white hover:bg-admin-gray-700">
+                    <button id="mobile-menu-btn"
+                        class="lg:hidden p-2 rounded-lg text-admin-gray-400 hover:text-white hover:bg-admin-gray-700">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
-                    
+
                     <!-- Page Title -->
                     <div class="flex-1 lg:flex-none">
                         <h2 class="text-xl font-semibold text-white">Dashboard</h2>
                     </div>
-                    
+
                     <!-- User Info -->
                     <div class="flex items-center gap-4">
                         <div class="hidden sm:block text-right">
                             <p class="text-sm font-medium text-white">Admin Demo</p>
                             <p class="text-xs text-admin-gray-400">Administrador</p>
                         </div>
-                        <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
-        
+
         <!-- Page Content -->
         <main class="p-4 sm:p-6 lg:p-8">
             <!-- Dashboard Principal -->
@@ -248,7 +259,8 @@ $categorias_demo = [
                             <h1 class="text-3xl font-bold text-white mb-2">
                                 Bem-vindo ao Admin Panel! 👋
                             </h1>
-                            <p class="text-admin-gray-400">Esta é uma demonstração do painel administrativo moderno e responsivo.</p>
+                            <p class="text-admin-gray-400">Esta é uma demonstração do painel administrativo moderno e
+                                responsivo.</p>
                         </div>
                         <div class="mt-4 sm:mt-0">
                             <div class="flex items-center gap-2 text-sm text-admin-gray-400">
@@ -341,7 +353,8 @@ $categorias_demo = [
                         <div class="admin-card rounded-xl p-6">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="text-xl font-semibold text-white">Produtos Recentes</h3>
-                                <a href="#" class="text-admin-primary hover:text-admin-secondary text-sm font-medium flex items-center gap-2">
+                                <a href="#"
+                                    class="text-admin-primary hover:text-admin-secondary text-sm font-medium flex items-center gap-2">
                                     <i class="fas fa-plus"></i>
                                     Adicionar Novo
                                 </a>
@@ -349,24 +362,29 @@ $categorias_demo = [
 
                             <div class="space-y-4">
                                 <?php foreach ($produtos_demo as $produto): ?>
-                                <div class="flex items-center gap-4 p-4 bg-admin-gray-800/50 rounded-lg hover:bg-admin-gray-700/50 transition-colors">
-                                    <div class="w-16 h-16 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-box text-white text-xl"></i>
+                                    <div
+                                        class="flex items-center gap-4 p-4 bg-admin-gray-800/50 rounded-lg hover:bg-admin-gray-700/50 transition-colors">
+                                        <div
+                                            class="w-16 h-16 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-box text-white text-xl"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="font-semibold text-white truncate"><?= $produto['nome'] ?></h4>
+                                            <p class="text-sm text-admin-gray-400">R$
+                                                <?= number_format($produto['preco'], 2, ',', '.') ?></p>
+                                            <p class="text-xs text-admin-gray-500">ID: <?= $produto['id'] ?></p>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button
+                                                class="text-admin-primary hover:text-admin-secondary text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button
+                                                class="text-admin-success hover:text-green-300 text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-semibold text-white truncate"><?= $produto['nome'] ?></h4>
-                                        <p class="text-sm text-admin-gray-400">R$ <?= number_format($produto['preco'], 2, ',', '.') ?></p>
-                                        <p class="text-xs text-admin-gray-500">ID: <?= $produto['id'] ?></p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button class="text-admin-primary hover:text-admin-secondary text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="text-admin-success hover:text-green-300 text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -379,15 +397,16 @@ $categorias_demo = [
                             <h3 class="text-lg font-semibold text-white mb-4">Usuários Recentes</h3>
                             <div class="space-y-3">
                                 <?php foreach ($usuarios_demo as $usuario): ?>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                        <?= strtoupper(substr($usuario['nome'], 0, 1)) ?>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                            <?= strtoupper(substr($usuario['nome'], 0, 1)) ?>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-white text-sm font-medium truncate"><?= $usuario['nome'] ?></p>
+                                            <p class="text-admin-gray-400 text-xs truncate"><?= $usuario['email'] ?></p>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-white text-sm font-medium truncate"><?= $usuario['nome'] ?></p>
-                                        <p class="text-admin-gray-400 text-xs truncate"><?= $usuario['email'] ?></p>
-                                    </div>
-                                </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -397,12 +416,12 @@ $categorias_demo = [
                             <h3 class="text-lg font-semibold text-white mb-4">Categorias</h3>
                             <div class="space-y-3">
                                 <?php foreach ($categorias_demo as $categoria): ?>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-white text-sm"><?= $categoria['nome'] ?></span>
-                                    <span class="text-admin-gray-400 text-xs bg-admin-gray-700 px-2 py-1 rounded-full">
-                                        <?= $categoria['total_produtos'] ?> produtos
-                                    </span>
-                                </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-white text-sm"><?= $categoria['nome'] ?></span>
+                                        <span class="text-admin-gray-400 text-xs bg-admin-gray-700 px-2 py-1 rounded-full">
+                                            <?= $categoria['total_produtos'] ?> produtos
+                                        </span>
+                                    </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -411,15 +430,18 @@ $categorias_demo = [
                         <div class="admin-card rounded-xl p-6">
                             <h3 class="text-lg font-semibold text-white mb-4">Ações Rápidas</h3>
                             <div class="space-y-3">
-                                <button class="block w-full bg-admin-primary hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
+                                <button
+                                    class="block w-full bg-admin-primary hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
                                     <i class="fas fa-plus mr-2"></i>
                                     Adicionar Produto
                                 </button>
-                                <button class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
+                                <button
+                                    class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
                                     <i class="fas fa-tags mr-2"></i>
                                     Gerenciar Categorias
                                 </button>
-                                <button class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
+                                <button
+                                    class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
                                     <i class="fas fa-image mr-2"></i>
                                     Gerenciar Banners
                                 </button>
@@ -431,13 +453,16 @@ $categorias_demo = [
                 <!-- Call to Action -->
                 <div class="admin-card rounded-xl p-8 text-center">
                     <h2 class="text-2xl font-bold text-white mb-4">Pronto para Usar o Admin Real?</h2>
-                    <p class="text-admin-gray-400 mb-6">Este é apenas uma demonstração. Acesse o painel administrativo real para gerenciar sua loja.</p>
+                    <p class="text-admin-gray-400 mb-6">Este é apenas uma demonstração. Acesse o painel administrativo
+                        real para gerenciar sua loja.</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="admin_login.php" class="bg-admin-primary hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                        <a href="admin_login.php"
+                            class="bg-admin-primary hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors">
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             Acessar Admin Real
                         </a>
-                        <a href="index.php" class="bg-admin-gray-700 hover:bg-admin-gray-600 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                        <a href="index.php"
+                            class="bg-admin-gray-700 hover:bg-admin-gray-600 text-white font-bold py-3 px-8 rounded-lg transition-colors">
                             <i class="fas fa-home mr-2"></i>
                             Voltar à Loja
                         </a>
@@ -446,30 +471,30 @@ $categorias_demo = [
             </div>
         </main>
     </div>
-    
+
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
     <script>
         // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const sidebar = document.getElementById('sidebar');
             const mobileOverlay = document.getElementById('mobile-overlay');
-            
+
             if (mobileMenuBtn && sidebar) {
-                mobileMenuBtn.addEventListener('click', function() {
+                mobileMenuBtn.addEventListener('click', function () {
                     sidebar.classList.toggle('open');
                     mobileOverlay.classList.toggle('hidden');
                 });
-                
-                mobileOverlay.addEventListener('click', function() {
+
+                mobileOverlay.addEventListener('click', function () {
                     sidebar.classList.remove('open');
                     mobileOverlay.classList.add('hidden');
                 });
             }
-            
+
             // Auto-hide mobile menu on window resize
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 if (window.innerWidth >= 1024) {
                     sidebar.classList.remove('open');
                     mobileOverlay.classList.add('hidden');
@@ -478,4 +503,5 @@ $categorias_demo = [
         });
     </script>
 </body>
+
 </html>

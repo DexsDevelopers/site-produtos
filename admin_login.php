@@ -9,7 +9,7 @@ if (isset($_SESSION['user_id'])) {
         $stmt = $pdo->prepare("SELECT role FROM usuarios WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($usuario && $usuario['role'] === 'admin') {
             header('Location: admin/index.php');
             exit();
@@ -24,7 +24,7 @@ $erro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
-    
+
     if (empty($email) || empty($senha)) {
         $erro = "Email e senha são obrigatórios.";
     } else {
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT id, nome, email, senha, role FROM usuarios WHERE email = ?");
             $stmt->execute([$email]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($usuario && password_verify($senha, $usuario['senha'])) {
                 if ($usuario['role'] === 'admin') {
                     session_regenerate_id(true);
@@ -54,9 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login Administrador</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -74,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </head>
+
 <body class="bg-brand-black text-white min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md mx-auto p-6">
         <div class="text-center mb-8">
@@ -91,20 +93,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-white mb-2">Email</label>
-                    <input type="email" name="email" required 
-                           class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                           placeholder="Digite seu email">
+                    <input type="email" name="email" required
+                        class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
+                        placeholder="Digite seu email">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-white mb-2">Senha</label>
-                    <input type="password" name="senha" required 
-                           class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                           placeholder="Digite sua senha">
+                    <input type="password" name="senha" required
+                        class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
+                        placeholder="Digite sua senha">
                 </div>
 
-                <button type="submit" 
-                        class="w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                <button type="submit"
+                    class="w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
                     Entrar no Admin
                 </button>
             </form>
@@ -117,4 +119,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>
