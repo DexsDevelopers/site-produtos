@@ -20,6 +20,39 @@ foreach ($categorias as $categoria) {
 
 <style>
     /* CSS OTIMIZADO PARA MOBILE */
+    * {
+        -webkit-tap-highlight-color: transparent;
+        /* Remove blue tap box */
+    }
+
+    .product-card:active {
+        transform: scale(0.96);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(220, 38, 38, 0.5);
+        /* Brand red border */
+    }
+
+    @keyframes pulse-red {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+        }
+
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+        }
+    }
+
+    .badge-novo {
+        animation: pulse-red 2s infinite;
+    }
+
     body::before {
         content: '';
         position: fixed;
@@ -34,9 +67,17 @@ foreach ($categorias as $categoria) {
     }
 
     @keyframes gradient-animation {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
     }
 
     .gradient-title {
@@ -59,9 +100,11 @@ foreach ($categorias as $categoria) {
     }
 
     .product-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
 
@@ -78,8 +121,13 @@ foreach ($categorias as $categoria) {
     }
 
     @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
     }
 
     /* OTIMIZAÇÕES MOBILE */
@@ -87,11 +135,11 @@ foreach ($categorias as $categoria) {
         .swiper-slide {
             width: 45% !important;
         }
-        
+
         .product-card {
             padding: 0.75rem;
         }
-        
+
         .product-card img {
             height: 120px;
             object-fit: cover;
@@ -102,19 +150,22 @@ foreach ($categorias as $categoria) {
 <!-- Hero Section Otimizada -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-br from-brand-red/20 via-transparent to-brand-blue/20"></div>
-    
+
     <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <h1 class="gradient-title text-4xl md:text-6xl font-black mb-6 leading-tight">
             O Mercado é dos Tubarões
         </h1>
         <p class="text-brand-gray-text text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-            Descubra produtos incríveis que vão transformar sua vida. Qualidade, preços competitivos e entrega instantânea.
+            Descubra produtos incríveis que vão transformar sua vida. Qualidade, preços competitivos e entrega
+            instantânea.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#produtos" class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <a href="#produtos"
+                class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
                 Ver Produtos
             </a>
-            <a href="#sobre" class="glass-card text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <a href="#sobre"
+                class="glass-card text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
                 Saiba Mais
             </a>
         </div>
@@ -123,29 +174,29 @@ foreach ($categorias as $categoria) {
 
 <!-- Banners Principais Otimizados -->
 <?php if (!empty($banners_principais)): ?>
-<section class="py-16 px-4">
-    <div class="w-full max-w-7xl mx-auto">
-        <div class="swiper banner-carousel">
-            <div class="swiper-wrapper">
-                <?php foreach ($banners_principais as $banner): ?>
-                <div class="swiper-slide">
-                    <div class="glass-card rounded-2xl overflow-hidden">
-                        <img src="<?= htmlspecialchars($banner['imagem']) ?>" 
-                             alt="<?= htmlspecialchars($banner['titulo']) ?>" 
-                             class="w-full h-64 md:h-80 object-cover"
-                             loading="lazy">
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold text-white mb-2"><?= htmlspecialchars($banner['titulo']) ?></h3>
-                            <p class="text-brand-gray-text"><?= htmlspecialchars($banner['descricao']) ?></p>
+    <section class="py-16 px-4">
+        <div class="w-full max-w-7xl mx-auto">
+            <div class="swiper banner-carousel">
+                <div class="swiper-wrapper">
+                    <?php foreach ($banners_principais as $banner): ?>
+                        <div class="swiper-slide">
+                            <div class="glass-card rounded-2xl overflow-hidden">
+                                <img src="<?= htmlspecialchars($banner['imagem']) ?>"
+                                    alt="<?= htmlspecialchars($banner['titulo']) ?>" class="w-full h-64 md:h-80 object-cover"
+                                    loading="lazy">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold text-white mb-2"><?= htmlspecialchars($banner['titulo']) ?>
+                                    </h3>
+                                    <p class="text-brand-gray-text"><?= htmlspecialchars($banner['descricao']) ?></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
+                <div class="swiper-pagination"></div>
             </div>
-            <div class="swiper-pagination"></div>
         </div>
-    </div>
-</section>
+    </section>
 <?php endif; ?>
 
 <!-- Produtos por Categoria Otimizados -->
@@ -159,50 +210,51 @@ foreach ($categorias as $categoria) {
         <div class="space-y-16">
             <?php foreach ($categorias as $categoria): ?>
                 <?php if (isset($produtos_por_categoria[$categoria['id']])): ?>
-                <div class="scroll-reveal-section">
-                    <h3 class="text-2xl font-bold text-white mb-8 text-center"><?= htmlspecialchars($categoria['nome']) ?></h3>
-                    
-                    <div class="swiper product-carousel">
-                        <div class="swiper-wrapper">
-                            <?php foreach ($produtos_por_categoria[$categoria['id']] as $produto): ?>
-                            <div class="swiper-slide">
-                                <a href="produto.php?id=<?= $produto['id'] ?>" class="block">
-                                    <div class="product-card rounded-xl p-4 h-full">
-                                        <div class="relative mb-4">
-                                            <img src="<?= htmlspecialchars($produto['imagem']) ?>" 
-                                                 alt="<?= htmlspecialchars($produto['nome']) ?>" 
-                                                 class="w-full h-32 md:h-40 object-cover rounded-lg"
-                                                 loading="lazy">
-                                            <div class="absolute top-2 right-2 bg-brand-red text-white text-xs px-2 py-1 rounded-full">
-                                                Novo
-                                            </div>
-                                        </div>
-                                        <div class="space-y-2">
-                                            <h4 class="text-white font-bold text-sm md:text-base line-clamp-2">
-                                                <?= htmlspecialchars($produto['nome']) ?>
-                                            </h4>
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-brand-red font-bold text-lg">
-                                                    <?= formatarPreco($produto['preco']) ?>
-                                                </span>
-                                                <div class="flex items-center text-yellow-400">
-                                                    <i class="fas fa-star text-xs"></i>
-                                                    <i class="fas fa-star text-xs"></i>
-                                                    <i class="fas fa-star text-xs"></i>
-                                                    <i class="fas fa-star text-xs"></i>
-                                                    <i class="fas fa-star text-xs"></i>
+                    <div class="scroll-reveal-section">
+                        <h3 class="text-2xl font-bold text-white mb-8 text-center"><?= htmlspecialchars($categoria['nome']) ?>
+                        </h3>
+
+                        <div class="swiper product-carousel">
+                            <div class="swiper-wrapper">
+                                <?php foreach ($produtos_por_categoria[$categoria['id']] as $produto): ?>
+                                    <div class="swiper-slide">
+                                        <a href="produto.php?id=<?= $produto['id'] ?>" class="block">
+                                            <div class="product-card rounded-xl p-4 h-full">
+                                                <div class="relative mb-4">
+                                                    <img src="<?= htmlspecialchars($produto['imagem']) ?>"
+                                                        alt="<?= htmlspecialchars($produto['nome']) ?>"
+                                                        class="w-full h-32 md:h-40 object-cover rounded-lg" loading="lazy">
+                                                    <div
+                                                        class="absolute top-2 right-2 bg-brand-red text-white text-xs px-2 py-1 rounded-full badge-novo">
+                                                        Novo
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <h4 class="text-white font-bold text-sm md:text-base line-clamp-2">
+                                                        <?= htmlspecialchars($produto['nome']) ?>
+                                                    </h4>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-brand-red font-bold text-lg">
+                                                            <?= formatarPreco($produto['preco']) ?>
+                                                        </span>
+                                                        <div class="flex items-center text-yellow-400">
+                                                            <i class="fas fa-star text-xs"></i>
+                                                            <i class="fas fa-star text-xs"></i>
+                                                            <i class="fas fa-star text-xs"></i>
+                                                            <i class="fas fa-star text-xs"></i>
+                                                            <i class="fas fa-star text-xs"></i>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </div>
-                                </a>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endforeach; ?>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
                         </div>
-                        <div class="swiper-button-next"></div>
-                        <div class="swiper-button-prev"></div>
                     </div>
-                </div>
                 <?php endif; ?>
             <?php endforeach; ?>
         </div>
@@ -211,91 +263,91 @@ foreach ($categorias as $categoria) {
 
 <!-- JavaScript Otimizado para Mobile -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializa Swiper apenas se necessário
-    if (typeof Swiper !== 'undefined') {
-        // Banner Carousel
-        new Swiper('.banner-carousel', {
-            loop: true,
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            breakpoints: {
-                640: {
-                    slidesPerView: 1,
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializa Swiper apenas se necessário
+        if (typeof Swiper !== 'undefined') {
+            // Banner Carousel
+            new Swiper('.banner-carousel', {
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
                 },
-                768: {
-                    slidesPerView: 2,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
                 },
-                1024: {
-                    slidesPerView: 3,
-                }
-            }
-        });
-
-        // Product Carousel
-        new Swiper('.product-carousel', {
-            slidesPerView: 2,
-            spaceBetween: 16,
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            breakpoints: {
-                640: {
-                    slidesPerView: 3,
-                },
-                768: {
-                    slidesPerView: 4,
-                },
-                1024: {
-                    slidesPerView: 5,
-                }
-            }
-        });
-    }
-
-    // ScrollReveal otimizado
-    if (typeof ScrollReveal !== 'undefined') {
-        ScrollReveal().reveal('.gradient-title', { 
-            duration: 600,
-            distance: '20px',
-            origin: 'top',
-            reset: false
-        });
-        
-        ScrollReveal().reveal('.product-card', { 
-            duration: 400,
-            distance: '15px',
-            origin: 'bottom',
-            interval: 50,
-            reset: false
-        });
-    }
-
-    // Lazy loading para imagens
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('skeleton');
-                    observer.unobserve(img);
+                breakpoints: {
+                    640: {
+                        slidesPerView: 1,
+                    },
+                    768: {
+                        slidesPerView: 2,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                    }
                 }
             });
-        });
 
-        document.querySelectorAll('img[data-src]').forEach(img => {
-            imageObserver.observe(img);
-        });
-    }
-});
+            // Product Carousel
+            new Swiper('.product-carousel', {
+                slidesPerView: 2,
+                spaceBetween: 16,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 3,
+                    },
+                    768: {
+                        slidesPerView: 4,
+                    },
+                    1024: {
+                        slidesPerView: 5,
+                    }
+                }
+            });
+        }
+
+        // ScrollReveal otimizado
+        if (typeof ScrollReveal !== 'undefined') {
+            ScrollReveal().reveal('.gradient-title', {
+                duration: 600,
+                distance: '20px',
+                origin: 'top',
+                reset: false
+            });
+
+            ScrollReveal().reveal('.product-card', {
+                duration: 400,
+                distance: '15px',
+                origin: 'bottom',
+                interval: 50,
+                reset: false
+            });
+        }
+
+        // Lazy loading para imagens
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('skeleton');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    });
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
