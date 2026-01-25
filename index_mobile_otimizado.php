@@ -100,11 +100,18 @@ foreach ($categorias as $categoria) {
     }
 
     .product-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.01);
+        /* Almost invisible background */
+        backdrop-filter: blur(20px) saturate(180%);
+        /* Strong blur + vibrance */
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        /* Highlight top edge */
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        /* Highlight left edge */
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        /* Deep shadow for lift */
         transition: all 0.3s ease;
     }
 
