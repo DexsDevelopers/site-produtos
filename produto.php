@@ -87,20 +87,38 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, loja online';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// Verifica se há chave PIX configurada para habilitar checkout
-$checkout_url = null;
-$checkout_button_text = 'Comprar Agora (PIX)';
-
+// Verifica métodos de pagamento configurados
+$metodos_pagamento = [];
 try {
     if (isset($fileStorage) && is_object($fileStorage)) {
+        // InfinitePay
+        $infinite_tag = $fileStorage->getInfiniteTag();
+        if (!empty($infinite_tag)) {
+            $metodos_pagamento['infinitepay'] = [
+                'url' => 'checkout_infinitepay.php',
+                'btn_text' => 'Pagar com Cartão / PIX',
+                'sub_text' => 'Via InfinitePay',
+                'color' => 'from-green-600 to-green-700',
+                'hover' => 'from-green-500 to-green-600',
+                'icon' => 'fas fa-credit-card'
+            ];
+        }
+        
+        // PIX Manual
         $chave_pix = $fileStorage->getChavePix();
         if (!empty($chave_pix)) {
-            $checkout_url = 'checkout_pix.php';
-            $checkout_button_text = 'Comprar Agora (PIX)';
+            $metodos_pagamento['pix'] = [
+                'url' => 'checkout_pix.php',
+                'btn_text' => 'Pagar com PIX Manual',
+                'sub_text' => 'Transferência Direta',
+                'color' => 'from-brand-red to-red-700',
+                'hover' => 'from-red-500 to-brand-red',
+                'icon' => 'fas fa-qrcode'
+            ];
         }
     }
 } catch (Exception $e) {
-    error_log("Erro ao verificar chave PIX: " . $e->getMessage());
+    error_log("Erro ao verificar métodos de pagamento: " . $e->getMessage());
 }
 
 ?>
@@ -378,12 +396,19 @@ try {
 
                         <!-- Action Buttons -->
                         <div class="space-y-4">
-                            <?php if ($checkout_url): ?>
-                                <a href="<?= $checkout_url ?>?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1"
-                                    class="pulse-btn w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 text-lg">
-                                    <i class="fas fa-bolt"></i>
-                                    <?= htmlspecialchars($checkout_button_text) ?>
-                                </a>
+                            <?php if (!empty($metodos_pagamento)): ?>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <?php foreach ($metodos_pagamento as $metodo): ?>
+                                        <a href="<?= $metodo['url'] ?>?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1"
+                                            class="pulse-btn w-full bg-gradient-to-r <?= $metodo['color'] ?> hover:<?= $metodo['hover'] ?> text-white font-bold py-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-lg leading-tight">
+                                            <div class="flex items-center gap-3">
+                                                <i class="<?= $metodo['icon'] ?>"></i>
+                                                <?= htmlspecialchars($metodo['btn_text']) ?>
+                                            </div>
+                                            <span class="text-[10px] opacity-80 font-normal uppercase mt-0.5 tracking-wider"><?= $metodo['sub_text'] ?></span>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
 
                             <form id="add-to-cart-form" class="w-full">
