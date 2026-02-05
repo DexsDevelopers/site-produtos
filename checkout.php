@@ -18,6 +18,11 @@ foreach ($carrinho_itens as $item) {
     $total_itens += $item['quantidade'];
     $total_preco += $item['preco'] * $item['quantidade'];
 }
+
+// Verifica status dos métodos de pagamento
+$config = $fileStorage->getConfig();
+$infinite_status = $config['infinite_status'] ?? 'off';
+$pix_status = $config['pix_status'] ?? 'off';
 ?>
 
 <div class="w-full max-w-7xl mx-auto py-24 px-4">
@@ -44,17 +49,26 @@ foreach ($carrinho_itens as $item) {
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <!-- Botão Comprar - Redireciona para checkout InfinitePay -->
+                        <?php if ($infinite_status === 'on'): ?>
                         <a href="checkout_infinitepay.php" 
                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
                             <i class="fas fa-credit-card"></i>
                             Pagar com Cartão / PIX
                         </a>
+                        <?php endif; ?>
+
                         <!-- Botão PIX Manual -->
+                        <?php if ($pix_status === 'on'): ?>
                         <a href="checkout_pix.php" 
                            class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
                             <i class="fas fa-qrcode"></i>
                             PIX Manual
                         </a>
+                        <?php endif; ?>
+                        
+                        <?php if ($infinite_status !== 'on' && $pix_status !== 'on'): ?>
+                            <p class="text-yellow-500 text-sm col-span-2 text-center">Nenhum método de pagamento disponível.</p>
+                        <?php endif; ?>
                     </div>
                     <div class="mt-2">
                         <a href="produto.php?id=<?= $item['id'] ?>" 

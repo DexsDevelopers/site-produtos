@@ -91,9 +91,13 @@ $page_image = htmlspecialchars($produto_selecionado['imagem']);
 $metodos_pagamento = [];
 try {
     if (isset($fileStorage) && is_object($fileStorage)) {
+        $config = $fileStorage->getConfig();
+        
         // InfinitePay
-        $infinite_tag = $fileStorage->getInfiniteTag();
-        if (!empty($infinite_tag)) {
+        $infinite_tag = $config['infinite_tag'] ?? '';
+        $infinite_status = $config['infinite_status'] ?? 'off';
+        
+        if ($infinite_status === 'on' && !empty($infinite_tag)) {
             $metodos_pagamento['infinitepay'] = [
                 'url' => 'checkout_infinitepay.php',
                 'btn_text' => 'Pagar com Cartão / PIX',
@@ -105,8 +109,10 @@ try {
         }
         
         // PIX Manual
-        $chave_pix = $fileStorage->getChavePix();
-        if (!empty($chave_pix)) {
+        $chave_pix = $config['chave_pix'] ?? '';
+        $pix_status = $config['pix_status'] ?? 'off';
+        
+        if ($pix_status === 'on' && !empty($chave_pix)) {
             $metodos_pagamento['pix'] = [
                 'url' => 'checkout_pix.php',
                 'btn_text' => 'Pagar com PIX Manual',
