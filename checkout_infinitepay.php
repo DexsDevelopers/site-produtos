@@ -25,6 +25,7 @@ foreach ($carrinho_itens as $item) {
     $valor_total += $item['preco'] * $item['quantidade'];
     $items[] = [
         'name' => $item['nome'],
+        'description' => $item['nome'], // Adicionando descrição obrigatória
         'price' => (int)round($item['preco'] * 100), // Preço em centavos
         'quantity' => (int)$item['quantidade']
     ];
