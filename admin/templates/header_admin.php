@@ -426,9 +426,9 @@ require_once '../config.php';
                     <span>Pedidos</span>
                 </a>
                 
-                <a href="gerenciar_pix.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_pix.php' ? 'active' : '' ?>">
-                    <i class="fas fa-qrcode w-5"></i>
-                    <span>Gerenciar PIX</span>
+                <a href="gerenciar_pagamentos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-admin-gray-300 hover:text-white <?= (basename($_SERVER['PHP_SELF']) == 'gerenciar_pagamentos.php' || basename($_SERVER['PHP_SELF']) == 'gerenciar_pix.php') ? 'active' : '' ?>">
+                    <i class="fas fa-credit-card w-5"></i>
+                    <span>Pagamentos</span>
                 </a>
                 
                 <div class="border-t border-admin-gray-700 my-4"></div>

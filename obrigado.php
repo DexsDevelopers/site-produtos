@@ -12,46 +12,52 @@ if (empty($_SESSION['carrinho']) || !isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $carrinho_itens = $_SESSION['carrinho'];
-$nome_cliente = isset($_POST['nome']) ? htmlspecialchars($_POST['nome']) : 'Cliente';
+$nome_cliente = $_SESSION['user_nome'] ?? 'Cliente';
 
-// --- LÓGICA PARA SALVAR O PEDIDO NO BANCO DE DADOS ---
-try {
-    $pdo->beginTransaction(); // Inicia uma transação para garantir a integridade dos dados
+$pedido_id = $_GET['pedido_id'] ?? null;
 
-    // 1. Calcula o valor total do carrinho
-    $valor_total = 0;
-    foreach ($carrinho_itens as $item) {
-        $valor_total += $item['preco'] * $item['quantidade'];
+// Se o pedido já foi criado (ex: via InfinitePay), apenas mostramos a confirmação
+if ($pedido_id) {
+    // Verifica se o pedido pertence ao usuário
+    $stmt = $pdo->prepare("SELECT id FROM pedidos WHERE id = ? AND usuario_id = ?");
+    $stmt->execute([$pedido_id, $user_id]);
+    if (!$stmt->fetch()) {
+        die("Pedido não encontrado.");
     }
-
-    // 2. Insere o pedido na tabela `pedidos`
-    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total) VALUES (?, ?)");
-    $stmt->execute([$user_id, $valor_total]);
-    
-    // 3. Pega o ID do pedido que acabamos de criar
-    $pedido_id = $pdo->lastInsertId();
-
-    // 4. Insere cada item do carrinho na tabela `pedido_itens`
-    $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?)");
-    foreach ($carrinho_itens as $item) {
-        $stmt_item->execute([
-            $pedido_id,
-            $item['id'],
-            $item['nome'],
-            $item['quantidade'],
-            $item['preco']
-        ]);
-    }
-
-    $pdo->commit(); // Confirma a transação, salvando tudo no banco
-
-    // 5. Limpa o carrinho da sessão, pois a compra foi finalizada
+    // Limpa o carrinho
     unset($_SESSION['carrinho']);
+} else {
+    // --- LÓGICA PARA SALVAR O PEDIDO NO BANCO DE DADOS (PIX MANUAL) ---
+    try {
+        $pdo->beginTransaction();
 
-} catch (PDOException $e) {
-    $pdo->rollBack(); // Em caso de erro, desfaz tudo que foi feito na transação
-    // Em um site real, você logaria o erro em um arquivo. Por enquanto, exibimos uma mensagem.
-    die("Erro ao processar seu pedido. Por favor, tente novamente. Detalhe: " . $e->getMessage());
+        $valor_total = 0;
+        foreach ($carrinho_itens as $item) {
+            $valor_total += $item['preco'] * $item['quantidade'];
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status) VALUES (?, ?, 'Pendente (PIX Manual)')");
+        $stmt->execute([$user_id, $valor_total]);
+        $pedido_id = $pdo->lastInsertId();
+
+        $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?)");
+        foreach ($carrinho_itens as $item) {
+            $stmt_item->execute([
+                $pedido_id,
+                $item['id'],
+                $item['nome'],
+                $item['quantidade'],
+                $item['preco']
+            ]);
+        }
+
+        $pdo->commit();
+        unset($_SESSION['carrinho']);
+
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        die("Erro ao processar seu pedido. Por favor, tente novamente.");
+    }
 }
 
 

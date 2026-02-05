@@ -198,6 +198,11 @@ class FileStorage {
         $config = $this->getConfig();
         return $config['cidade_pix'] ?? '';
     }
+
+    public function getInfiniteTag() {
+        $config = $this->getConfig();
+        return $config['infinite_tag'] ?? '';
+    }
     
     // ========== CATEGORIAS ==========
     

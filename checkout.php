@@ -42,15 +42,23 @@ foreach ($carrinho_itens as $item) {
                         </div>
                     </div>
                     
-                    <div class="flex gap-2">
-                        <!-- Botão Comprar - Redireciona para checkout PIX -->
-                        <a href="checkout_pix.php" 
-                           class="flex-1 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
-                            <i class="fas fa-qrcode mr-2"></i>
-                            Pagar com PIX
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <!-- Botão Comprar - Redireciona para checkout InfinitePay -->
+                        <a href="checkout_infinitepay.php" 
+                           class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-credit-card"></i>
+                            Pagar com Cartão / PIX
                         </a>
+                        <!-- Botão PIX Manual -->
+                        <a href="checkout_pix.php" 
+                           class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-qrcode"></i>
+                            PIX Manual
+                        </a>
+                    </div>
+                    <div class="mt-2">
                         <a href="produto.php?id=<?= $item['id'] ?>" 
-                           class="bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
+                           class="block w-full bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
                             Ver Detalhes
                         </a>
                     </div>
