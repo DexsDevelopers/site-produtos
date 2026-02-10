@@ -1,54 +1,109 @@
 <?php
-// admin/pedidos.php
+// admin/pedidos.php - Gerenciamento de Pedidos Premium
 require_once 'secure.php';
+$page_title = 'Gerenciar Pedidos';
 require_once 'templates/header_admin.php';
 
-// Busca todos os pedidos, juntando com a tabela de usuários para pegar o nome do cliente
-$stmt = $pdo->query(
-    "SELECT pedidos.*, usuarios.nome AS nome_cliente 
-     FROM pedidos 
-     JOIN usuarios ON pedidos.usuario_id = usuarios.id 
-     ORDER BY pedidos.data_pedido DESC"
-);
-$pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Busca todos os pedidos
+try {
+    // LEFT JOIN para garantir que pedidos de usuários excluídos ainda apareçam
+    $stmt = $pdo->query(
+        "SELECT pedidos.*, usuarios.nome AS nome_cliente, usuarios.email AS email_cliente
+         FROM pedidos 
+         LEFT JOIN usuarios ON pedidos.usuario_id = usuarios.id 
+         ORDER BY pedidos.data_pedido DESC"
+    );
+    $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $pedidos = [];
+    $erro = "Erro ao buscar pedidos: " . $e->getMessage();
+}
 ?>
 
-<div class="max-w-7xl mx-auto">
-    <h2 class="text-xl lg:text-2xl font-semibold text-white mb-4 lg:mb-6">Gerenciar Pedidos</h2>
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">Pedidos</h1>
+            <p class="text-admin-gray-400">Acompanhe e gerencie as vendas da loja</p>
+        </div>
+        <!-- Filtros futuros poderiam entrar aqui -->
+    </div>
 
-    <div class="admin-card rounded-xl p-4 lg:p-6">
-        <div class="overflow-x-auto -mx-4 lg:mx-0">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-brand-black text-xs text-gray-400 uppercase">
-                    <tr>
-                        <th class="px-4 py-3">Pedido ID</th>
-                        <th class="px-4 py-3">Cliente</th>
-                        <th class="px-4 py-3">Data</th>
-                        <th class="px-4 py-3">Valor Total</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Ações</th>
+    <div class="admin-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-admin-gray-800/50">
+                        <th
+                            class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            ID</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Cliente</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Data</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Total</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Status</th>
+                        <th
+                            class="px-6 py-4 text-right text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-white/5">
                     <?php if (empty($pedidos)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center py-10 text-brand-gray-text">Nenhum pedido encontrado.</td>
-                        </tr>
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-admin-gray-500">
+                            <i class="fas fa-shopping-bag text-4xl mb-3 opacity-50"></i>
+                            <p>Nenhum pedido encontrado.</p>
+                        </td>
+                    </tr>
                     <?php else: ?>
-                        <?php foreach ($pedidos as $pedido): ?>
-                        <tr class="border-b border-brand-gray">
-                            <td class="px-4 py-3 font-medium text-white" data-label="Pedido ID">#<?= $pedido['id'] ?></td>
-                            <td class="px-4 py-3 text-white" data-label="Cliente"><?= htmlspecialchars($pedido['nome_cliente']) ?></td>
-                            <td class="px-4 py-3 text-white" data-label="Data"><?= date('d/m/Y H:i', strtotime($pedido['data_pedido'])) ?></td>
-                            <td class="px-4 py-3 text-brand-red font-semibold" data-label="Valor Total"><?= formatarPreco($pedido['valor_total']) ?></td>
-                            <td class="px-4 py-3" data-label="Status">
-                                <span class="bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2.5 py-1 rounded-full"><?= htmlspecialchars($pedido['status']) ?></span>
-                            </td>
-                            <td class="px-4 py-3" data-label="Ações">
-                                <a href="pedido_detalhes_admin.php?id=<?= $pedido['id'] ?>" class="font-medium text-blue-500 hover:underline">Ver Detalhes</a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                    <?php foreach ($pedidos as $pedido): ?>
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                            #
+                            <?= $pedido['id'] ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-white">
+                                <?= htmlspecialchars($pedido['nome_cliente'] ?? 'Cliente Removido') ?>
+                            </div>
+                            <div class="text-xs text-admin-gray-500">
+                                <?= htmlspecialchars($pedido['email_cliente'] ?? '-') ?>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-admin-gray-400">
+                            <?= date('d/m/Y H:i', strtotime($pedido['data_pedido'])) ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
+                            <?= formatarPreco($pedido['valor_total']) ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?php
+                                $statusClass = match(strtolower($pedido['status'])) {
+                                    'pago', 'concluido', 'entregue' => 'status-success',
+                                    'cancelado', 'recusado' => 'status-danger',
+                                    'pendente', 'aguardando' => 'status-warning',
+                                    default => 'bg-gray-500/10 text-gray-400 border border-gray-500/20 px-2.5 py-0.5 rounded-full text-xs font-medium'
+                                };
+                                ?>
+                            <span class="<?= $statusClass ?>">
+                                <?= htmlspecialchars($pedido['status']) ?>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="pedido_detalhes_admin.php?id=<?= $pedido['id'] ?>"
+                                class="text-admin-primary hover:text-white transition-colors">
+                                Detalhes <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -56,6 +111,4 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<?php
-require_once 'templates/footer_admin.php';
-?>
+<?php require_once 'templates/footer_admin.php'; ?>

@@ -1,77 +1,140 @@
 <?php
-// admin/gerenciar_categorias.php
+// admin/gerenciar_categorias.php - Premium Design
 require_once 'secure.php';
+$page_title = 'Categorias';
 require_once 'templates/header_admin.php';
 
-// Busca todas as categorias, AGORA ORDENADAS PELA NOVA COLUNA 'ordem'
-$categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
+// Busca todas as categorias
+try {
+    $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
+}
+catch (Exception $e) {
+    $categorias = [];
+}
 ?>
 
-<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Form Section -->
     <div class="lg:col-span-1">
-        <h2 class="text-2xl font-semibold text-white mb-4">Adicionar Nova Categoria</h2>
-        <div class="bg-brand-gray-light p-6 rounded-lg">
-            <form action="processa_categoria.php" method="POST">
-                <div>
-                    <label for="nome" class="block text-sm font-medium text-brand-gray-text">Nome da Categoria</label>
-                    <input type="text" name="nome" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray text-white">
-                </div>
-                <button type="submit" name="adicionar" class="w-full mt-4 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 rounded-lg">
-                    Salvar Categoria
-                </button>
-            </form>
+        <div class="sticky top-24 space-y-6">
+            <h2 class="text-2xl font-bold text-white">Nova Categoria</h2>
+
+            <div class="admin-card p-6">
+                <form action="processa_categoria.php" method="POST">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="nome"
+                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Nome
+                                da Categoria</label>
+                            <input type="text" name="nome" required placeholder="Ex: Tênis" class="w-full">
+                        </div>
+                        <button type="submit" name="adicionar"
+                            class="btn btn-primary w-full bg-white text-black hover:bg-gray-200">
+                            Adicionar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <!-- List Section -->
     <div class="lg:col-span-2">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold text-white">Categorias Existentes</h2>
-            <a href="editar_categoria.php" class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-lg text-sm">
-                <i class="fas fa-plus mr-1"></i>
-                Nova Categoria
-            </a>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">Categorias Ativas</h2>
+            <span class="text-sm text-admin-gray-400">
+                <?= count($categorias)?> categorias
+            </span>
         </div>
-        <div class="bg-brand-gray-light p-6 rounded-lg">
-            <?php
-            if (isset($_SESSION['admin_message'])) {
-                echo '<div class="bg-blue-500/20 text-blue-300 p-3 rounded-lg mb-4 text-center">' . $_SESSION['admin_message'] . '</div>';
-                unset($_SESSION['admin_message']);
-            }
-            ?>
-            <table class="w-full text-left text-sm">
-                <thead class="bg-brand-black text-xs text-gray-400 uppercase">
-                    <tr>
-                        <th class="px-4 py-3">Ordem</th>
-                        <th class="px-4 py-3">Nome</th>
-                        <th class="px-4 py-3">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($categorias as $categoria): ?>
-                    <tr class="border-b border-brand-gray">
-                        <td class="px-4 py-3 font-medium text-white flex items-center gap-2">
-                            <a href="processa_ordem_categoria.php?id=<?= $categoria['id'] ?>&direcao=up" title="Mover para Cima">▲</a>
-                            <a href="processa_ordem_categoria.php?id=<?= $categoria['id'] ?>&direcao=down" title="Mover para Baixo">▼</a>
-                        </td>
-                        <td class="px-4 py-3 text-white"><?= htmlspecialchars($categoria['nome']) ?></td>
-                        <td class="px-4 py-3">
-                            <div class="flex gap-2">
-                                <a href="editar_categoria.php?id=<?= $categoria['id'] ?>" class="font-medium text-blue-500 hover:underline">
-                                    Editar
-                                </a>
-                                <a href="processa_categoria.php?deletar=<?= $categoria['id'] ?>" class="font-medium text-red-500 hover:underline" onclick="return confirm('Tem certeza?');">
-                                    Deletar
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+
+        <?php if (isset($_SESSION['admin_message'])): ?>
+        <div class="mb-6 p-4 rounded-lg bg-admin-primary/10 border border-admin-primary/20 text-white text-center">
+            <?= $_SESSION['admin_message']?>
+            <?php unset($_SESSION['admin_message']); ?>
+        </div>
+        <?php
+endif; ?>
+
+        <div class="admin-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-admin-gray-800/50">
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider w-24">
+                                Ordem</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                                Nome</th>
+                            <th
+                                class="px-6 py-4 text-right text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                                Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <?php if (empty($categorias)): ?>
+                        <tr>
+                            <td colspan="3" class="px-6 py-12 text-center text-admin-gray-500">
+                                Nenhuma categoria cadastrada.
+                            </td>
+                        </tr>
+                        <?php
+else: ?>
+                        <?php foreach ($categorias as $index => $categoria): ?>
+                        <tr class="group hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex flex-col gap-1">
+                                        <?php if ($index > 0): ?>
+                                        <a href="processa_ordem_categoria.php?id=<?= $categoria['id']?>&direcao=up"
+                                            class="text-admin-gray-500 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                                            title="Mover para cima">
+                                            <i class="fas fa-chevron-up text-xs"></i>
+                                        </a>
+                                        <?php
+        endif; ?>
+
+                                        <?php if ($index < count($categorias) - 1): ?>
+                                        <a href="processa_ordem_categoria.php?id=<?= $categoria['id']?>&direcao=down"
+                                            class="text-admin-gray-500 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                                            title="Mover para baixo">
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </a>
+                                        <?php
+        endif; ?>
+                                    </div>
+                                    <span class="text-xs font-mono text-admin-gray-500 ml-2">
+                                        <?= $categoria['ordem']?>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                                <?= htmlspecialchars($categoria['nome'])?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div
+                                    class="flex items-center justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                                    <a href="editar_categoria.php?id=<?= $categoria['id']?>"
+                                        class="text-admin-primary hover:text-white transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="processa_categoria.php?deletar=<?= $categoria['id']?>"
+                                        class="text-red-500 hover:text-red-400 transition-colors"
+                                        onclick="return confirm('Tem certeza? Isso pode afetar produtos vinculados.')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php
+    endforeach; ?>
+                        <?php
+endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<?php
-require_once 'templates/footer_admin.php';
-?>
+<?php require_once 'templates/footer_admin.php'; ?>
