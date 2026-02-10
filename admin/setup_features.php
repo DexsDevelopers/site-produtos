@@ -1,38 +1,43 @@
 <?php
-// admin/setup_features.php
+// admin/setup_features.php - Versão MySQL/MariaDB
 require_once __DIR__ . '/../config.php';
 
 echo "<pre>";
+echo "Iniciando configuração para MySQL/MariaDB...\n\n";
 
 // 1. Tabela de Cupons
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS cupons (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        codigo TEXT NOT NULL UNIQUE,
-        tipo TEXT NOT NULL DEFAULT 'porcentagem', -- 'porcentagem' ou 'fixo'
-        valor REAL NOT NULL,
-        validade DATETIME,
-        ativo INTEGER DEFAULT 1,
-        usos_max INTEGER DEFAULT 0, -- 0 = ilimitado
-        usos_atuais INTEGER DEFAULT 0
-    )");
+    $sql = "CREATE TABLE IF NOT EXISTS cupons (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        codigo VARCHAR(50) NOT NULL UNIQUE,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'porcentagem', -- 'porcentagem' ou 'fixo'
+        valor DECIMAL(10,2) NOT NULL,
+        validade DATETIME NULL,
+        ativo TINYINT(1) DEFAULT 1,
+        usos_max INT DEFAULT 0, -- 0 = ilimitado
+        usos_atuais INT DEFAULT 0
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+    $pdo->exec($sql);
     echo "Tabela 'cupons' verificada/criada.\n";
 }
 catch (Exception $e) {
     echo "Erro tabela cupons: " . $e->getMessage() . "\n";
 }
 
-// 2. Tabela de Afiliados (separado de usuários para simplificar)
+// 2. Tabela de Afiliados
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS afiliados (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL UNIQUE,
-        codigo TEXT NOT NULL UNIQUE,
-        saldo REAL DEFAULT 0.00,
-        chave_pix TEXT,
+    $sql = "CREATE TABLE IF NOT EXISTS afiliados (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        usuario_id INT NOT NULL UNIQUE,
+        codigo VARCHAR(50) NOT NULL UNIQUE,
+        saldo DECIMAL(10,2) DEFAULT 0.00,
+        chave_pix VARCHAR(255) NULL,
         data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
-    )");
+        FOREIGN KEY(usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+    $pdo->exec($sql);
     echo "Tabela 'afiliados' verificada/criada.\n";
 }
 catch (Exception $e) {
@@ -40,24 +45,37 @@ catch (Exception $e) {
 }
 
 // 3. Atualizar Pedidos para Rastreio
-// SQLite não suporta IF NOT EXISTS em ADD COLUMN, então precisamos verificar antes
+function columnExists(PDO $pdo, $table, $column)
+{
+    try {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM $table LIKE ?");
+        $stmt->execute([$column]);
+        return $stmt->fetch() !== false;
+    }
+    catch (Exception $e) {
+        return false;
+    }
+}
+
 try {
-    $cols = $pdo->query("PRAGMA table_info(pedidos)")->fetchAll(PDO::FETCH_ASSOC);
-    $hasRastreio = false;
-    foreach ($cols as $col) {
-        if ($col['name'] == 'codigo_rastreio')
-            $hasRastreio = true;
+    // Adiciona colunas se não existirem
+    if (!columnExists($pdo, 'pedidos', 'codigo_rastreio')) {
+        $pdo->exec("ALTER TABLE pedidos ADD COLUMN codigo_rastreio VARCHAR(100) NULL");
+        echo "Coluna 'codigo_rastreio' adicionada.\n";
     }
 
-    if (!$hasRastreio) {
-        $pdo->exec("ALTER TABLE pedidos ADD COLUMN codigo_rastreio TEXT");
-        $pdo->exec("ALTER TABLE pedidos ADD COLUMN transportadora TEXT");
-        $pdo->exec("ALTER TABLE pedidos ADD COLUMN url_rastreio TEXT");
-        echo "Colunas de rastreio adicionadas em 'pedidos'.\n";
+    if (!columnExists($pdo, 'pedidos', 'transportadora')) {
+        $pdo->exec("ALTER TABLE pedidos ADD COLUMN transportadora VARCHAR(100) NULL");
+        echo "Coluna 'transportadora' adicionada.\n";
     }
-    else {
-        echo "Colunas de rastreio já existem em 'pedidos'.\n";
+
+    if (!columnExists($pdo, 'pedidos', 'url_rastreio')) {
+        $pdo->exec("ALTER TABLE pedidos ADD COLUMN url_rastreio VARCHAR(255) NULL");
+        echo "Coluna 'url_rastreio' adicionada.\n";
     }
+
+    echo "Verificação de colunas em 'pedidos' concluída.\n";
+
 }
 catch (Exception $e) {
     echo "Erro update pedidos: " . $e->getMessage() . "\n";
@@ -67,13 +85,16 @@ catch (Exception $e) {
 try {
     $count = $pdo->query("SELECT COUNT(*) FROM cupons")->fetchColumn();
     if ($count == 0) {
-        $pdo->exec("INSERT INTO cupons (codigo, tipo, valor, ativo) VALUES ('BEMVINDO10', 'porcentagem', 10, 1)");
-        $pdo->exec("INSERT INTO cupons (codigo, tipo, valor, ativo) VALUES ('FRETEGRATIS', 'fixo', 15, 1)");
+        $pdo->exec("INSERT INTO cupons (codigo, tipo, valor, ativo) VALUES ('BEMVINDO10', 'porcentagem', 10.00, 1)");
+        $pdo->exec("INSERT INTO cupons (codigo, tipo, valor, ativo) VALUES ('FRETEGRATIS', 'fixo', 15.00, 1)");
         echo "Cupons de exemplo inseridos.\n";
+    }
+    else {
+        echo "Tabela cupons já contém dados.\n";
     }
 }
 catch (Exception $e) {
     echo "Erro inserir cupons: " . $e->getMessage() . "\n";
 }
 
-echo "Setup concluído.</pre>";
+echo "\nSetup concluído com sucesso.</pre>";
