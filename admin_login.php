@@ -1,5 +1,5 @@
 <?php
-// admin_login.php - Login direto para administrador
+// admin_login.php - Login Admin Premium
 session_start();
 require_once 'config.php';
 
@@ -14,8 +14,9 @@ if (isset($_SESSION['user_id'])) {
             header('Location: admin/index.php');
             exit();
         }
-    } catch (PDOException $e) {
-        // Continua para o login
+    }
+    catch (PDOException $e) {
+    // Continua
     }
 }
 
@@ -26,8 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senha = $_POST['senha'] ?? '';
 
     if (empty($email) || empty($senha)) {
-        $erro = "Email e senha são obrigatórios.";
-    } else {
+        $erro = "Preencha todos os campos.";
+    }
+    else {
         try {
             $stmt = $pdo->prepare("SELECT id, nome, email, senha, role FROM usuarios WHERE email = ?");
             $stmt->execute([$email]);
@@ -40,14 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_nome'] = $usuario['nome'];
                     header('Location: admin/index.php');
                     exit();
-                } else {
-                    $erro = "Acesso negado. Apenas administradores podem acessar esta área.";
                 }
-            } else {
-                $erro = "Email ou senha inválidos.";
+                else {
+                    $erro = "Acesso restrito.";
+                }
             }
-        } catch (PDOException $e) {
-            $erro = "Erro no servidor. Tente novamente.";
+            else {
+                $erro = "Credenciais inválidas.";
+            }
+        }
+        catch (PDOException $e) {
+            $erro = "Erro no servidor.";
         }
     }
 }
@@ -57,64 +62,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login Administrador</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-red': '#FF3B5C',
-                        'brand-red-dark': '#E91E63',
-                        'brand-black': '#0A0A0A',
-                        'brand-gray': { DEFAULT: '#1E293B', light: '#334155', text: '#94A3B8' }
-                    }
-                }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — MACARIO BRAZIL</title>
+    <!-- CSS Customizado (Macario Design System) -->
+    <link rel="stylesheet" href="assets/css/admin_macario.css?v=<?= time()?>">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </script>
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #b3b3b3;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #fff;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
 
-<body class="bg-brand-black text-white min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-md mx-auto p-6">
+<body>
+    <div class="login-card">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-black text-white mb-2">Admin Login</h1>
-            <p class="text-brand-gray-text">Acesso ao painel administrativo</p>
+            <div
+                style="width: 50px; height: 50px; background: #fff; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i class="fas fa-shield-alt text-2xl" style="color: #000;"></i>
+            </div>
+            <h1 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 5px;">Admin Login
+            </h1>
+            <p style="color: #666; font-size: 0.9rem;">Acesso restrito ao painel</p>
         </div>
 
-        <div class="bg-brand-gray/50 p-8 rounded-xl ring-1 ring-white/10">
-            <?php if ($erro): ?>
-                <div class="bg-red-500/20 text-red-300 p-4 rounded-lg mb-6 text-center">
-                    <?= htmlspecialchars($erro) ?>
-                </div>
-            <?php endif; ?>
-
-            <form method="POST" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-white mb-2">Email</label>
-                    <input type="email" name="email" required
-                        class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                        placeholder="Digite seu email">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-white mb-2">Senha</label>
-                    <input type="password" name="senha" required
-                        class="w-full bg-brand-gray-light border border-brand-gray text-white rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-brand-red"
-                        placeholder="Digite sua senha">
-                </div>
-
-                <button type="submit"
-                    class="w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Entrar no Admin
-                </button>
-            </form>
+        <?php if ($erro): ?>
+        <div
+            style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem;">
+            <?= htmlspecialchars($erro)?>
         </div>
+        <?php
+endif; ?>
 
-        <div class="mt-6 text-center">
-            <a href="index.php" class="text-brand-gray-text hover:text-white transition-colors">
-                ← Voltar à Loja
+        <form method="POST">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" placeholder="admin@macario.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" name="senha" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Entrar
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px;">
+            <a href="index.php" style="color: #666; font-size: 0.85rem; text-decoration: none; transition: color 0.2s;">
+                ← Voltar para a Loja
             </a>
         </div>
     </div>

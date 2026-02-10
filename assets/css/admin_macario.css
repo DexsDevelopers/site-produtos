@@ -1,0 +1,280 @@
+/* ============================================
+   MACARIO BRAZIL — Admin Design System
+   Baseado no estilo Premium Black & White
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Variables (Sincronizado com macario.css) ── */
+:root {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #111111;
+    --bg-card: #0d0d0d;
+    --bg-card-hover: #141414;
+
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #666666;
+    --text-accent: #ffffff;
+
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.2);
+    --border-active: rgba(255, 255, 255, 0.4);
+
+    --accent: #ffffff;
+    --accent-soft: rgba(255, 255, 255, 0.1);
+    --accent-glow: rgba(255, 255, 255, 0.05);
+
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+}
+
+/* ── Base Styles ── */
+body {
+    font-family: var(--font-body) !important;
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-font {
+    font-family: var(--font-display) !important;
+    font-weight: 700;
+}
+
+/* ── Admin Components Overrides ── */
+
+/* Sidebar */
+.admin-sidebar {
+    background: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.admin-nav-item {
+    color: var(--text-secondary) !important;
+    border-radius: var(--radius-md) !important;
+    transition: all 0.2s ease;
+}
+
+.admin-nav-item:hover {
+    background: var(--accent-soft) !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-nav-item.active {
+    background: var(--text-primary) !important;
+    color: var(--bg-primary) !important;
+    font-weight: 600;
+}
+
+.admin-nav-item i {
+    opacity: 0.8;
+}
+
+/* Cards */
+.admin-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stat-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-lg) !important;
+}
+
+.stat-card:hover {
+    border-color: var(--border-hover) !important;
+    background: var(--bg-card-hover) !important;
+}
+
+/* Buttons */
+.btn-primary,
+.bg-admin-primary {
+    background-color: var(--text-primary) !important;
+    color: var(--bg-primary) !important;
+    border: none !important;
+    border-radius: var(--radius-full) !important;
+    font-weight: 600 !important;
+    font-family: var(--font-body) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 10px 24px !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover,
+.bg-admin-primary:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: transparent !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Forms */
+input,
+select,
+textarea {
+    background-color: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-md) !important;
+    font-family: var(--font-body) !important;
+    padding: 10px 16px !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--text-primary) !important;
+    outline: none !important;
+    background-color: var(--bg-card-hover) !important;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    text-align: left;
+    padding: 16px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: var(--bg-card-hover);
+}
+
+/* Header */
+header {
+    background-color: rgba(10, 10, 10, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Utils */
+.text-admin-gray-400 {
+    color: var(--text-secondary) !important;
+}
+
+.text-admin-gray-300 {
+    color: var(--text-secondary) !important;
+}
+
+.bg-gradient-to-r {
+    background: var(--text-primary) !important;
+    /* Remove gradients coloridos e usa preto/branco chic */
+    /* Se precisar de gradiente, use algo sutil grayscale */
+    background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%) !important;
+    color: #000000 !important;
+}
+
+.bg-gradient-to-r i {
+    color: #000000 !important;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* Mobile Nav */
+.bottom-nav {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+.bottom-nav-item {
+    color: var(--text-muted) !important;
+}
+
+.bottom-nav-item.active {
+    color: var(--text-primary) !important;
+}
