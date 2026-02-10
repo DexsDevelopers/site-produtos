@@ -287,6 +287,6 @@ endif; ?>
     </div>
 
     <!-- Spacer for fixed nav -->
-    <div style="height: 60px;"></div>
+    <div class="nav-spacer"></div>
 
     <main>

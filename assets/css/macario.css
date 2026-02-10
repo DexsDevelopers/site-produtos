@@ -218,6 +218,10 @@ textarea {
     transition: all var(--transition-base);
 }
 
+.nav-spacer {
+    height: 60px;
+}
+
 .nav-masario.scrolled {
     background: rgba(0, 0, 0, 0.95);
     border-bottom-color: var(--border-hover);
@@ -1706,5 +1710,47 @@ textarea {
 
     .section {
         padding: 48px 0;
+    }
+
+    /* Hero adjustments for mobile */
+    .hero {
+        min-height: 85vh;
+        padding-top: 0;
+    }
+
+    .hero-content {
+        padding: 10px 20px 40px;
+    }
+
+    /* Increase nav height on mobile */
+    .nav-spacer {
+        height: 70px;
+    }
+
+    .nav-masario {
+        height: 70px;
+    }
+
+    .nav-inner {
+        height: 70px !important;
+    }
+
+    .nav-action-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .nav-action-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .nav-hamburger {
+        width: 48px;
+        height: 48px;
+    }
+
+    .nav-logo img {
+        height: 32px !important;
     }
 }
