@@ -4,43 +4,47 @@ require_once 'secure.php';
 $page_title = 'Dashboard';
 require_once 'templates/header_admin.php';
 
-// Métricas Reais
+// Inicializa variaveis
+$total_produtos = 0;
+$total_usuarios = 0;
+$vendas_hoje = 0;
+$faturamento = 0;
+
 try {
-    // Totais com tratamento de erro
-    $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn() ?: 0;
-    $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn() ?: 0;
+    // 1. Total Produtos
+    $stmt = $pdo->query("SELECT COUNT(*) FROM produtos");
+    if ($stmt)
+        $total_produtos = $stmt->fetchColumn();
 
-    // Vendas hoje
-    $hoje = date('Y-m-d');
-    $vendas_hoje = $pdo->query("SELECT COUNT(*) FROM pedidos WHERE date(data_pedido) = '$hoje'")->fetchColumn() ?: 0;
+    // 2. Total Usuarios
+    $stmt = $pdo->query("SELECT COUNT(*) FROM usuarios");
+    if ($stmt)
+        $total_usuarios = $stmt->fetchColumn();
 
-    // Faturamento Mensal (pedidos pagos/entregues)
-    $mes_atual = date('m');
-    $faturamento = $pdo->query("
-        SELECT SUM(valor_total) FROM pedidos 
-        WHERE strftime('%m', data_pedido) = '$mes_atual' 
+    // 3. Vendas Hoje (Compatível MySQL/MariaDB)
+    $stmt = $pdo->query("SELECT COUNT(*) FROM pedidos WHERE date(data_pedido) = CURDATE()");
+    if ($stmt)
+        $vendas_hoje = $stmt->fetchColumn();
+
+    // 4. Faturamento Mês Atual (Compatível MySQL/MariaDB)
+    $stmt = $pdo->query("
+        SELECT COALESCE(SUM(valor_total), 0) 
+        FROM pedidos 
+        WHERE MONTH(data_pedido) = MONTH(CURRENT_DATE()) 
+        AND YEAR(data_pedido) = YEAR(CURRENT_DATE())
         AND status IN ('pago', 'entregue', 'enviado')
-    ")->fetchColumn() ?: 0;
-
-    // Afiliados (tabela pode nao existir se o script setup nao rodou, entao try/catch silencioso)
-    try {
-        $total_afiliados = $pdo->query('SELECT COUNT(*) FROM afiliados')->fetchColumn() ?: 0;
-    }
-    catch (Exception $e) {
-        $total_afiliados = 0;
-    }
+    ");
+    if ($stmt)
+        $faturamento = $stmt->fetchColumn();
 
 }
-catch (Exception $e) {
-    // Fallback
-    $total_produtos = 0;
-    $total_usuarios = 0;
-    $vendas_hoje = 0;
-    $faturamento = 0;
+catch (PDOException $e) {
+// Silencia erros no dashboard para não quebrar a página, mas loga se possível
+// error_log($e->getMessage());
 }
 ?>
 
-<!-- Dashboard Principal -->
+<!-- HTML DO DASHBOARD (O RESTANTE DA PAGINA SEGUE IGUAL) -->
 <div class="space-y-8">
     <!-- Welcome Section -->
     <div class="admin-card rounded-2xl p-6 relative overflow-hidden">
