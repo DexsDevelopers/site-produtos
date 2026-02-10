@@ -4,7 +4,36 @@ session_start();
 require_once 'config.php';
 require_once 'includes/file_storage.php';
 
-// Verifica se há itens no carrinho
+// Se recebeu produto_id via GET, adiciona ao carrinho primeiro
+if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
+    $produto_id = (int)$_GET['produto_id'];
+    $quantidade = max(1, (int)($_GET['quantidade'] ?? 1));
+
+    if ($produto_id > 0) {
+        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem FROM produtos WHERE id = ?");
+        $stmt->execute([$produto_id]);
+        $produto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($produto) {
+            if (!isset($_SESSION['carrinho'])) {
+                $_SESSION['carrinho'] = [];
+            }
+
+            // Adiciona ou atualiza item no carrinho
+            $_SESSION['carrinho'][$produto_id] = [
+                'id' => $produto['id'],
+                'nome' => $produto['nome'],
+                'preco' => $produto['preco'],
+                'imagem' => $produto['imagem'],
+                'quantidade' => $quantidade
+            ];
+
+            // Redireciona para remover parâmetros da URL e processar
+            header('Location: checkout_infinitepay.php');
+            exit();
+        }
+    }
+}
 if (empty($_SESSION['carrinho'])) {
     header('Location: carrinho.php');
     exit();
@@ -56,8 +85,10 @@ try {
         ]);
     }
     $pdo->commit();
-} catch (Exception $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
+}
+catch (Exception $e) {
+    if ($pdo->inTransaction())
+        $pdo->rollBack();
     die("Erro ao processar pedido: " . $e->getMessage());
 }
 
@@ -74,14 +105,14 @@ $data = [
 
 $options = [
     'http' => [
-        'header'  => "Content-type: application/json\r\n",
-        'method'  => 'POST',
+        'header' => "Content-type: application/json\r\n",
+        'method' => 'POST',
         'content' => json_encode($data),
         'ignore_errors' => true
     ]
 ];
 
-$context  = stream_context_create($options);
+$context = stream_context_create($options);
 $response = file_get_contents($url, false, $context);
 
 if ($response === FALSE) {
@@ -95,7 +126,8 @@ if (isset($result['url'])) {
     // Por enquanto, apenas redireciona
     header('Location: ' . $result['url']);
     exit();
-} else {
+}
+else {
     // Trata erro
     $error_msg = $result['message'] ?? 'Erro desconhecido ao gerar link de pagamento.';
     echo "<h1>Erro no Checkout InfinitePay</h1>";
