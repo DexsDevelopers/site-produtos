@@ -1,5 +1,5 @@
 <?php
-// produto.php - Página de Produto no Estilo Adsly
+// produto.php — MACARIO BRAZIL — Página de Produto
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -11,13 +11,9 @@ require_once 'config.php';
 if (isset($_GET['ref'])) {
     require_once 'includes/affiliate_system.php';
     $affiliateSystem = new AffiliateSystem($pdo);
-
     $affiliate_code = $_GET['ref'];
-    $product_id = isset($_GET['id']) ? (int) $_GET['id'] : null;
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-
-    $result = $affiliateSystem->registerClick($affiliate_code, $product_id, $ip_address);
-
+    $product_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    $result = $affiliateSystem->registerClick($affiliate_code, $product_id, $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
     if ($result['success']) {
         $_SESSION['affiliate_tracking'] = [
             'affiliate_code' => $affiliate_code,
@@ -25,28 +21,20 @@ if (isset($_GET['ref'])) {
             'timestamp' => time()
         ];
     }
-
-    // Remover parâmetro ref da URL
     $params = $_GET;
     unset($params['ref']);
-    $redirect_url = 'produto.php';
-    if (!empty($params)) {
-        $redirect_url .= '?' . http_build_query($params);
-    }
-    header('Location: ' . $redirect_url);
+    header('Location: produto.php' . (!empty($params) ? '?' . http_build_query($params) : ''));
     exit();
 }
 
-$produto_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$produto_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $produto_selecionado = null;
 
 try {
-    // Busca os dados do produto
     $stmt = $pdo->prepare("SELECT * FROM produtos WHERE id = ?");
     $stmt->execute([$produto_id]);
     $produto_selecionado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Se o produto existe, busca as avaliações dele
     if ($produto_selecionado) {
         $stmt_avaliacoes = $pdo->prepare(
             "SELECT a.*, u.nome as nome_usuario 
@@ -58,7 +46,6 @@ try {
         $stmt_avaliacoes->execute([$produto_id]);
         $avaliacoes = $stmt_avaliacoes->fetchAll(PDO::FETCH_ASSOC);
 
-        // Calcula a média das notas
         $total_avaliacoes = count($avaliacoes);
         $soma_notas = 0;
         foreach ($avaliacoes as $avaliacao) {
@@ -66,14 +53,10 @@ try {
         }
         $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
     }
-} catch (PDOException $e) {
-    error_log("Erro PDO em produto.php: " . $e->getMessage());
-    error_log("Trace: " . $e->getTraceAsString());
-    die("Erro ao carregar a página do produto. Verifique os logs para mais detalhes.");
-} catch (Exception $e) {
-    error_log("Erro geral em produto.php: " . $e->getMessage());
-    error_log("Trace: " . $e->getTraceAsString());
-    die("Erro ao carregar a página do produto. Verifique os logs para mais detalhes.");
+}
+catch (Exception $e) {
+    error_log("Erro em produto.php: " . $e->getMessage());
+    die("Erro ao carregar o produto.");
 }
 
 if (!$produto_selecionado) {
@@ -81,520 +64,524 @@ if (!$produto_selecionado) {
     exit();
 }
 
-// Define meta tags específicas para o produto
 $page_title = htmlspecialchars($produto_selecionado['nome']);
 $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
-$page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, loja online';
+$page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// Verifica métodos de pagamento configurados
+// Métodos de pagamento
 $metodos_pagamento = [];
 try {
     if (isset($fileStorage) && is_object($fileStorage)) {
         $config = $fileStorage->getConfig();
-        
-        // InfinitePay
         $infinite_tag = $config['infinite_tag'] ?? '';
         $infinite_status = $config['infinite_status'] ?? 'off';
-        
         if ($infinite_status === 'on' && !empty($infinite_tag)) {
             $metodos_pagamento['infinitepay'] = [
                 'url' => 'checkout_infinitepay.php',
                 'btn_text' => 'Pagar com Cartão / PIX',
                 'sub_text' => 'Via InfinitePay',
-                'color' => 'from-green-600 to-green-700',
-                'hover' => 'from-green-500 to-green-600',
                 'icon' => 'fas fa-credit-card'
             ];
         }
-        
-        // PIX Manual
         $chave_pix = $config['chave_pix'] ?? '';
         $pix_status = $config['pix_status'] ?? 'off';
-        
         if ($pix_status === 'on' && !empty($chave_pix)) {
             $metodos_pagamento['pix'] = [
                 'url' => 'checkout_pix.php',
-                'btn_text' => 'Pagar com PIX Manual',
+                'btn_text' => 'Pagar com PIX',
                 'sub_text' => 'Transferência Direta',
-                'color' => 'from-brand-red to-red-700',
-                'hover' => 'from-red-500 to-brand-red',
                 'icon' => 'fas fa-qrcode'
             ];
         }
     }
-} catch (Exception $e) {
-    error_log("Erro ao verificar métodos de pagamento: " . $e->getMessage());
+}
+catch (Exception $e) {
+    error_log("Erro métodos pagamento: " . $e->getMessage());
 }
 
+require_once 'templates/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><?= htmlspecialchars($produto_selecionado['nome']) ?> - Minha Loja</title>
+<style>
+    .product-page-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
 
-    <!-- SEO -->
-    <meta name="description" content="<?= htmlspecialchars($produto_selecionado['descricao_curta']) ?>">
-
-    <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/modern.css">
-
-    <style>
-        /* Product Page Specific Styles */
-        body {
-            background-color: #050505;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
+    @media (min-width: 1024px) {
+        .product-page-grid {
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+            align-items: start;
         }
 
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
+        .product-info-sticky {
+            position: sticky;
+            top: 140px;
         }
+    }
 
-        @media (min-width: 1024px) {
-            .product-grid {
-                grid-template-columns: 1.2fr 1fr;
-                /* Image larger than text */
-                gap: 4rem;
-                align-items: start;
-            }
+    .product-main-image {
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        aspect-ratio: 1/1;
+    }
 
-            .sticky-info {
-                position: sticky;
-                top: 100px;
-            }
-        }
+    .product-main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
 
-        /* Ultra Glass Container */
-        .glass-panel-product {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-top: 1px solid rgba(255, 255, 255, 0.25);
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            border-radius: 24px;
-            padding: 2rem;
-        }
+    .product-main-image:hover img {
+        transform: scale(1.05);
+    }
 
-        /* Image Gallery */
-        .main-image-wrapper {
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            aspect-ratio: 4/3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .product-detail-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 12px;
+    }
 
-        .main-image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Cover for immersive look */
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+    .product-detail-price {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 24px;
+    }
 
-        .main-image-wrapper:hover img {
-            transform: scale(1.05);
-        }
+    .product-detail-desc {
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 32px;
+        padding-left: 16px;
+        border-left: 2px solid rgba(255, 255, 255, 0.15);
+    }
 
-        /* Typography */
-        .product-title {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    .product-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 16px 24px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-base);
+        border: none;
+    }
 
-        .price-tag {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #ff0000;
-            text-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+    .product-action-primary {
+        background: var(--text-primary);
+        color: var(--bg-primary);
+    }
 
-        .old-price {
-            font-size: 1.2rem;
-            color: #666;
-            text-decoration: line-through;
-            font-weight: 400;
-        }
+    .product-action-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+    }
 
-        /* Features List */
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+    .product-action-secondary {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
 
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 0, 0, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ff0000;
-        }
+    .product-action-secondary:hover {
+        background: var(--glass-hover);
+        border-color: var(--border-hover);
+    }
 
-        /* CTA Button */
-        .pulse-btn {
-            animation: pulse-shadow 2s infinite;
-        }
+    .product-features-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+    }
 
-        @keyframes pulse-shadow {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
-            }
+    .product-feature-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        text-align: center;
+        transition: border-color var(--transition-fast);
+    }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-            }
+    .product-feature-item:hover {
+        border-color: var(--border-hover);
+    }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
-            }
-        }
+    .product-feature-item i {
+        font-size: 1.3rem;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+    }
 
-        /* Tab System */
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: #888;
-            padding: 1rem 2rem;
-            cursor: pointer;
-            font-weight: 600;
-            position: relative;
-            transition: all 0.3s;
-        }
+    .product-feature-item span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+    }
 
-        .tab-btn.active {
-            color: white;
-        }
+    /* Tabs */
+    .product-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 24px;
+        gap: 0;
+    }
 
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #ff0000;
-            box-shadow: 0 0 10px #ff0000;
-        }
-    </style>
-</head>
+    .product-tab-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        padding: 12px 24px;
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        position: relative;
+        transition: color var(--transition-fast);
+    }
 
-<body>
+    .product-tab-btn.active {
+        color: var(--text-primary);
+    }
 
-    <?php require_once 'templates/header.php'; ?>
+    .product-tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--text-primary);
+    }
 
-    <!-- Animated Background -->
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-        <div
-            class="absolute w-[800px] h-[800px] bg-red-600/10 rounded-full blur-[120px] -top-20 -left-20 animate-pulse">
+    .product-tab-content {
+        display: none;
+    }
+
+    .product-tab-content.active {
+        display: block;
+    }
+
+    .review-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        margin-bottom: 12px;
+    }
+
+    .review-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .review-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .review-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--glass-hover);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .review-stars {
+        color: #d4a017;
+        font-size: 0.7rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 32px;
+        padding: 0 24px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--text-primary);
+    }
+
+    .breadcrumb i {
+        font-size: 0.6rem;
+    }
+
+    .rating-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .rating-stars {
+        color: #d4a017;
+        font-size: 0.85rem;
+    }
+
+    .rating-count {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+</style>
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+    <a href="index.php">Início</a>
+    <i class="fas fa-chevron-right"></i>
+    <a href="busca.php?todos=1">Catálogo</a>
+    <i class="fas fa-chevron-right"></i>
+    <span style="color: var(--text-primary);">
+        <?= htmlspecialchars($produto_selecionado['nome'])?>
+    </span>
+</nav>
+
+<section style="padding: 0 0 80px;">
+    <div class="product-page-grid">
+        <!-- Left: Image -->
+        <div>
+            <div class="product-main-image">
+                <?php if (!empty($produto_selecionado['imagem']) && file_exists($produto_selecionado['imagem'])): ?>
+                <img src="<?= htmlspecialchars($produto_selecionado['imagem'])?>"
+                    alt="<?= htmlspecialchars($produto_selecionado['nome'])?>" />
+                <?php
+else: ?>
+                <div
+                    style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-tertiary);">
+                    <i class="fas fa-image" style="font-size:4rem;color:var(--text-muted);opacity:0.3;"></i>
+                </div>
+                <?php
+endif; ?>
+            </div>
+
+            <div class="product-features-row">
+                <div class="product-feature-item">
+                    <i class="fas fa-truck"></i>
+                    <span>Frete Grátis</span>
+                </div>
+                <div class="product-feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Garantia Total</span>
+                </div>
+                <div class="product-feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Entrega Rápida</span>
+                </div>
+            </div>
         </div>
-        <div class="absolute w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[100px] bottom-0 right-0"></div>
+
+        <!-- Right: Product Info -->
+        <div class="product-info-sticky">
+            <h1 class="product-detail-title">
+                <?= htmlspecialchars($produto_selecionado['nome'])?>
+            </h1>
+
+            <!-- Rating -->
+            <div class="rating-row">
+                <div class="rating-stars">
+                    <?php for ($i = 0; $i < 5; $i++): ?>
+                    <i class="fas fa-star<?=($i < round($media_notas)) ? '' : ' '?>"></i>
+                    <?php
+endfor; ?>
+                </div>
+                <span class="rating-count">(
+                    <?= $total_avaliacoes?> avaliações)
+                </span>
+            </div>
+
+            <!-- Price -->
+            <div class="product-detail-price">
+                <?= formatarPreco($produto_selecionado['preco'])?>
+                <?php if (isset($produto_selecionado['preco_antigo']) && $produto_selecionado['preco_antigo'] > 0): ?>
+                <span style="font-size:1rem;color:var(--text-muted);text-decoration:line-through;margin-left:8px;">
+                    <?= formatarPreco($produto_selecionado['preco_antigo'])?>
+                </span>
+                <?php
+endif; ?>
+            </div>
+
+            <!-- Short Description -->
+            <?php if (!empty($produto_selecionado['descricao_curta'])): ?>
+            <p class="product-detail-desc">
+                <?= htmlspecialchars($produto_selecionado['descricao_curta'])?>
+            </p>
+            <?php
+endif; ?>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <?php if (!empty($metodos_pagamento)): ?>
+                <?php foreach ($metodos_pagamento as $metodo): ?>
+                <a href="<?= $metodo['url']?>?produto_id=<?= $produto_selecionado['id']?>&quantidade=1"
+                    class="product-action-btn product-action-primary">
+                    <i class="<?= $metodo['icon']?>"></i>
+                    <?= htmlspecialchars($metodo['btn_text'])?>
+                </a>
+                <?php
+    endforeach; ?>
+                <?php
+endif; ?>
+
+                <form id="add-to-cart-form" style="margin:0;">
+                    <input type="hidden" name="produto_id" value="<?= $produto_selecionado['id']?>">
+                    <button type="submit" class="product-action-btn product-action-secondary">
+                        <i class="fas fa-shopping-bag"></i>
+                        Adicionar ao Carrinho
+                    </button>
+                </form>
+            </div>
+
+            <!-- Trust signals -->
+            <div
+                style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border-color);display:flex;gap:16px;flex-wrap:wrap;">
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-lock"></i> Pagamento Seguro
+                </span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-headset"></i> Suporte 24/7
+                </span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-sync-alt"></i> Trocas Grátis
+                </span>
+            </div>
+        </div>
     </div>
 
-    <main class="pt-24 pb-16 px-4 md:px-8">
-        <div class="max-w-7xl mx-auto">
-
-            <!-- Breadcrumbs -->
-            <nav class="flex items-center gap-2 text-sm text-gray-400 mb-8 font-medium">
-                <a href="index.php" class="hover:text-white transition-colors">Home</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <span class="text-white"><?= htmlspecialchars($produto_selecionado['nome']) ?></span>
-            </nav>
-
-            <div class="product-grid">
-                <!-- Left Column: Visuals -->
-                <div class="space-y-6">
-                    <div class="glass-panel-product p-2">
-                        <div class="main-image-wrapper">
-                            <img id="mainImage" src="<?= htmlspecialchars($produto_selecionado['imagem']) ?>"
-                                alt="<?= htmlspecialchars($produto_selecionado['nome']) ?>"
-                                class="w-full h-full object-cover rounded-xl shadow-2xl">
-                        </div>
-                    </div>
-
-                    <!-- Feature Highlights Grid -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div
-                            class="glass-panel-product p-4 flex flex-col items-center text-center gap-2 hover:bg-white/5 transition-colors">
-                            <i class="fas fa-bolt text-2xl text-yellow-400"></i>
-                            <span class="font-bold text-sm">Entrega Imediata</span>
-                        </div>
-                        <div
-                            class="glass-panel-product p-4 flex flex-col items-center text-center gap-2 hover:bg-white/5 transition-colors">
-                            <i class="fas fa-shield-alt text-2xl text-green-400"></i>
-                            <span class="font-bold text-sm">Garantia Total</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Product Info -->
-                <div class="sticky-info">
-                    <div class="glass-panel-product relative overflow-hidden">
-                        <!-- Glow Effect -->
-                        <div
-                            class="absolute top-0 right-0 w-64 h-64 bg-red-500/10 blur-[80px] rounded-full pointer-events-none">
-                        </div>
-
-                        <h1 class="product-title"><?= htmlspecialchars($produto_selecionado['nome']) ?></h1>
-
-                        <!-- Rating -->
-                        <div class="flex items-center gap-2 mb-6">
-                            <div class="flex text-yellow-400 text-sm">
-                                <?php for ($i = 0; $i < 5; $i++): ?>
-                                    <i class="fas fa-star"></i>
-                                <?php endfor; ?>
-                            </div>
-                            <span class="text-gray-400 text-sm">(<?= $total_avaliacoes ?> avaliações)</span>
-                        </div>
-
-                        <!-- Price -->
-                        <div class="price-tag mb-8">
-                            R$ <?= number_format($produto_selecionado['preco'], 2, ',', '.') ?>
-                            <?php if (isset($produto_selecionado['preco_antigo'])): ?>
-                                <span class="old-price">R$
-                                    <?= number_format($produto_selecionado['preco_antigo'], 2, ',', '.') ?></span>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Description Short -->
-                        <p class="text-gray-300 text-lg leading-relaxed mb-8 border-l-2 border-red-500 pl-4">
-                            <?= htmlspecialchars($produto_selecionado['descricao_curta']) ?>
-                        </p>
-
-                        <!-- Action Buttons -->
-                        <div class="space-y-4">
-                            <?php if (!empty($metodos_pagamento)): ?>
-                                <div class="grid grid-cols-1 gap-3">
-                                    <?php foreach ($metodos_pagamento as $metodo): ?>
-                                        <a href="<?= $metodo['url'] ?>?produto_id=<?= $produto_selecionado['id'] ?>&quantidade=1"
-                                            class="pulse-btn w-full bg-gradient-to-r <?= $metodo['color'] ?> hover:<?= $metodo['hover'] ?> text-white font-bold py-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-lg leading-tight">
-                                            <div class="flex items-center gap-3">
-                                                <i class="<?= $metodo['icon'] ?>"></i>
-                                                <?= htmlspecialchars($metodo['btn_text']) ?>
-                                            </div>
-                                            <span class="text-[10px] opacity-80 font-normal uppercase mt-0.5 tracking-wider"><?= $metodo['sub_text'] ?></span>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-
-                            <form id="add-to-cart-form" class="w-full">
-                                <input type="hidden" name="produto_id" value="<?= $produto_selecionado['id'] ?>">
-                                <button type="submit"
-                                    class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                                    <i class="fas fa-cart-plus"></i>
-                                    Adicionar ao Carrinho
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Safety Info -->
-                        <div class="mt-8 pt-6 border-t border-white/10 flex items-center gap-4 text-sm text-gray-400">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-lock text-green-400"></i>
-                                Pagamento Seguro
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-headset text-blue-400"></i>
-                                Suporte 24/7
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabs Section (Description & Reviews) -->
-            <div class="mt-16">
-                <div class="flex border-b border-white/10 mb-8">
-                    <button class="tab-btn active" onclick="switchTab('desc')">Descrição</button>
-                    <button class="tab-btn" onclick="switchTab('reviews')">Avaliações</button>
-                </div>
-
-                <div id="tab-desc" class="glass-panel-product">
-                    <div class="prose prose-invert max-w-none text-gray-300">
-                        <?= nl2br(htmlspecialchars($produto_selecionado['descricao'])) ?>
-                    </div>
-                </div>
-
-                <div id="tab-reviews" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <?php if (!empty($avaliacoes)): ?>
-                        <?php foreach ($avaliacoes as $avaliacao): ?>
-                            <div class="glass-panel-product p-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-purple-500 flex items-center justify-center font-bold">
-                                            <?= strtoupper(substr($avaliacao['nome_usuario'], 0, 1)) ?>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-bold text-sm"><?= htmlspecialchars($avaliacao['nome_usuario']) ?>
-                                            </h4>
-                                            <div class="text-yellow-400 text-xs">
-                                                <?php for ($i = 0; $i < $avaliacao['nota']; $i++)
-                                                    echo '<i class="fas fa-star"></i>'; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span
-                                        class="text-xs text-gray-500"><?= date('d/m/Y', strtotime($avaliacao['data_avaliacao'])) ?></span>
-                                </div>
-                                <p class="text-gray-300 text-sm"><?= htmlspecialchars($avaliacao['comentario']) ?></p>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="text-center text-gray-500 py-8 col-span-full">
-                            Nenhuma avaliação ainda. Seja o primeiro a avaliar!
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
+    <!-- Tabs: Description & Reviews -->
+    <div style="max-width:1200px;margin:48px auto 0;padding:0 24px;">
+        <div class="product-tabs">
+            <button class="product-tab-btn active" onclick="switchTab('desc', this)">Descrição</button>
+            <button class="product-tab-btn" onclick="switchTab('reviews', this)">Avaliações (
+                <?= $total_avaliacoes?>)
+            </button>
         </div>
-    </main>
 
-    <?php require_once 'templates/footer.php'; ?>
+        <div id="tab-desc" class="product-tab-content active">
+            <div style="color:var(--text-secondary);line-height:1.8;">
+                <?= nl2br(htmlspecialchars($produto_selecionado['descricao'] ?? ''))?>
+            </div>
+        </div>
 
-    <script>
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.getElementById('tab-desc').classList.add('hidden');
-            document.getElementById('tab-reviews').classList.add('hidden');
+        <div id="tab-reviews" class="product-tab-content">
+            <?php if (!empty($avaliacoes)): ?>
+            <?php foreach ($avaliacoes as $avaliacao): ?>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-user">
+                        <div class="review-avatar">
+                            <?= strtoupper(substr($avaliacao['nome_usuario'], 0, 1))?>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">
+                                <?= htmlspecialchars($avaliacao['nome_usuario'])?>
+                            </div>
+                            <div class="review-stars">
+                                <?php for ($i = 0; $i < $avaliacao['nota']; $i++)
+            echo '<i class="fas fa-star"></i>'; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">
+                        <?= date('d/m/Y', strtotime($avaliacao['data_avaliacao']))?>
+                    </span>
+                </div>
+                <p style="color:var(--text-secondary);font-size:0.9rem;">
+                    <?= htmlspecialchars($avaliacao['comentario'])?>
+                </p>
+            </div>
+            <?php
+    endforeach; ?>
+            <?php
+else: ?>
+            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliação ainda. Seja o
+                primeiro a avaliar!</p>
+            <?php
+endif; ?>
+        </div>
+    </div>
+</section>
 
-            // Show selected
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+<script>
+    function switchTab(tabName, btn) {
+        document.querySelectorAll('.product-tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.product-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabName).classList.add('active');
+        btn.classList.add('active');
+    }
 
-            // Update buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-        }
+    document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const btn = this.querySelector('button');
+        const original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
 
-        function mostrarCartPopup(mensagem) {
-            const popup = document.getElementById('cart-popup');
-            const messageEl = document.getElementById('cart-popup-message');
-
-            if (mensagem) {
-                messageEl.textContent = mensagem;
-            }
-
-            popup.classList.add('show');
-
-            // Fecha automaticamente após 4 segundos
-            setTimeout(() => {
-                fecharCartPopup();
-            }, 4000);
-        }
-
-        function fecharCartPopup() {
-            const popup = document.getElementById('cart-popup');
-            popup.classList.remove('show');
-        }
-
-        // Fecha ao clicar fora do popup
-        document.getElementById('cart-popup').addEventListener('click', function (e) {
-            if (e.target === this) {
-                fecharCartPopup();
-            }
-        });
-
-        // Adiciona produto ao carrinho
-        document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const form = this;
-            const button = form.querySelector('button[type="submit"]');
-            const originalText = button.innerHTML;
-
-            // Animação de loading
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
-
-            const formData = new FormData(form);
-
-            fetch('adicionar_carrinho.php', {
-                method: 'POST',
-                body: formData
+        fetch('adicionar_carrinho.php', {
+            method: 'POST',
+            body: new FormData(this)
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
+                    if (typeof showToast === 'function') showToast('Produto adicionado ao carrinho!', '🛒');
+                    const badge = document.getElementById('cart-count');
+                    if (badge) badge.textContent = data.cart_count || (parseInt(badge.textContent || 0) + 1);
+                    setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 2000);
+                } else {
+                    alert(data.message || 'Erro ao adicionar.');
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Atualiza contador do carrinho
-                        const cartCount = document.getElementById('cart-count');
-                        if (cartCount) {
-                            const currentCount = parseInt(cartCount.textContent) || 0;
-                            cartCount.textContent = data.cart_count || (currentCount + 1);
-                            cartCount.style.transform = 'scale(1.3)';
-                            setTimeout(() => {
-                                cartCount.style.transform = 'scale(1)';
-                            }, 300);
-                        }
+            .catch(() => {
+                alert('Erro de conexão.');
+                btn.innerHTML = original;
+                btn.disabled = false;
+            });
+    });
+</script>
 
-                        // Mostra popup bonito
-                        const mensagem = data.produto_nome
-                            ? `${data.produto_nome} foi adicionado ao carrinho!`
-                            : 'Produto adicionado ao carrinho com sucesso!';
-                        mostrarCartPopup(mensagem);
-
-                        // Feedback visual no botão
-                        button.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
-                        button.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-
-                        setTimeout(() => {
-                            button.innerHTML = originalText;
-                            button.style.background = '';
-                            button.disabled = false;
-                        }, 2000);
-                    } else {
-                        alert(data.message || 'Erro ao adicionar produto ao carrinho.');
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                });
-        });
-    </script>
-
-    <?php require_once 'templates/footer.php'; ?>
+<?php require_once 'templates/footer.php'; ?>

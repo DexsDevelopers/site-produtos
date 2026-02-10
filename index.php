@@ -1,21 +1,16 @@
 <?php
-// index.php - O Mercado é dos Tubarões (Modernized)
+// index.php — MACARIO BRAZIL E-commerce
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once 'config.php';
 
-// --- RASTREAMENTO AUTOMÁTICO DE AFILIAÇÃO ---
+// --- RASTREAMENTO DE AFILIAÇÃO ---
 if (isset($_GET['ref'])) {
     require_once 'includes/affiliate_system.php';
     $affiliateSystem = new AffiliateSystem($pdo);
-
     $affiliate_code = $_GET['ref'];
-    $product_id = null;
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-
-    $result = $affiliateSystem->registerClick($affiliate_code, $product_id, $ip_address);
-
+    $result = $affiliateSystem->registerClick($affiliate_code, null, $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
     if ($result['success']) {
         $_SESSION['affiliate_tracking'] = [
             'affiliate_code' => $affiliate_code,
@@ -23,21 +18,15 @@ if (isset($_GET['ref'])) {
             'timestamp' => time()
         ];
     }
-
     $params = $_GET;
     unset($params['ref']);
-    $redirect_url = 'index.php';
-    if (!empty($params)) {
-        $redirect_url .= '?' . http_build_query($params);
-    }
-    header('Location: ' . $redirect_url);
+    header('Location: index.php' . (!empty($params) ? '?' . http_build_query($params) : ''));
     exit();
 }
 
-// --- BUSCA DADOS ---
+// --- BUSCAR DADOS ---
 try {
-    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 3")->fetchAll(PDO::FETCH_ASSOC);
-    $banners_categorias = $pdo->query("SELECT * FROM banners WHERE tipo = 'categoria' AND ativo = 1 ORDER BY id DESC LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
+    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
 
     $produtos_por_categoria = [];
@@ -49,180 +38,314 @@ try {
             $produtos_por_categoria[$categoria['id']] = $produtos;
         }
     }
-} catch (Exception $e) {
+
+    // Produtos em destaque (últimos adicionados)
+    $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+
+}
+catch (Exception $e) {
     error_log("Erro ao buscar dados: " . $e->getMessage());
     $produtos_por_categoria = [];
+    $destaques = [];
+    $banners_principais = [];
 }
 
 $page_title = 'Início';
+$page_description = 'MACARIO BRAZIL — Roupas, tênis, eletrônicos e produtos digitais premium. Estilo e cultura na sua casa.';
 require_once 'templates/header.php';
 ?>
 
-<link rel="stylesheet" href="assets/css/modern.css">
-
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-bg-effect"></div>
-    <div class="hero-content reveal-load">
-        <h1 class="hero-title">O Mercado é dos <span>Tubarões</span></h1>
-        <p class="hero-subtitle">Produtos premium para quem não aceita o segundo lugar. Qualidade, velocidade e
-            segurança.</p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#produtos" class="btn-modern">
-                <i class="fas fa-shopping-bag"></i> Ver Produtos
+<!-- ══════════════════════════════════════════
+     HERO SECTION
+     ══════════════════════════════════════════ -->
+<section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span>Nova Coleção Disponível</span>
+        </div>
+        <h1 class="hero-title">Estilo &<br>Cultura</h1>
+        <p class="hero-subtitle">Roupas, tênis, eletrônicos e produtos digitais com qualidade premium. Levando o melhor
+            até a sua casa.</p>
+        <div class="hero-actions">
+            <a href="busca.php?todos=1" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> Ver Catálogo
             </a>
-            <?php if (!isset($_SESSION['user_id'])): ?>
-                <a href="login.php" class="btn-modern" style="background: transparent; border: 1px solid var(--brand-red);">
-                    <i class="fas fa-user"></i> Login
+            <a href="#produtos" class="btn btn-outline">
+                Explorar
+                <i class="fas fa-arrow-down"></i>
+            </a>
+        </div>
+    </div>
+    <div class="scroll-indicator">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CATEGORY BAR
+     ══════════════════════════════════════════ -->
+<?php if (!empty($categorias)): ?>
+<section class="category-bar">
+    <div class="container">
+        <div class="category-scroll">
+            <a href="busca.php?todos=1" class="category-item">
+                <div class="category-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <span class="category-name">Em Alta</span>
+            </a>
+            <?php
+    $cat_icons = [
+        'roupas' => 'fa-tshirt',
+        'roupa' => 'fa-tshirt',
+        'camiseta' => 'fa-tshirt',
+        'camisa' => 'fa-tshirt',
+        'tenis' => 'fa-shoe-prints',
+        'tênis' => 'fa-shoe-prints',
+        'sneakers' => 'fa-shoe-prints',
+        'calçado' => 'fa-shoe-prints',
+        'eletronico' => 'fa-laptop',
+        'eletrônico' => 'fa-laptop',
+        'digital' => 'fa-code',
+        'acessorio' => 'fa-gem',
+        'acessório' => 'fa-gem',
+        'bone' => 'fa-hat-cowboy',
+        'boné' => 'fa-hat-cowboy',
+        'conjunto' => 'fa-layer-group',
+        'relogio' => 'fa-clock',
+        'relógio' => 'fa-clock',
+        'bolsa' => 'fa-shopping-bag',
+        'joia' => 'fa-ring',
+        'fone' => 'fa-headphones',
+        'celular' => 'fa-mobile-alt',
+        'game' => 'fa-gamepad',
+        'jogo' => 'fa-gamepad',
+    ];
+    foreach ($categorias as $cat):
+        $icon = 'fa-tag';
+        $nome_lower = mb_strtolower($cat['nome']);
+        foreach ($cat_icons as $key => $val) {
+            if (strpos($nome_lower, $key) !== false) {
+                $icon = $val;
+                break;
+            }
+        }
+?>
+            <a href="categoria.php?id=<?= $cat['id']?>" class="category-item">
+                <div class="category-icon">
+                    <i class="fas <?= $icon?>"></i>
+                </div>
+                <span class="category-name">
+                    <?= htmlspecialchars($cat['nome'])?>
+                </span>
+            </a>
+            <?php
+    endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php
+endif; ?>
+
+<!-- ══════════════════════════════════════════
+     FEATURED PRODUCTS (Destaques)
+     ══════════════════════════════════════════ -->
+<?php if (!empty($destaques)): ?>
+<section class="section" id="produtos">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <div class="section-label">Novidades</div>
+                <h2 class="section-title">Destaques</h2>
+            </div>
+            <a href="busca.php?todos=1" class="section-more">
+                Ver tudo <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="products-grid">
+            <?php foreach ($destaques as $idx => $produto): ?>
+            <a href="produto.php?id=<?= $produto['id']?>"
+                class="product-card reveal reveal-delay-<?= min($idx + 1, 4)?>">
+                <div class="product-image">
+                    <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
+                    <img src="<?= htmlspecialchars($produto['imagem'])?>"
+                        alt="<?= htmlspecialchars($produto['nome'])?>" loading="lazy" />
+                    <?php
+        else: ?>
+                    <div class="product-image-placeholder">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <?php
+        endif; ?>
+                    <?php if ($idx < 3): ?>
+                    <span class="product-badge">Novo</span>
+                    <?php
+        endif; ?>
+                </div>
+                <div class="product-info">
+                    <span class="product-category-tag">MACARIO BRAZIL</span>
+                    <h3 class="product-name">
+                        <?= htmlspecialchars($produto['nome'])?>
+                    </h3>
+                    <div class="product-price-row">
+                        <span class="product-price">
+                            <?= formatarPreco($produto['preco'])?>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            <?php
+    endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php
+endif; ?>
+
+<!-- ══════════════════════════════════════════
+     FEATURED BANNER
+     ══════════════════════════════════════════ -->
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <div class="featured-banner">
+            <div class="featured-banner-bg"
+                style="background-image: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);">
+            </div>
+            <div class="featured-banner-content">
+                <div class="section-label">Exclusivo</div>
+                <h2>Coleção Premium</h2>
+                <p>Descubra nossos produtos selecionados com qualidade e estilo incomparáveis. Entrega rápida para todo
+                    o Brasil.</p>
+                <a href="busca.php?todos=1" class="btn btn-primary">
+                    Comprar Agora <i class="fas fa-arrow-right"></i>
                 </a>
-            <?php endif; ?>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Banners Principais -->
-<?php if (!empty($banners_principais)): ?>
-    <section class="py-10">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php foreach ($banners_principais as $banner): ?>
-                    <a href="<?= htmlspecialchars($banner['link']) ?>"
-                        class="group relative overflow-hidden rounded-2xl block aspect-[21/9]">
-                        <img src="<?= htmlspecialchars($banner['imagem']) ?>" alt="<?= htmlspecialchars($banner['titulo']) ?>"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-                            <h3 class="text-xl font-bold text-white"><?= htmlspecialchars($banner['titulo']) ?></h3>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>
-
-<!-- Banners Categorias -->
-<?php if (!empty($banners_categorias)): ?>
-    <section class="py-10">
-        <div class="container mx-auto px-4">
-            <div class="section-header">
-                <span class="section-label">Navegue</span>
-                <h2 class="section-title-large">Categorias</h2>
-            </div>
-            <div class="flex flex-wrap justify-center gap-6">
-                <?php foreach ($banners_categorias as $banner): ?>
-                    <a href="<?= htmlspecialchars($banner['link']) ?>" class="flex flex-col items-center gap-3 group">
-                        <div
-                            class="w-24 h-24 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-[#ff0000] transition-colors p-1">
-                            <img src="<?= htmlspecialchars($banner['imagem']) ?>"
-                                class="w-full h-full object-cover rounded-full" alt="Categoria">
-                        </div>
-                        <span
-                            class="font-bold text-sm tracking-wide uppercase group-hover:text-[#ff0000] transition-colors"><?= htmlspecialchars($banner['titulo']) ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>
-
-<!-- Produtos -->
+<!-- ══════════════════════════════════════════
+     PRODUCTS BY CATEGORY
+     ══════════════════════════════════════════ -->
 <?php if (!empty($produtos_por_categoria)): ?>
-    <section class="py-20" id="produtos">
-        <div class="container mx-auto px-4">
-            <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-                <?php
-                $cat_name = "Categoria";
-                foreach ($categorias as $c) {
-                    if ($c['id'] == $categoria_id)
-                        $cat_name = $c['nome'];
-                }
-                ?>
-                <div class="mb-20">
-                    <div class="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
-                        <h3 class="text-3xl font-bold text-white uppercase"><?= htmlspecialchars($cat_name) ?></h3>
-                        <a href="categoria.php?id=<?= $categoria_id ?>"
-                            class="text-[#ff0000] font-bold text-sm tracking-widest hover:text-white transition-colors">VER
-                            TODOS</a>
-                    </div>
-
-                    <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id ?> overflow-visible">
-                        <div class="swiper-wrapper">
-                            <?php foreach ($produtos as $produto): ?>
-                                <div class="swiper-slide h-auto">
-                                    <div class="product-card-modern h-full">
-                                        <div class="card-image-wrapper">
-                                            <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
-                                                <img src="<?= htmlspecialchars($produto['imagem']) ?>"
-                                                    alt="<?= htmlspecialchars($produto['nome']) ?>">
-                                            <?php else: ?>
-                                                <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/20">
-                                                    <i class="fas fa-image text-4xl"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="card-content">
-                                            <h4 class="product-title leading-tight"><?= htmlspecialchars($produto['nome']) ?></h4>
-                                            <p class="text-xs text-gray-400 mb-4 line-clamp-2">
-                                                <?= htmlspecialchars($produto['descricao_curta']) ?></p>
-                                            <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                                                <span class="product-price"><?= formatarPreco($produto['preco']) ?></span>
-                                                <a href="produto.php?id=<?= $produto['id'] ?>"
-                                                    class="w-10 h-10 rounded-full bg-[#ff0000] flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
-                                                    <i class="fas fa-arrow-right"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+<?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+<?php
+        $cat_name = "Categoria";
+        foreach ($categorias as $c) {
+            if ($c['id'] == $categoria_id)
+                $cat_name = $c['nome'];
+        }
+?>
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <div class="section-label">Coleção</div>
+                <h2 class="section-title">
+                    <?= htmlspecialchars($cat_name)?>
+                </h2>
+            </div>
+            <a href="categoria.php?id=<?= $categoria_id?>" class="section-more">
+                Ver tudo <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
-    </section>
-<?php endif; ?>
 
-<!-- Features -->
-<section class="py-20 bg-[#080808]">
-    <div class="container mx-auto px-4">
-        <div class="features-grid">
-            <div class="glass-panel text-center">
-                <i class="fas fa-bolt text-4xl text-[#ff0000] mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Entrega Rápida</h3>
-                <p class="text-gray-400 text-sm">Receba seu produto minutos após a confirmação do pagamento.</p>
+        <div class="swiper produtos-swiper produtos-swiper-<?= $categoria_id?>">
+            <div class="swiper-wrapper">
+                <?php foreach ($produtos as $produto): ?>
+                <div class="swiper-slide" style="height:auto;">
+                    <a href="produto.php?id=<?= $produto['id']?>" class="product-card" style="height:100%;">
+                        <div class="product-image">
+                            <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
+                            <img src="<?= htmlspecialchars($produto['imagem'])?>"
+                                alt="<?= htmlspecialchars($produto['nome'])?>" loading="lazy" />
+                            <?php
+            else: ?>
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <?php
+            endif; ?>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category-tag">
+                                <?= htmlspecialchars($cat_name)?>
+                            </span>
+                            <h3 class="product-name">
+                                <?= htmlspecialchars($produto['nome'])?>
+                            </h3>
+                            <div class="product-price-row">
+                                <span class="product-price">
+                                    <?= formatarPreco($produto['preco'])?>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php
+        endforeach; ?>
             </div>
-            <div class="glass-panel text-center">
-                <i class="fas fa-shield-alt text-4xl text-[#ff0000] mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">100% Seguro</h3>
-                <p class="text-gray-400 text-sm">Transações criptografadas e garantia de funcionamento.</p>
+        </div>
+    </div>
+</section>
+<?php
+    endforeach; ?>
+<?php
+endif; ?>
+
+<!-- ══════════════════════════════════════════
+     TRUST BAR
+     ══════════════════════════════════════════ -->
+<section class="section">
+    <div class="container">
+        <div class="trust-bar">
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-truck"></i></div>
+                <div class="trust-title">Frete Grátis</div>
+                <div class="trust-desc">Entrega grátis para todo o Brasil em todos os pedidos.</div>
             </div>
-            <div class="glass-panel text-center">
-                <i class="fas fa-headset text-4xl text-[#ff0000] mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Suporte 24/7</h3>
-                <p class="text-gray-400 text-sm">Equipe pronta para ajudar você a qualquer momento.</p>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="trust-title">Compra Segura</div>
+                <div class="trust-desc">Seus dados protegidos com criptografia de ponta a ponta.</div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-sync-alt"></i></div>
+                <div class="trust-title">Trocas Fáceis</div>
+                <div class="trust-desc">Primeira troca grátis em até 30 dias após a compra.</div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-headset"></i></div>
+                <div class="trust-title">Suporte 24/7</div>
+                <div class="trust-desc">Atendimento rápido via WhatsApp e chat a qualquer momento.</div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Swiper Init -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
-            new Swiper('.produtos-swiper-<?= $categoria_id ?>', {
-                slidesPerView: 1,
-                spaceBetween: 24,
+    <?php if (!empty($produtos_por_categoria)): ?>
+    <?php foreach($produtos_por_categoria as $categoria_id => $produtos): ?>
+            new Swiper('.produtos-swiper-<?= $categoria_id?>', {
+                slidesPerView: 1.2,
+                spaceBetween: 16,
+                grabCursor: true,
                 breakpoints: {
-                    640: { slidesPerView: 2 },
-                    768: { slidesPerView: 3 },
-                    1024: { slidesPerView: 4 }
+                    480: { slidesPerView: 2.2, spaceBetween: 16 },
+                    768: { slidesPerView: 3, spaceBetween: 20 },
+                    1024: { slidesPerView: 4, spaceBetween: 20 }
                 }
             });
-        <?php endforeach; ?>
-    });
+    <?php
+    endforeach; ?>
+    <?php
+endif; ?>
+});
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
