@@ -4,24 +4,28 @@ require_once dirname(__DIR__) . '/../config.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title><?= isset($page_title) ? $page_title . ' - ' : ''?>Admin — MACARIO BRAZIL</title>
-    
+    <title>
+        <?= isset($page_title) ? $page_title . ' - ' : ''?>Admin — MACARIO BRAZIL
+    </title>
+
     <!-- CSS Customizado (Macario Design System) -->
     <link rel="stylesheet" href="../assets/css/admin_macario.css?v=<?= time()?>">
-    
+
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" />
-    
+
     <!-- Tailwind CSS (Utilizado apenas para estrutura de layout, cores sobrescritas pelo admin_macario.css) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -54,7 +58,7 @@ require_once dirname(__DIR__) . '/../config.php';
             }
         }
     </script>
-    
+
     <style>
         /* Ajustes finos que o CSS externo não pegou ou específicos do layout inline */
         .admin-sidebar {
@@ -62,12 +66,15 @@ require_once dirname(__DIR__) . '/../config.php';
         }
     </style>
 </head>
+
 <body class="bg-admin-dark text-white antialiased">
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/80 z-40 hidden transition-opacity opacity-0"></div>
-    
+    <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/80 z-40 hidden transition-opacity opacity-0">
+    </div>
+
     <!-- Sidebar -->
-    <div id="sidebar" class="admin-sidebar fixed top-0 left-0 h-full w-64 bg-admin-gray-800 border-r border-white/10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 overflow-y-auto">
+    <div id="sidebar"
+        class="admin-sidebar fixed top-0 left-0 h-full w-64 bg-admin-gray-800 border-r border-white/10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 overflow-y-auto">
         <div class="p-6">
             <!-- Close Button (Mobile Only) -->
             <div class="flex justify-end lg:hidden mb-4">
@@ -75,109 +82,141 @@ require_once dirname(__DIR__) . '/../config.php';
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            
+
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-10">
                 <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                    <img src="../472402418_460144646946890_6218335060120212885_n.jpg" alt="Logo" class="w-full h-full object-cover rounded-lg">
+                    <img src="../472402418_460144646946890_6218335060120212885_n.jpg" alt="Logo"
+                        class="w-full h-full object-cover rounded-lg">
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-white font-display uppercase tracking-wider">Admin</h1>
                     <p class="text-xs text-admin-gray-400 font-sans tracking-wide">MACARIO BRAZIL</p>
                 </div>
             </div>
-            
+
             <!-- Navigation -->
             <nav class="space-y-1">
-                <a href="index.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''?>">
+                <a href="index.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''?>">
                     <i class="fas fa-tachometer-alt w-5 text-center"></i>
                     <span>Dashboard</span>
                 </a>
-                
-                <a href="gerenciar_produtos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : ''?>">
+
+                <a href="gerenciar_produtos.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : ''?>">
                     <i class="fas fa-box w-5 text-center"></i>
                     <span>Produtos</span>
                 </a>
-                
-                <a href="adicionar_produto.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : ''?>">
+
+                <a href="adicionar_produto.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : ''?>">
                     <i class="fas fa-plus-circle w-5 text-center"></i>
                     <span>Adicionar Produto</span>
                 </a>
-                
-                <a href="gerenciar_categorias.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_categorias.php' ? 'active' : ''?>">
+
+                <a href="gerenciar_categorias.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_categorias.php' ? 'active' : ''?>">
                     <i class="fas fa-tags w-5 text-center"></i>
                     <span>Categorias</span>
                 </a>
-                
-                <a href="gerenciar_banners.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_banners.php' ? 'active' : ''?>">
-                    <i class="fas fa-image w-5 text-center"></i>
-                    <span>Banners</span>
+
+                <a href="gerenciar_banners.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    <i class="fas fa-image w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Banners</span>
                 </a>
-                
-                <a href="pedidos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : ''?>">
-                    <i class="fas fa-shopping-cart w-5 text-center"></i>
-                    <span>Pedidos</span>
+
+                <a href="pedidos.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    <i class="fas fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Pedidos</span>
                 </a>
-                
-                <a href="gerenciar_pagamentos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?=(basename($_SERVER['PHP_SELF']) == 'gerenciar_pagamentos.php' || basename($_SERVER['PHP_SELF']) == 'gerenciar_pix.php') ? 'active' : ''?>">
+
+                <a href="gerenciar_cupons.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    <i class="fas fa-ticket-alt w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Cupons</span>
+                </a>
+
+                <a href="gerenciar_afiliados.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    <i class="fas fa-handshake w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Afiliados</span>
+                </a>
+
+                <a href="gerenciar_pagamentos.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?=(basename($_SERVER['PHP_SELF']) == 'gerenciar_pagamentos.php' || basename($_SERVER['PHP_SELF']) == 'gerenciar_pix.php') ? 'active' : ''?>">
                     <i class="fas fa-credit-card w-5 text-center"></i>
                     <span>Pagamentos</span>
                 </a>
-                
+
                 <div class="h-px bg-white/10 my-6"></div>
-                
-                <a href="../index.php" target="_blank" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl">
+
+                <a href="../index.php" target="_blank"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl">
                     <i class="fas fa-external-link-alt w-5 text-center"></i>
                     <span>Ver Loja</span>
                 </a>
-                
-                <a href="../logout.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 !important">
+
+                <a href="../logout.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 !important">
                     <i class="fas fa-sign-out-alt w-5 text-center"></i>
                     <span>Sair</span>
                 </a>
             </nav>
         </div>
     </div>
-    
+
     <!-- Bottom Navigation (Mobile Only) -->
-    <nav class="bottom-nav fixed bottom-0 left-0 right-0 h-16 bg-admin-gray-800 border-t border-white/10 flex items-center justify-around lg:hidden z-40 px-2 safe-area-pb">
-        <a href="index.php" class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''?>">
+    <nav
+        class="bottom-nav fixed bottom-0 left-0 right-0 h-16 bg-admin-gray-800 border-t border-white/10 flex items-center justify-around lg:hidden z-40 px-2 safe-area-pb">
+        <a href="index.php"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''?>">
             <i class="fas fa-tachometer-alt"></i>
             <span class="text-[10px] font-medium uppercase tracking-wide">Home</span>
         </a>
-        <a href="gerenciar_produtos.php" class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : ''?>">
+        <a href="gerenciar_produtos.php"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : ''?>">
             <i class="fas fa-box"></i>
             <span class="text-[10px] font-medium uppercase tracking-wide">Prods</span>
         </a>
-        <a href="adicionar_produto.php" class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : ''?>">
-            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center -mt-6 border-4 border-black shadow-lg">
+        <a href="adicionar_produto.php"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : ''?>">
+            <div
+                class="w-10 h-10 bg-white rounded-full flex items-center justify-center -mt-6 border-4 border-black shadow-lg">
                 <i class="fas fa-plus text-black"></i>
             </div>
         </a>
-        <a href="pedidos.php" class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : ''?>">
+        <a href="pedidos.php"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : ''?>">
             <i class="fas fa-shopping-cart"></i>
             <span class="text-[10px] font-medium uppercase tracking-wide">Pedidos</span>
         </a>
-        <button id="mobile-menu-btn" class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1">
+        <button id="mobile-menu-btn"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1">
             <i class="fas fa-bars"></i>
             <span class="text-[10px] font-medium uppercase tracking-wide">Menu</span>
         </button>
     </nav>
-    
+
     <!-- Main Content Wrapper -->
     <div id="main-wrapper" class="transition-all duration-300 lg:ml-64 flex flex-col min-h-screen">
         <!-- Top Bar -->
-        <header class="h-16 sticky top-0 bg-black/80 backdrop-blur-md border-b border-white/10 z-30 flex items-center justify-between px-4 lg:px-8">
+        <header
+            class="h-16 sticky top-0 bg-black/80 backdrop-blur-md border-b border-white/10 z-30 flex items-center justify-between px-4 lg:px-8">
             <div class="flex items-center gap-4">
                 <h2 class="text-xl font-bold font-display uppercase tracking-wide text-white">
                     <?= isset($page_title) ? $page_title : 'Painel'?>
                 </h2>
                 <!-- Breadcrumb could go here -->
             </div>
-            
+
             <div class="flex items-center gap-4">
                 <div class="hidden sm:block text-right">
-                    <p class="text-sm font-medium text-white"><?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin')?></p>
+                    <p class="text-sm font-medium text-white">
+                        <?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin')?>
+                    </p>
                     <p class="text-xs text-admin-gray-400 uppercase tracking-wider">Administrador</p>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-white/20">
@@ -185,6 +224,6 @@ require_once dirname(__DIR__) . '/../config.php';
                 </div>
             </div>
         </header>
-        
+
         <!-- Page Content -->
         <main class="flex-1 p-4 lg:p-8 pb-24 lg:pb-8">

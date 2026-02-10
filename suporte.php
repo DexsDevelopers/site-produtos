@@ -1,93 +1,77 @@
 <?php
-// suporte.php — MACARIO BRAZIL
-session_start();
-require_once 'config.php';
-
 $page_title = 'Suporte';
 require_once 'templates/header.php';
 ?>
 
-<div class="container" style="padding-top: 60px; min-height: 80vh;">
-
-    <div style="text-align: center; margin-bottom: 60px;">
-        <h1 style="font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 16px;">Suporte 24/7</h1>
-        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
-            Nossa equipe está pronta para ajudar você com qualquer dúvida ou solicitação.
+<div class="pt-32 pb-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-6 text-center">Como podemos ajudar?</h1>
+        <p class="text-xl text-brand-gray-text text-center mb-16">
+            Nossa equipe de suporte está pronta para resolver qualquer questão.
         </p>
-    </div>
 
-    <!-- Cards de Contato -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-bottom: 80px;">
-
-        <div
-            style="background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
-            <div
-                style="width: 64px; height: 64px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: var(--text-primary); font-size: 1.5rem;">
-                <i class="fab fa-whatsapp"></i>
-            </div>
-            <h3 style="margin-bottom: 12px; font-size: 1.2rem;">WhatsApp</h3>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Atendimento rápido e direto.</p>
-            <a href="https://wa.me/5551996148568" target="_blank" class="btn-primary"
-                style="display: inline-block; padding: 12px 32px; text-decoration: none;">Iniciar Chat</a>
-        </div>
-
-        <div
-            style="background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
-            <div
-                style="width: 64px; height: 64px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: var(--text-primary); font-size: 1.5rem;">
-                <i class="fas fa-envelope"></i>
-            </div>
-            <h3 style="margin-bottom: 12px; font-size: 1.2rem;">E-mail</h3>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">empresatokio@gmail.com</p>
-            <a href="mailto:empresatokio@gmail.com" class="btn-secondary"
-                style="display: inline-block; padding: 12px 32px; text-decoration: none; border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">Enviar
-                E-mail</a>
-        </div>
-
-        <div
-            style="background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
-            <div
-                style="width: 64px; height: 64px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: var(--text-primary); font-size: 1.5rem;">
-                <i class="fas fa-phone"></i>
-            </div>
-            <h3 style="margin-bottom: 12px; font-size: 1.2rem;">Telefone</h3>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">(51) 99614-8568</p>
-            <a href="tel:+5551996148568" class="btn-secondary"
-                style="display: inline-block; padding: 12px 32px; text-decoration: none; border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">Ligar
-                Agora</a>
-        </div>
-
-    </div>
-
-    <!-- FAQ -->
-    <div style="max-width: 800px; margin: 0 auto;">
-        <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem;">Perguntas Frequentes</h2>
-
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-            <?php
-$faqs = [
-    ['P' => 'Como recebo meus produtos digitais?', 'R' => 'Após a confirmação do pagamento, você receberá os dados de acesso ou o código do produto diretamente no seu e-mail e WhatsApp.'],
-    ['P' => 'Quais as formas de pagamento?', 'R' => 'Aceitamos PIX com aprovação imediata e cartões de crédito via InfinitePay.'],
-    ['P' => 'E se eu tiver problemas com o acesso?', 'R' => 'Nossa equipe de suporte está disponível 24/7 para resolver qualquer problema. Basta nos chamar no WhatsApp.'],
-    ['P' => 'Os produtos têm garantia?', 'R' => 'Sim, todos os nossos produtos possuem garantia de funcionamento total durante o período contratado.']
-];
-foreach ($faqs as $faq):
-?>
-            <div
-                style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px;">
-                <h4 style="margin-bottom: 8px; font-size: 1.1rem; color: var(--text-primary);">
-                    <?= $faq['P']?>
-                </h4>
-                <p style="color: var(--text-secondary); line-height: 1.6;">
-                    <?= $faq['R']?>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <!-- Canal 1: Produtos Digitais -->
+            <div class="p-8 border border-white/10 rounded-2xl bg-white/5 hover:border-white/30 transition-all">
+                <i class="fas fa-laptop-code text-3xl text-brand-red mb-6"></i>
+                <h3 class="text-2xl font-bold text-white mb-4">Produtos Digitais</h3>
+                <p class="text-brand-gray-text mb-6">
+                    Problemas com acesso, download ou licenças? Resolvemos a maioria dos casos em menos de 2 horas.
                 </p>
+                <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Reenvio de acesso imediato</li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Tutoriais de instalação</li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Suporte técnico especializado</li>
+                </ul>
+                <a href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20produto%20digital"
+                    target="_blank"
+                    class="block w-full text-center bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors">
+                    Falar no WhatsApp
+                </a>
             </div>
-            <?php
-endforeach; ?>
+
+            <!-- Canal 2: Produtos Físicos (Novo) -->
+            <div class="p-8 border border-white/10 rounded-2xl bg-white/5 hover:border-white/30 transition-all">
+                <i class="fas fa-box-open text-3xl text-blue-400 mb-6"></i>
+                <h3 class="text-2xl font-bold text-white mb-4">Rastreio e Envio</h3>
+                <p class="text-brand-gray-text mb-6">
+                    Dúvidas sobre entrega, trocas ou devoluções de produtos físicos? Estamos aqui para garantir que seu
+                    pedido chegue perfeito.
+                </p>
+                <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                    <li><i class="fas fa-check text-blue-400 mr-2"></i> Rastreamento em tempo real</li>
+                    <li><i class="fas fa-check text-blue-400 mr-2"></i> Política de troca facilitada</li>
+                    <li><i class="fas fa-check text-blue-400 mr-2"></i> Seguro contra extravio</li>
+                </ul>
+                <a href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20entrega" target="_blank"
+                    class="block w-full text-center bg-transparent border border-white text-white font-bold py-3 rounded-xl hover:bg-white hover:text-black transition-colors">
+                    Suporte de Entregas
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-brand-gray-light rounded-2xl p-8 md:p-12 text-center">
+            <h2 class="text-2xl font-bold text-white mb-4">Perguntas Frequentes (FAQ)</h2>
+
+            <div class="space-y-4 text-left max-w-2xl mx-auto mt-8">
+                <div class="border-b border-white/10 pb-4">
+                    <h4 class="font-bold text-white mb-2">Como recebo meu código de rastreio?</h4>
+                    <p class="text-brand-gray-text text-sm">Assim que o pedido for despachado, você receberá o código
+                        automaticamente por e-mail e poderá vê-lo em "Meus Pedidos".</p>
+                </div>
+                <div class="border-b border-white/10 pb-4">
+                    <h4 class="font-bold text-white mb-2">Qual o prazo de reembolso?</h4>
+                    <p class="text-brand-gray-text text-sm">Para produtos digitais não acessados, o reembolso é em até 7
+                        dias. Para físicos, 7 dias após o recebimento (conforme CDC).</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-2">Vocês enviam para todo o Brasil?</h4>
+                    <p class="text-brand-gray-text text-sm">Sim, enviamos produtos físicos via Correios e
+                        Transportadoras para todo o território nacional com seguro.</p>
+                </div>
+            </div>
         </div>
     </div>
-
 </div>
 
 <?php require_once 'templates/footer.php'; ?>

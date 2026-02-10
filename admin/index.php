@@ -1,227 +1,208 @@
 <?php
-// admin/index_corrigido.php - Dashboard Corrigido
-$page_title = 'Dashboard';
+// admin/index.php - Dashboard Premium
 require_once 'secure.php';
+$page_title = 'Dashboard';
 require_once 'templates/header_admin.php';
+
+// Métricas Reais
+try {
+    // Totais com tratamento de erro
+    $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn() ?: 0;
+    $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn() ?: 0;
+
+    // Vendas hoje
+    $hoje = date('Y-m-d');
+    $vendas_hoje = $pdo->query("SELECT COUNT(*) FROM pedidos WHERE date(data_pedido) = '$hoje'")->fetchColumn() ?: 0;
+
+    // Faturamento Mensal (pedidos pagos/entregues)
+    $mes_atual = date('m');
+    $faturamento = $pdo->query("
+        SELECT SUM(valor_total) FROM pedidos 
+        WHERE strftime('%m', data_pedido) = '$mes_atual' 
+        AND status IN ('pago', 'entregue', 'enviado')
+    ")->fetchColumn() ?: 0;
+
+    // Afiliados (tabela pode nao existir se o script setup nao rodou, entao try/catch silencioso)
+    try {
+        $total_afiliados = $pdo->query('SELECT COUNT(*) FROM afiliados')->fetchColumn() ?: 0;
+    }
+    catch (Exception $e) {
+        $total_afiliados = 0;
+    }
+
+}
+catch (Exception $e) {
+    // Fallback
+    $total_produtos = 0;
+    $total_usuarios = 0;
+    $vendas_hoje = 0;
+    $faturamento = 0;
+}
 ?>
 
 <!-- Dashboard Principal -->
 <div class="space-y-8">
     <!-- Welcome Section -->
-    <div class="admin-card rounded-2xl p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div class="admin-card rounded-2xl p-6 relative overflow-hidden">
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-white mb-2">
-                    Bem-vindo, <?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin') ?>! 👋
+                    Painel de Controle
                 </h1>
-                <p class="text-admin-gray-400">Aqui está um resumo do que está acontecendo na sua loja hoje.</p>
+                <p class="text-admin-gray-400">Visão geral da sua loja MACARIO BRAZIL</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <div class="flex items-center gap-2 text-sm text-admin-gray-400">
+                <div class="flex items-center gap-2 text-sm text-admin-gray-400 bg-white/5 px-4 py-2 rounded-full">
                     <i class="fas fa-calendar-alt"></i>
-                    <span><?= date('d/m/Y') ?></span>
+                    <span>
+                        <?= date('d/m/Y')?>
+                    </span>
                 </div>
             </div>
+        </div>
+        <!-- Efeito de fundo -->
+        <div
+            class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none">
         </div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <?php
-        try {
-            // Busca estatísticas
-            $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn();
-            $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
-            $total_categorias = $pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
-            $total_banners = $pdo->query('SELECT COUNT(*) FROM banners')->fetchColumn();
-        } catch (Exception $e) {
-            $total_produtos = $total_usuarios = $total_categorias = $total_banners = 0;
-        }
-        ?>
-        
+        <!-- Vendas Hoje -->
+        <div class="stat-card rounded-xl p-6 group cursor-default">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-green-400 bg-green-400/10 px-2 py-1 rounded">Hoje</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">
+                <?= $vendas_hoje?>
+            </h3>
+            <p class="text-sm text-admin-gray-400">Vendas confirmadas</p>
+        </div>
+
+        <!-- Faturamento Mês -->
+        <div class="stat-card rounded-xl p-6 group cursor-default">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 group-hover:bg-green-400 group-hover:text-black transition-colors">
+                    <i class="fas fa-dollar-sign text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-admin-gray-500 bg-white/5 px-2 py-1 rounded">Este Mês</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">R$
+                <?= number_format($faturamento, 2, ',', '.')?>
+            </h3>
+            <p class="text-sm text-admin-gray-400">Receita bruta</p>
+        </div>
+
         <!-- Total Produtos -->
-        <div class="stat-card rounded-xl p-6 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-admin-gray-400">Total de Produtos</p>
-                    <p class="text-3xl font-bold text-white"><?= $total_produtos ?></p>
-                </div>
-                <div class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-box text-admin-primary text-xl"></i>
+        <div class="stat-card rounded-xl p-6 group cursor-default">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 group-hover:bg-purple-400 group-hover:text-black transition-colors">
+                    <i class="fas fa-box text-xl"></i>
                 </div>
             </div>
-            <div class="mt-4 flex items-center text-sm">
-                <i class="fas fa-arrow-up text-admin-success mr-1"></i>
-                <span class="text-admin-success">+12%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
-            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">
+                <?= $total_produtos?>
+            </h3>
+            <p class="text-sm text-admin-gray-400">Produtos ativos</p>
         </div>
 
         <!-- Total Usuários -->
-        <div class="stat-card rounded-xl p-6 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-admin-gray-400">Total de Usuários</p>
-                    <p class="text-3xl font-bold text-white"><?= $total_usuarios ?></p>
-                </div>
-                <div class="w-12 h-12 bg-admin-success/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-users text-admin-success text-xl"></i>
+        <div class="stat-card rounded-xl p-6 group cursor-default">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 group-hover:bg-blue-400 group-hover:text-black transition-colors">
+                    <i class="fas fa-users text-xl"></i>
                 </div>
             </div>
-            <div class="mt-4 flex items-center text-sm">
-                <i class="fas fa-arrow-up text-admin-success mr-1"></i>
-                <span class="text-admin-success">+8%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
-            </div>
-        </div>
-
-        <!-- Total Categorias -->
-        <div class="stat-card rounded-xl p-6 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-admin-gray-400">Categorias</p>
-                    <p class="text-3xl font-bold text-white"><?= $total_categorias ?></p>
-                </div>
-                <div class="w-12 h-12 bg-admin-warning/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-tags text-admin-warning text-xl"></i>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-sm">
-                <i class="fas fa-minus text-admin-gray-400 mr-1"></i>
-                <span class="text-admin-gray-400">0%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
-            </div>
-        </div>
-
-        <!-- Total Banners -->
-        <div class="stat-card rounded-xl p-6 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-admin-gray-400">Banners</p>
-                    <p class="text-3xl font-bold text-white"><?= $total_banners ?></p>
-                </div>
-                <div class="w-12 h-12 bg-admin-secondary/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-image text-admin-secondary text-xl"></i>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-sm">
-                <i class="fas fa-arrow-up text-admin-success mr-1"></i>
-                <span class="text-admin-success">+3</span>
-                <span class="text-admin-gray-400 ml-2">novos este mês</span>
-            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">
+                <?= $total_usuarios?>
+            </h3>
+            <p class="text-sm text-admin-gray-400">Clientes cadastrados</p>
         </div>
     </div>
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Produtos Recentes -->
-        <div class="lg:col-span-2">
+        <!-- Ações Rápidas -->
+        <div class="lg:col-span-1 space-y-6">
             <div class="admin-card rounded-xl p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-white">Produtos Recentes</h3>
-                    <a href="adicionar_produto.php" class="text-admin-primary hover:text-admin-secondary text-sm font-medium flex items-center gap-2">
-                        <i class="fas fa-plus"></i>
-                        Adicionar Novo
+                <h3 class="text-lg font-semibold text-white mb-4">Gestão Rápida</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="adicionar_produto.php"
+                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                        <i class="fas fa-plus text-admin-primary group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-medium text-white">Add Produto</span>
                     </a>
-                </div>
-
-                <div class="space-y-4">
-                    <?php
-                    try {
-                        $produtos_recentes = $pdo->query('SELECT * FROM produtos ORDER BY id DESC LIMIT 6')->fetchAll(PDO::FETCH_ASSOC);
-                    } catch (Exception $e) {
-                        $produtos_recentes = [];
-                    }
-                    ?>
-                    
-                    <?php if (!empty($produtos_recentes)): ?>
-                        <?php foreach ($produtos_recentes as $produto): ?>
-                        <div class="flex items-center gap-4 p-4 bg-admin-gray-800/50 rounded-lg hover:bg-admin-gray-700/50 transition-colors">
-                            <div class="w-16 h-16 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
-                                <i class="fas fa-box text-white text-xl"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-semibold text-white truncate"><?= htmlspecialchars($produto['nome']) ?></h4>
-                                <p class="text-sm text-admin-gray-400"><?= formatarPreco($produto['preco']) ?></p>
-                                <p class="text-xs text-admin-gray-500">ID: <?= $produto['id'] ?></p>
-                            </div>
-                            <div class="flex gap-2">
-                                <a href="editar_produto.php?id=<?= $produto['id'] ?>" 
-                                   class="text-admin-primary hover:text-admin-secondary text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="../produto.php?id=<?= $produto['id'] ?>" 
-                                   class="text-admin-success hover:text-green-300 text-sm p-2 rounded-lg hover:bg-admin-gray-700 transition-colors" 
-                                   target="_blank">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="text-center py-8">
-                            <i class="fas fa-box text-admin-gray-500 text-4xl mb-4"></i>
-                            <p class="text-admin-gray-400">Nenhum produto encontrado</p>
-                            <a href="adicionar_produto.php" class="text-admin-primary hover:text-admin-secondary text-sm font-medium mt-2 inline-block">
-                                Adicionar primeiro produto
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                    <a href="gerenciar_cupons.php"
+                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                        <i class="fas fa-ticket-alt text-yellow-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-medium text-white">Cupons</span>
+                    </a>
+                    <a href="gerenciar_afiliados.php"
+                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                        <i class="fas fa-handshake text-blue-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-medium text-white">Afiliados</span>
+                    </a>
+                    <a href="gerenciar_banners.php"
+                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                        <i class="fas fa-image text-purple-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-medium text-white">Banners</span>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Usuários Recentes -->
-            <div class="admin-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Usuários Recentes</h3>
+        <!-- Produtos Recentes -->
+        <div class="lg:col-span-2">
+            <div class="admin-card rounded-xl p-6 h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-white">Últimos Produtos</h3>
+                    <a href="gerenciar_produtos.php" class="text-sm text-admin-gray-400 hover:text-white">Ver todos</a>
+                </div>
+
                 <div class="space-y-3">
                     <?php
-                    try {
-                        $usuarios_recentes = $pdo->query('SELECT id, nome, email, data_cadastro FROM usuarios ORDER BY id DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
-                    } catch (Exception $e) {
-                        $usuarios_recentes = [];
-                    }
-                    ?>
-                    
-                    <?php if (!empty($usuarios_recentes)): ?>
-                        <?php foreach ($usuarios_recentes as $usuario): ?>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-r from-admin-primary to-admin-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                <?= strtoupper(substr($usuario['nome'], 0, 1)) ?>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-white text-sm font-medium truncate"><?= htmlspecialchars($usuario['nome']) ?></p>
-                                <p class="text-admin-gray-400 text-xs truncate"><?= htmlspecialchars($usuario['email']) ?></p>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-admin-gray-400 text-sm">Nenhum usuário encontrado</p>
-                    <?php endif; ?>
-                </div>
-            </div>
+try {
+    $produtos_recentes = $pdo->query('SELECT * FROM produtos ORDER BY id DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+}
+catch (Exception $e) {
+    $produtos_recentes = [];
+}
+?>
 
-            <!-- Ações Rápidas -->
-            <div class="admin-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Ações Rápidas</h3>
-                <div class="space-y-3">
-                    <a href="adicionar_produto.php" 
-                       class="block w-full bg-admin-primary hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-plus mr-2"></i>
-                        Adicionar Produto
-                    </a>
-                    <a href="gerenciar_categorias.php" 
-                       class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-tags mr-2"></i>
-                        Gerenciar Categorias
-                    </a>
-                    <a href="gerenciar_banners.php" 
-                       class="block w-full bg-admin-gray-700 hover:bg-admin-gray-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-image mr-2"></i>
-                        Gerenciar Banners
-                    </a>
+                    <?php if (!empty($produtos_recentes)): ?>
+                    <?php foreach ($produtos_recentes as $produto): ?>
+                    <div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
+                        <div class="w-12 h-12 bg-admin-gray-800 rounded-lg overflow-hidden">
+                            <img src="../<?= htmlspecialchars($produto['imagem'])?>"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-white truncate">
+                                <?= htmlspecialchars($produto['nome'])?>
+                            </h4>
+                            <p class="text-xs text-admin-gray-400">R$
+                                <?= number_format($produto['preco'], 2, ',', '.')?>
+                            </p>
+                        </div>
+                        <a href="editar_produto.php?id=<?= $produto['id']?>"
+                            class="text-admin-gray-500 hover:text-white">
+                            <i class="fas fa-pen"></i>
+                        </a>
+                    </div>
+                    <?php
+    endforeach; ?>
+                    <?php
+else: ?>
+                    <p class="text-center text-admin-gray-500 py-4">Sem produtos recentes.</p>
+                    <?php
+endif; ?>
                 </div>
             </div>
         </div>
