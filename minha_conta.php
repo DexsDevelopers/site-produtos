@@ -1,135 +1,163 @@
 <?php
-// minha_conta.php
+// minha_conta.php — MACARIO BRAZIL
 session_start();
 require_once 'config.php';
 
-// --- SEGURANÇA ---
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
-    exit();
+    exit;
 }
 
-// Busca os dados atualizados do usuário no banco de dados
 $user_id = $_SESSION['user_id'];
+
 try {
     $stmt = $pdo->prepare("SELECT nome, email, data_registro FROM usuarios WHERE id = ?");
     $stmt->execute([$user_id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    header('Location: logout.php');
-    exit();
+
+    if (!$usuario) {
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
+
+    $stmt_pedidos = $pdo->prepare("SELECT * FROM pedidos WHERE usuario_id = ? ORDER BY data_pedido DESC");
+    $stmt_pedidos->execute([$user_id]);
+    $pedidos = $stmt_pedidos->fetchAll(PDO::FETCH_ASSOC);
+
+}
+catch (PDOException $e) {
+    error_log("Erro minha_conta: " . $e->getMessage());
+    header('Location: index.php');
+    exit;
 }
 
-if (!$usuario) {
-    header('Location: logout.php');
-    exit();
-}
-
-// --- BUSCA OS PEDIDOS DO USUÁRIO ---
-$stmt_pedidos = $pdo->prepare("SELECT id, valor_total, data_pedido, status FROM pedidos WHERE usuario_id = ? ORDER BY data_pedido DESC");
-$stmt_pedidos->execute([$user_id]);
-$pedidos = $stmt_pedidos->fetchAll(PDO::FETCH_ASSOC);
-
-
+$page_title = 'Minha Conta';
 require_once 'templates/header.php';
 ?>
 
-<div class="w-full max-w-4xl mx-auto py-24 px-4">
-    <div class="pt-16">
-        <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Minha Conta</h1>
-        <p class="text-lg text-brand-gray-text">Olá, <?= htmlspecialchars($usuario['nome']) ?>! Aqui você pode gerenciar suas informações e pedidos.</p>
-        
-        <?php
-        // Exibe mensagens de sucesso ou erro
-        if (isset($_SESSION['success_message'])) {
-            echo '<div class="bg-green-500/20 text-green-300 p-4 rounded-lg my-6 text-center">' . $_SESSION['success_message'] . '</div>';
-            unset($_SESSION['success_message']);
-        }
-        if (isset($_SESSION['error_message'])) {
-            echo '<div class="bg-red-500/20 text-red-300 p-4 rounded-lg my-6 text-center">' . $_SESSION['error_message'] . '</div>';
-            unset($_SESSION['error_message']);
-        }
-        ?>
+<div class="container" style="padding-top: 40px; min-height: 80vh;">
 
-        <div class="mt-10 bg-brand-gray/50 p-8 rounded-xl ring-1 ring-white/10">
-            <h2 class="text-2xl font-bold text-white mb-6">Atualizar Perfil</h2>
-            <form action="processa_conta.php" method="POST">
-                <div class="space-y-4">
-                    <div>
-                        <label for="nome" class="block text-sm font-medium text-brand-gray-text">Nome Completo</label>
-                        <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($usuario['nome']) ?>" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white">
+    <div style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 8px;">Minha Conta</h1>
+        <p style="color: var(--text-muted);">Olá,
+            <?= htmlspecialchars($usuario['nome'])?>. Gerencie seus pedidos e dados.
+        </p>
+    </div>
+
+    <?php if (isset($_SESSION['success_message'])): ?>
+    <div
+        style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10B981; padding: 16px; border-radius: var(--radius-md); margin-bottom: 24px;">
+        <?= $_SESSION['success_message']?>
+        <?php unset($_SESSION['success_message']); ?>
+    </div>
+    <?php
+endif; ?>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px;">
+
+        <!-- Sidebar / Dados -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Dados Pessoais -->
+            <div
+                style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <h3 style="margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase;">Meus Dados</h3>
+                <form action="processa_conta.php" method="POST">
+                    <div style="margin-bottom: 16px;">
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Nome</label>
+                        <input type="text" name="nome" value="<?= htmlspecialchars($usuario['nome'])?>" required
+                            class="form-control"
+                            style="width: 100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm);">
                     </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-brand-gray-text">E-mail</label>
-                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white">
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">E-mail</label>
+                        <input type="email" name="email" value="<?= htmlspecialchars($usuario['email'])?>" required
+                            class="form-control"
+                            style="width: 100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm);">
                     </div>
-                </div>
-                <button type="submit" name="atualizar_perfil" class="w-full md:w-auto mt-6 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg">
-                    Salvar Alterações
-                </button>
-            </form>
+                    <button type="submit" name="atualizar_perfil" class="btn-primary"
+                        style="width: 100%; padding: 12px; border-radius: var(--radius-md); font-size: 0.9rem;">Salvar
+                        Alterações</button>
+                </form>
+            </div>
+
+            <!-- Alterar Senha -->
+            <div
+                style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <h3 style="margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase;">Segurança</h3>
+                <form action="processa_conta.php" method="POST">
+                    <div style="margin-bottom: 16px;">
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Nova
+                            Senha</label>
+                        <input type="password" name="nova_senha" required class="form-control"
+                            style="width: 100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm);">
+                    </div>
+                    <button type="submit" name="alterar_senha"
+                        style="background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; width: 100%; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Atualizar
+                        Senha</button>
+                </form>
+            </div>
+
+            <a href="logout.php"
+                style="text-align: center; color: var(--text-muted); text-decoration: underline; font-size: 0.9rem;">Sair
+                da Conta</a>
         </div>
 
-        <div class="mt-10 bg-brand-gray/50 p-8 rounded-xl ring-1 ring-white/10">
-            <h2 class="text-2xl font-bold text-white mb-6">Alterar Senha</h2>
-            <form action="processa_conta.php" method="POST">
-                <div class="space-y-4">
-                    <div>
-                        <label for="senha_atual" class="block text-sm font-medium text-brand-gray-text">Senha Atual</label>
-                        <input type="password" id="senha_atual" name="senha_atual" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white">
-                    </div>
-                    <div>
-                        <label for="nova_senha" class="block text-sm font-medium text-brand-gray-text">Nova Senha</label>
-                        <input type="password" id="nova_senha" name="nova_senha" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white">
-                    </div>
-                    <div>
-                        <label for="confirmar_nova_senha" class="block text-sm font-medium text-brand-gray-text">Confirme a Nova Senha</label>
-                        <input type="password" id="confirmar_nova_senha" name="confirmar_nova_senha" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white">
-                    </div>
-                </div>
-                <button type="submit" name="alterar_senha" class="w-full md:w-auto mt-6 bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 px-6 rounded-lg">
-                    Alterar Senha
-                </button>
-            </form>
-        </div>
+        <!-- Pedidos -->
+        <div
+            style="background: var(--bg-card); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); height: fit-content;">
+            <h3 style="margin-bottom: 24px; font-size: 1.2rem; text-transform: uppercase;">Histórico de Pedidos</h3>
 
-        <div class="mt-10 bg-brand-gray/50 p-8 rounded-xl ring-1 ring-white/10">
-            <h2 class="text-2xl font-bold text-white mb-6">Meus Pedidos</h2>
             <?php if (empty($pedidos)): ?>
-                <p class="text-brand-gray-text">Você ainda não fez nenhum pedido.</p>
-            <?php else: ?>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs text-brand-gray-text uppercase">
-                            <tr>
-                                <th class="py-3 px-4">Pedido</th>
-                                <th class="py-3 px-4">Data</th>
-                                <th class="py-3 px-4">Total</th>
-                                <th class="py-3 px-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($pedidos as $pedido): ?>
-                            <tr class="border-t border-brand-gray-light">
-                                <td class="py-4 px-4">
-                                    <a href="pedido_detalhes.php?id=<?= $pedido['id'] ?>" class="font-medium text-brand-red hover:underline">#<?= $pedido['id'] ?></a>
-                                </td>
-                                <td class="py-4 px-4 text-white"><?= date('d/m/Y', strtotime($pedido['data_pedido'])) ?></td>
-                                <td class="py-4 px-4 text-white"><?= formatarPreco($pedido['valor_total']) ?></td>
-                                <td class="py-4 px-4 text-white">
-                                    <span class="bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2.5 py-1 rounded-full"><?= htmlspecialchars($pedido['status']) ?></span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+            <div style="text-align: center; padding: 40px 0;">
+                <i class="fas fa-box" style="font-size: 2rem; color: var(--border-color); margin-bottom: 16px;"></i>
+                <p style="color: var(--text-muted);">Nenhum pedido realizado ainda.</p>
+            </div>
+            <?php
+else: ?>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <?php foreach ($pedidos as $pedido): ?>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Pedido #
+                            <?= $pedido['id']?>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            <?= date('d/m/Y', strtotime($pedido['data_pedido']))?>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+                            <?= formatarPreco($pedido['valor_total'])?>
+                        </div>
+                        <span
+                            style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-primary);">
+                            <?= htmlspecialchars($pedido['status'])?>
+                        </span>
+                    </div>
+                    <a href="pedido_detalhes.php?id=<?= $pedido['id']?>"
+                        style="margin-left: 16px; color: var(--text-muted);"><i class="fas fa-chevron-right"></i></a>
                 </div>
-            <?php endif; ?>
+                <?php
+    endforeach; ?>
+            </div>
+            <?php
+endif; ?>
         </div>
 
     </div>
+
+    <style>
+        @media (max-width: 900px) {
+            div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </div>
 
-<?php
-require_once 'templates/footer.php';
-?>
+<?php require_once 'templates/footer.php'; ?>

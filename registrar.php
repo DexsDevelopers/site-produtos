@@ -1,146 +1,89 @@
 <?php
-// registrar.php
-
+// registrar.php — MACARIO BRAZIL
 session_start();
 require_once 'config.php';
+
+if (isset($_SESSION['user_id'])) {
+    header('Location: minha_conta.php');
+    exit;
+}
+
+$page_title = 'Criar Conta';
 require_once 'templates/header.php';
 ?>
 
-<!-- CSS Específico da Página de Registro -->
-<style>
-.registro-container {
-    background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
-    min-height: 100vh;
-    padding: 120px 0 60px;
-    position: relative;
-    overflow: hidden;
-}
+<div class="container"
+    style="padding-top: 60px; min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
 
-.registro-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
-    animation: backgroundPulse 8s ease-in-out infinite;
-    pointer-events: none;
-}
+    <div style="width: 100%; max-width: 440px;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 12px;">Criar Conta</h1>
+            <p style="color: var(--text-muted);">Junte-se a nós e tenha acesso exclusivo.</p>
+        </div>
 
-.registro-container h1 {
-    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-.registro-form {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 0, 0, 0.2);
-    box-shadow: 0 8px 32px rgba(255, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-}
-
-.registro-form::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
-    transition: left 0.6s;
-}
-
-.registro-form:hover::before {
-    left: 100%;
-}
-
-.btn-registro {
-    background: linear-gradient(45deg, #ff0000, #ff3333);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-    border: none;
-    cursor: pointer;
-    width: 100%;
-}
-
-.btn-registro::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn-registro:hover::before {
-    left: 100%;
-}
-
-.btn-registro:hover {
-    background: linear-gradient(45deg, #ff3333, #ff0000);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
-}
-</style>
-
-<div class="registro-container">
-
-<div class="w-full max-w-2xl mx-auto py-24 px-4">
-    <div class="pt-16 text-center">
-        <h1 class="text-4xl md:text-5xl font-black text-white">Crie sua Conta</h1>
-        <p class="mt-4 text-lg text-brand-gray-text">Junte-se à nossa comunidade e aproveite ofertas exclusivas.</p>
-    </div>
-
-    <div class="mt-10 registro-form p-8 rounded-xl">
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <div
+            style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 16px; border-radius: var(--radius-md); margin-bottom: 24px; text-align: center;">
+            <?= $_SESSION['error_message']?>
+            <?php unset($_SESSION['error_message']); ?>
+        </div>
         <?php
-        // Exibe mensagens de erro ou sucesso que podem ter sido definidas no processamento
-        if (isset($_SESSION['error_message'])) {
-            echo '<div class="bg-red-500/20 text-red-300 p-4 rounded-lg mb-6 text-center">' . $_SESSION['error_message'] . '</div>';
-            unset($_SESSION['error_message']); // Limpa a mensagem para não aparecer novamente
-        }
-        ?>
-        <form action="processa_registro.php" method="POST">
-            <div class="space-y-6">
-                <div>
-                    <label for="nome" class="block text-sm font-medium text-brand-gray-text">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white focus:ring-brand-red focus:border-brand-red">
+endif; ?>
+
+        <div
+            style="background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <form action="processa_registro.php" method="POST">
+
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted);">Nome
+                        Completo</label>
+                    <input type="text" name="nome" required
+                        style="width: 100%; padding: 14px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); outline: none; font-size: 0.95rem; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--border-active)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-brand-gray-text">E-mail</label>
-                    <input type="email" id="email" name="email" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white focus:ring-brand-red focus:border-brand-red">
+
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted);">E-mail</label>
+                    <input type="email" name="email" required
+                        style="width: 100%; padding: 14px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); outline: none; font-size: 0.95rem; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--border-active)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
-                <div>
-                    <label for="senha" class="block text-sm font-medium text-brand-gray-text">Senha</label>
-                    <input type="password" id="senha" name="senha" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white focus:ring-brand-red focus:border-brand-red">
+
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted);">Senha</label>
+                    <input type="password" name="senha" required
+                        style="width: 100%; padding: 14px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); outline: none; font-size: 0.95rem; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--border-active)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
-                <div>
-                    <label for="confirmar_senha" class="block text-sm font-medium text-brand-gray-text">Confirme sua Senha</label>
-                    <input type="password" id="confirmar_senha" name="confirmar_senha" required class="w-full mt-1 p-3 bg-brand-gray rounded-lg border border-brand-gray-light text-white focus:ring-brand-red focus:border-brand-red">
+
+                <div style="margin-bottom: 24px;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted);">Confirmar
+                        Senha</label>
+                    <input type="password" name="confirmar_senha" required
+                        style="width: 100%; padding: 14px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); outline: none; font-size: 0.95rem; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--border-active)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
-            </div>
-            <button type="submit" class="btn-registro mt-8">
-                Criar Conta
-            </button>
-            <p class="text-center mt-4 text-sm text-brand-gray-text">
-                Já tem uma conta? <a href="login.php" class="font-semibold text-brand-red hover:underline">Faça Login</a>
-            </p>
-        </form>
+
+                <button type="submit" class="btn-primary"
+                    style="width: 100%; padding: 16px; border-radius: var(--radius-md); font-weight: 700; text-transform: uppercase; cursor: pointer;">
+                    Criar Conta
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: var(--text-secondary);">
+            Já tem uma conta? <a href="login.php"
+                style="color: var(--text-primary); font-weight: 600; margin-left: 4px;">Fazer Login</a>
+        </div>
     </div>
 </div>
 
-<?php
-require_once 'templates/footer.php';
-?>
+<?php require_once 'templates/footer.php'; ?>
