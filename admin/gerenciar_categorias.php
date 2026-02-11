@@ -9,7 +9,20 @@ try {
     $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
 }
 catch (Exception $e) {
-    $categorias = [];
+    // Se a coluna exibir_home não existir, tenta migrar automaticamente
+    if (strpos($e->getMessage(), 'Unknown column \'exibir_home\'') !== false) {
+        require_once 'migrar_destaques.php';
+        // Tenta buscar novamente após migrar
+        try {
+            $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch (Exception $e2) {
+            $categorias = [];
+        }
+    }
+    else {
+        $categorias = [];
+    }
 }
 ?>
 

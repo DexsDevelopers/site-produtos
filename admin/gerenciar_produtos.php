@@ -13,8 +13,25 @@ try {
     $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 catch (Exception $e) {
-    $produtos = [];
-    $erro = "Erro ao buscar produtos.";
+    // Se a coluna destaque não existir, tenta migrar automaticamente
+    if (strpos($e->getMessage(), 'Unknown column \'destaque\'') !== false) {
+        require_once 'migrar_destaques.php';
+        // Tenta buscar novamente após migrar
+        try {
+            $stmt = $pdo->query("SELECT p.*, c.nome as categoria_nome 
+                                 FROM produtos p 
+                                 LEFT JOIN categorias c ON p.categoria_id = c.id 
+                                 ORDER BY p.id DESC");
+            $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch (Exception $e2) {
+            $produtos = [];
+        }
+    }
+    else {
+        $produtos = [];
+        $erro = "Erro ao buscar produtos.";
+    }
 }
 ?>
 

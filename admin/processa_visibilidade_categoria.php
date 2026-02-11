@@ -12,7 +12,21 @@ if (isset($_GET['id']) && isset($_GET['visivel'])) {
         $_SESSION['admin_message'] = "Visibilidade da categoria atualizada.";
     }
     catch (PDOException $e) {
-        $_SESSION['admin_message'] = "Erro ao atualizar visibilidade: " . $e->getMessage();
+        if (strpos($e->getMessage(), 'Unknown column \'exibir_home\'') !== false) {
+            require_once 'migrar_destaques.php';
+            // Tenta novamente após migrar
+            try {
+                $stmt = $pdo->prepare("UPDATE categorias SET exibir_home = ? WHERE id = ?");
+                $stmt->execute([$visivel, $id]);
+                $_SESSION['admin_message'] = "Visibilidade da categoria atualizada.";
+            }
+            catch (PDOException $e2) {
+                $_SESSION['admin_message'] = "Erro ao atualizar visibilidade: " . $e2->getMessage();
+            }
+        }
+        else {
+            $_SESSION['admin_message'] = "Erro ao atualizar visibilidade: " . $e->getMessage();
+        }
     }
 }
 
