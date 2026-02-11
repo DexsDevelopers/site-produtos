@@ -44,9 +44,9 @@ try {
     // Busca produtos marcados como destaque
     $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE destaque = 1 ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
 
-    // Se não houver nenhum marcado, pega os 8 últimos como fallback
-    if (empty($destaques)) {
-        $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+    // Se não houver nenhum marcado, respeitamos o controle manual e não mostramos nada automaticamente
+    if (!$destaques) {
+        $destaques = [];
     }
 
 }
@@ -336,8 +336,8 @@ endif; ?>
 <!-- Swiper Init -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    <?php if (!empty($produtos_por_categoria)): ?>
-    <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
+    <? php if (!empty($produtos_por_categoria)): ?>
+    <? php foreach($produtos_por_categoria as $categoria_id => $produtos): ?>
             new Swiper('.produtos-swiper-<?= $categoria_id?>', {
                 slidesPerView: 1.2,
                 spaceBetween: 16,
@@ -348,9 +348,9 @@ endif; ?>
                     1024: { slidesPerView: 4, spaceBetween: 20 }
                 }
             });
-    <?php
+    <? php
     endforeach; ?>
-    <?php
+    <? php
 endif; ?>
 });
 </script>
