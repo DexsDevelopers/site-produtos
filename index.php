@@ -1,4 +1,3 @@
-não e nos desta
 <?php
 // index.php — MACARIO BRAZIL E-commerce
 error_reporting(E_ALL);
@@ -343,36 +342,29 @@ endif; ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof Swiper !== 'undefined') {
-            // Init Destaques Swiper
-            new Swiper('.destaques-swiper', {
+            const swiperOptions = {
                 slidesPerView: 1.2,
                 spaceBetween: 16,
                 grabCursor: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
                 breakpoints: {
                     480: { slidesPerView: 2.2, spaceBetween: 16 },
                     768: { slidesPerView: 3, spaceBetween: 20 },
-                    1024: { slidesPerView: 4, spaceBetween: 20 }
+                    1024: { slidesPerView: 4, spaceBetween: 24 }
                 }
-            });
+            };
 
-        // Init Categories Swipers
-        <?php if (!empty($produtos_por_categoria)): ?>
-        <?php foreach($produtos_por_categoria as $categoria_id => $produtos_cat): ?>
-                new Swiper('.produtos-swiper-<?= $categoria_id?>', {
-                    slidesPerView: 1.2,
-                    spaceBetween: 16,
-                    grabCursor: true,
-                    breakpoints: {
-                        480: { slidesPerView: 2.2, spaceBetween: 16 },
-                        768: { slidesPerView: 3, spaceBetween: 20 },
-                        1024: { slidesPerView: 4, spaceBetween: 20 }
-                    }
-                });
-        <?php
-    endforeach; ?>
-        <?php
-endif; ?>
-    } else {
+            // Init Destaques
+            new Swiper('.destaques-swiper', swiperOptions);
+
+            // Init All Category Swipers
+            document.querySelectorAll('.produtos-swiper').forEach(el => {
+                new Swiper(el, swiperOptions);
+            });
+        } else {
             console.error('Swiper não carregado');
         }
     });
