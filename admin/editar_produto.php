@@ -40,6 +40,10 @@ $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchA
                     <input type="file" name="imagem" accept="image/*" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-admin-primary file:text-white hover:file:bg-blue-600 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                     <p class="text-xs text-admin-gray-400 mt-2">Imagem atual: <img src="../<?= htmlspecialchars($produto['imagem']) ?>" class="h-10 inline-block rounded"></p>
                 </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" name="destaque" id="destaque" value="1" <?= $produto['destaque'] ? 'checked' : '' ?> class="w-5 h-5 bg-admin-gray-800 border-admin-gray-600 rounded text-admin-primary focus:ring-admin-primary/20">
+                    <label for="destaque" class="text-sm font-medium text-admin-gray-300">Marcar como Destaque na Home</label>
+                </div>
             </div>
             <button type="submit" name="editar" class="w-full mt-8 bg-admin-primary hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-lg transition-colors">Salvar Alterações</button>
         </form>

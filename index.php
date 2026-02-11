@@ -27,7 +27,9 @@ if (isset($_GET['ref'])) {
 // --- BUSCAR DADOS ---
 try {
     $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
-    $categorias = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Filtra apenas categorias que devem aparecer na home
+    $categorias = $pdo->query("SELECT * FROM categorias WHERE exibir_home = 1 ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
 
     $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
@@ -39,8 +41,13 @@ try {
         }
     }
 
-    // Produtos em destaque (últimos adicionados)
-    $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+    // Busca produtos marcados como destaque
+    $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE destaque = 1 ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Se não houver nenhum marcado, pega os 8 últimos como fallback
+    if (empty($destaques)) {
+        $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 8")->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 }
 catch (Exception $e) {
@@ -171,8 +178,8 @@ endif; ?>
                 class="product-card reveal reveal-delay-<?= min($idx + 1, 4)?>">
                 <div class="product-image">
                     <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
-                    <img src="<?= htmlspecialchars($produto['imagem'])?>"
-                        alt="<?= htmlspecialchars($produto['nome'])?>" loading="lazy" />
+                    <img src="<?= htmlspecialchars($produto['imagem'])?>" alt="<?= htmlspecialchars($produto['nome'])?>"
+                        loading="lazy" />
                     <?php
         else: ?>
                     <div class="product-image-placeholder">
@@ -330,7 +337,7 @@ endif; ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
     <?php if (!empty($produtos_por_categoria)): ?>
-    <?php foreach($produtos_por_categoria as $categoria_id => $produtos): ?>
+    <?php foreach ($produtos_por_categoria as $categoria_id => $produtos): ?>
             new Swiper('.produtos-swiper-<?= $categoria_id?>', {
                 slidesPerView: 1.2,
                 spaceBetween: 16,

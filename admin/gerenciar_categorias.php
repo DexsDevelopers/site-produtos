@@ -72,6 +72,9 @@ endif; ?>
                                 class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
                                 Nome</th>
                             <th
+                                class="px-6 py-4 text-center text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                                Home</th>
+                            <th
                                 class="px-6 py-4 text-right text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
                                 Ações</th>
                         </tr>
@@ -115,6 +118,14 @@ else: ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                 <?= htmlspecialchars($categoria['nome'])?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <a href="processa_visibilidade_categoria.php?id=<?= $categoria['id']?>&visivel=<?= $categoria['exibir_home'] ? 0 : 1?>"
+                                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors <?= $categoria['exibir_home'] ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-admin-gray-800 text-admin-gray-500 border border-white/5'?>"
+                                    title="<?= $categoria['exibir_home'] ? 'Visível na Home' : 'Oculto na Home'?>">
+                                    <i class="fas <?= $categoria['exibir_home'] ? 'fa-eye' : 'fa-eye-slash'?>"></i>
+                                    <?= $categoria['exibir_home'] ? 'Na Home' : 'Oculto'?>
+                                </a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div

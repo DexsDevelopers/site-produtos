@@ -47,6 +47,9 @@ catch (Exception $e) {
                             class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
                             Preço</th>
                         <th
+                            class="px-6 py-4 text-center text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                            Vitrine</th>
+                        <th
                             class="px-6 py-4 text-right text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
                             Ações</th>
                     </tr>
@@ -89,6 +92,15 @@ catch (Exception $e) {
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-admin-gray-300">
                             <?= number_format($produto['preco'], 2, ',', '.')?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <a href="toggle_destaque_produto.php?id=<?= $produto['id']?>&destaque=<?= $produto['destaque'] ? 0 : 1?>"
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors <?= $produto['destaque'] ? 'bg-admin-primary/10 text-admin-primary border border-admin-primary/20' : 'bg-admin-gray-800 text-admin-gray-500 border border-white/5'?>"
+                                title="<?= $produto['destaque'] ? 'Produto em Destaque' : 'Marcar como Destaque'?>">
+                                <i
+                                    class="fas <?= $produto['destaque'] ? 'fa-star' : 'fa-star-half-alt text-admin-gray-600'?>"></i>
+                                <?= $produto['destaque'] ? 'Destaque' : 'Normal'?>
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-3">
