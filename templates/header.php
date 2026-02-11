@@ -90,6 +90,7 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
 
     <!-- Swiper -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <!-- Design System -->
     <link rel="stylesheet" href="assets/css/macario.css?v=2" />

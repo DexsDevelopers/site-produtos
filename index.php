@@ -1,3 +1,4 @@
+não e nos desta
 <?php
 // index.php — MACARIO BRAZIL E-commerce
 error_reporting(E_ALL);
@@ -172,40 +173,45 @@ endif; ?>
             </a>
         </div>
 
-        <div class="products-grid">
-            <?php foreach ($destaques as $idx => $produto): ?>
-            <a href="produto.php?id=<?= $produto['id']?>"
-                class="product-card reveal reveal-delay-<?= min($idx + 1, 4)?>">
-                <div class="product-image">
-                    <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
-                    <img src="<?= htmlspecialchars($produto['imagem'])?>" alt="<?= htmlspecialchars($produto['nome'])?>"
-                        loading="lazy" />
-                    <?php
+        <div class="swiper destaques-swiper">
+            <div class="swiper-wrapper">
+                <?php foreach ($destaques as $idx => $produto): ?>
+                <div class="swiper-slide" style="height:auto;">
+                    <a href="produto.php?id=<?= $produto['id']?>" class="product-card" style="height:100%;">
+                        <div class="product-image">
+                            <?php if (!empty($produto['imagem']) && file_exists($produto['imagem'])): ?>
+                            <img src="<?= htmlspecialchars($produto['imagem'])?>"
+                                alt="<?= htmlspecialchars($produto['nome'])?>" loading="lazy" />
+                            <?php
         else: ?>
-                    <div class="product-image-placeholder">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <?php
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <?php
         endif; ?>
-                    <?php if ($idx < 3): ?>
-                    <span class="product-badge">Novo</span>
-                    <?php
+                            <?php if ($idx < 3): ?>
+                            <span class="product-badge">Novo</span>
+                            <?php
         endif; ?>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category-tag">MACARIO BRAZIL</span>
+                            <h3 class="product-name">
+                                <?= htmlspecialchars($produto['nome'])?>
+                            </h3>
+                            <div class="product-price-row">
+                                <span class="product-price">
+                                    <?= formatarPreco($produto['preco'])?>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-                <div class="product-info">
-                    <span class="product-category-tag">MACARIO BRAZIL</span>
-                    <h3 class="product-name">
-                        <?= htmlspecialchars($produto['nome'])?>
-                    </h3>
-                    <div class="product-price-row">
-                        <span class="product-price">
-                            <?= formatarPreco($produto['preco'])?>
-                        </span>
-                    </div>
-                </div>
-            </a>
-            <?php
+                <?php
     endforeach; ?>
+            </div>
+            <!-- Pagination/Navigation if needed -->
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 </section>
@@ -336,9 +342,9 @@ endif; ?>
 <!-- Swiper Init -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    <? php if (!empty($produtos_por_categoria)): ?>
-    <? php foreach($produtos_por_categoria as $categoria_id => $produtos): ?>
-            new Swiper('.produtos-swiper-<?= $categoria_id?>', {
+        if (typeof Swiper !== 'undefined') {
+            // Init Destaques Swiper
+            new Swiper('.destaques-swiper', {
                 slidesPerView: 1.2,
                 spaceBetween: 16,
                 grabCursor: true,
@@ -348,11 +354,28 @@ endif; ?>
                     1024: { slidesPerView: 4, spaceBetween: 20 }
                 }
             });
-    <? php
+
+        // Init Categories Swipers
+        <?php if (!empty($produtos_por_categoria)): ?>
+        <?php foreach($produtos_por_categoria as $categoria_id => $produtos_cat): ?>
+                new Swiper('.produtos-swiper-<?= $categoria_id?>', {
+                    slidesPerView: 1.2,
+                    spaceBetween: 16,
+                    grabCursor: true,
+                    breakpoints: {
+                        480: { slidesPerView: 2.2, spaceBetween: 16 },
+                        768: { slidesPerView: 3, spaceBetween: 20 },
+                        1024: { slidesPerView: 4, spaceBetween: 20 }
+                    }
+                });
+        <?php
     endforeach; ?>
-    <? php
+        <?php
 endif; ?>
-});
+    } else {
+            console.error('Swiper não carregado');
+        }
+    });
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
