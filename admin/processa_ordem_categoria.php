@@ -9,39 +9,42 @@ if (isset($_GET['id']) && isset($_GET['direcao'])) {
     try {
         $pdo->beginTransaction();
 
-        // Pega a ordem atual da categoria que queremos mover
-        $stmt = $pdo->prepare("SELECT ordem FROM categorias WHERE id = ?");
-        $stmt->execute([$id_para_mover]);
-        $ordem_atual = $stmt->fetchColumn();
+        // 1. Pega todas as categorias no estado atual (ordenadas por ordem e ID)
+        $stmt = $pdo->query("SELECT id FROM categorias ORDER BY ordem ASC, id ASC");
+        $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        if ($direcao === 'up') {
-            // Encontra a categoria imediatamente ACIMA (a que tem a maior ordem menor que a atual)
-            $stmt = $pdo->prepare("SELECT id, ordem FROM categorias WHERE ordem < ? ORDER BY ordem DESC LIMIT 1");
-            $stmt->execute([$ordem_atual]);
-            $categoria_adjacente = $stmt->fetch(PDO::FETCH_ASSOC);
-        } elseif ($direcao === 'down') {
-            // Encontra a categoria imediatamente ABAIXO (a que tem a menor ordem maior que a atual)
-            $stmt = $pdo->prepare("SELECT id, ordem FROM categorias WHERE ordem > ? ORDER BY ordem ASC LIMIT 1");
-            $stmt->execute([$ordem_atual]);
-            $categoria_adjacente = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
+        // 2. Encontra a posição da categoria que queremos mover
+        $index = array_search($id_para_mover, $ids);
 
-        // Se uma categoria adjacente foi encontrada, troca as ordens
-        if (isset($categoria_adjacente) && $categoria_adjacente) {
-            // Atualiza a categoria adjacente para a ordem da categoria que estamos movendo
-            $stmt_update1 = $pdo->prepare("UPDATE categorias SET ordem = ? WHERE id = ?");
-            $stmt_update1->execute([$ordem_atual, $categoria_adjacente['id']]);
+        if ($index !== false) {
+            if ($direcao === 'up' && $index > 0) {
+                // Troca com o anterior
+                $temp = $ids[$index - 1];
+                $ids[$index - 1] = $ids[$index];
+                $ids[$index] = $temp;
+            }
+            elseif ($direcao === 'down' && $index < count($ids) - 1) {
+                // Troca com o próximo
+                $temp = $ids[$index + 1];
+                $ids[$index + 1] = $ids[$index];
+                $ids[$index] = $temp;
+            }
 
-            // Atualiza a categoria que estamos movendo para a ordem da categoria adjacente
-            $stmt_update2 = $pdo->prepare("UPDATE categorias SET ordem = ? WHERE id = ?");
-            $stmt_update2->execute([$categoria_adjacente['ordem'], $id_para_mover]);
+            // 3. Atualiza TODAS as categorias com a nova ordem consecutiva
+            $stmt_update = $pdo->prepare("UPDATE categorias SET ordem = ? WHERE id = ?");
+            foreach ($ids as $nova_ordem => $id_final) {
+                $stmt_update->execute([$nova_ordem, $id_final]);
+            }
         }
 
         $pdo->commit();
         $_SESSION['admin_message'] = "Ordem das categorias atualizada.";
 
-    } catch (PDOException $e) {
-        $pdo->rollBack();
+    }
+    catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         $_SESSION['admin_message'] = "Erro ao reordenar categorias: " . $e->getMessage();
     }
 }

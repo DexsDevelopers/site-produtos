@@ -42,9 +42,14 @@ catch (Exception $e) {
     <div class="lg:col-span-2">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-white">Categorias Ativas</h2>
-            <span class="text-sm text-admin-gray-400">
-                <?= count($categorias)?> categorias
-            </span>
+            <div class="flex items-center gap-4">
+                <a href="corrigir_ordem_categorias.php" class="text-xs text-admin-primary hover:underline">
+                    <i class="fas fa-sync-alt mr-1"></i> Corrigir Ordem
+                </a>
+                <span class="text-sm text-admin-gray-400">
+                    <?= count($categorias)?> categorias
+                </span>
+            </div>
         </div>
 
         <?php if (isset($_SESSION['admin_message'])): ?>
