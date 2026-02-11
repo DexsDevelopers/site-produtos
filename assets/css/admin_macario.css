@@ -278,3 +278,291 @@ header {
 .bottom-nav-item.active {
     color: var(--text-primary) !important;
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — Admin Panel
+   ═══════════════════════════════════════════ */
+
+/* Sidebar Mobile Animations */
+.admin-sidebar.is-open {
+    transform: translateX(0) !important;
+}
+
+.mobile-overlay.is-visible {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Safe area for iPhone notch */
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Mobile: < 640px ── */
+@media (max-width: 639px) {
+
+    /* Header compact */
+    header h2 {
+        font-size: 1rem !important;
+    }
+
+    /* Page title smaller on mobile */
+    main h1 {
+        font-size: 1.5rem !important;
+    }
+
+    main h2 {
+        font-size: 1.25rem !important;
+    }
+
+    /* Cards padding reduced */
+    .admin-card {
+        padding: 16px !important;
+    }
+
+    .admin-card.p-6,
+    .admin-card .p-6 {
+        padding: 16px !important;
+    }
+
+    .admin-card.p-8,
+    .admin-card .p-8 {
+        padding: 16px !important;
+    }
+
+    /* Stat cards compact */
+    .stat-card {
+        padding: 14px !important;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem !important;
+    }
+
+    .stat-card .w-12 {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+    }
+
+    /* Tables → Card Layout */
+    .admin-card table,
+    .admin-card thead,
+    .admin-card tbody,
+    .admin-card th,
+    .admin-card tr {
+        display: block !important;
+    }
+
+    .admin-card thead {
+        display: none !important;
+    }
+
+    .admin-card tbody tr {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        padding: 14px !important;
+        gap: 8px !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        position: relative !important;
+    }
+
+    .admin-card tbody tr:last-child {
+        border-bottom: none !important;
+    }
+
+    .admin-card tbody td {
+        display: inline-flex !important;
+        padding: 0 !important;
+        border: none !important;
+        white-space: normal !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Product table: make product name + image take full width */
+    .admin-card tbody td:first-child {
+        width: 100% !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* Actions stay at bottom right */
+    .admin-card tbody td:last-child {
+        margin-left: auto !important;
+    }
+
+    /* Buttons full width on mobile */
+    .btn-primary,
+    .bg-admin-primary,
+    a[class*="btn-primary"] {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+
+    /* Forms improve */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+        /* Prevent iOS zoom */
+        padding: 12px 14px !important;
+    }
+
+    /* File input */
+    input[type="file"] {
+        font-size: 14px !important;
+    }
+
+    /* Grid adjustments */
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Quick actions grid compact */
+    .grid.grid-cols-2.gap-3 a {
+        padding: 12px 8px !important;
+    }
+
+    .grid.grid-cols-2.gap-3 a span {
+        font-size: 0.6rem !important;
+    }
+
+    /* Bottom nav spacing */
+    main {
+        padding-bottom: 80px !important;
+    }
+
+    /* Sticky form on mobile: unstick */
+    .sticky {
+        position: relative !important;
+        top: auto !important;
+    }
+
+    /* Overflow-x-auto hint */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Product image in table */
+    .admin-card tbody td .w-12.h-12,
+    .admin-card tbody td .h-12.w-12 {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+
+    /* Action buttons spacing */
+    .flex.items-center.justify-end.gap-3 {
+        gap: 12px !important;
+    }
+
+    .flex.items-center.justify-end.gap-3 a {
+        font-size: 1rem !important;
+        padding: 4px !important;
+    }
+
+    /* Badge/tag smaller */
+    .inline-flex.items-center.px-2\.5.py-0\.5.rounded-full {
+        font-size: 0.65rem !important;
+        padding: 2px 8px !important;
+    }
+
+    /* Categories grid on mobile */
+    .grid.grid-cols-1.lg\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Category list items */
+    .admin-card tbody td .flex.items-center.gap-4 {
+        gap: 8px !important;
+    }
+}
+
+/* ── Tablet: 640px - 1023px ── */
+@media (min-width: 640px) and (max-width: 1023px) {
+    main h1 {
+        font-size: 1.75rem !important;
+    }
+
+    .admin-card {
+        padding: 20px !important;
+    }
+
+    /* Show tables normally but with less padding */
+    th,
+    td {
+        padding: 12px 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Bottom nav spacing */
+    main {
+        padding-bottom: 80px !important;
+    }
+
+    .sticky {
+        position: relative !important;
+        top: auto !important;
+    }
+}
+
+/* ── Animations ── */
+@keyframes admin-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: admin-fade-in 0.5s ease forwards;
+}
+
+/* Smooth transitions for all interactive elements */
+.admin-card,
+.stat-card,
+.btn-primary,
+input,
+select,
+textarea,
+a {
+    transition: all 0.2s ease !important;
+}
+
+/* Touch-friendly tap targets */
+@media (hover: none) and (pointer: coarse) {
+
+    a,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .admin-nav-item {
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .bottom-nav-item {
+        min-height: 48px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+
+    .admin-sidebar,
+    .bottom-nav,
+    .mobile-overlay {
+        display: none !important;
+    }
+
+    #main-wrapper {
+        margin-left: 0 !important;
+    }
+}
