@@ -21,6 +21,13 @@ foreach ($grupos_tamanho as $g) {
     $stmt->execute([$g['id']]);
     $tamanhos_json[$g['id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// Persistência de configurações básicas para cadastro em massa
+$config = $_SESSION['last_product_config'] ?? [];
+$last_tipo = $config['tipo'] ?? 'digital';
+$last_categoria = $config['categoria_id'] ?? 0;
+$last_grupo_tamanho = $config['grupo_tamanho_id'] ?? 0;
+$last_tamanhos_selecionados = $config['tamanhos_selecionados'] ?? [];
 ?>
 <div class="w-full max-w-4xl mx-auto">
     <h1 class="text-3xl font-black text-white mb-8">Adicionar Novo Produto</h1>
@@ -60,7 +67,8 @@ foreach ($grupos_tamanho as $g) {
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                         <option value="">Selecione uma categoria</option>
                         <?php foreach ($categorias as $categoria): ?>
-                        <option value="<?= $categoria['id']?>">
+                        <option value="<?= $categoria['id']?>" <?=$last_categoria==$categoria['id'] ? 'selected' : ''?>
+                            >
                             <?= htmlspecialchars($categoria['nome'])?>
                         </option>
                         <?php
@@ -73,7 +81,8 @@ endforeach; ?>
                     <label class="block text-sm font-medium text-admin-gray-300 mb-3">Tipo do Produto</label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="tipo-card relative cursor-pointer">
-                            <input type="radio" name="tipo" value="digital" checked class="sr-only peer">
+                            <input type="radio" name="tipo" value="digital" <?=$last_tipo==='digital' ? 'checked' : ''
+                               ?> class="sr-only peer">
                             <div
                                 class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
                                 <i class="fas fa-cloud-download-alt text-xl text-blue-400"></i>
@@ -83,7 +92,8 @@ endforeach; ?>
                             </div>
                         </label>
                         <label class="tipo-card relative cursor-pointer">
-                            <input type="radio" name="tipo" value="fisico" class="sr-only peer">
+                            <input type="radio" name="tipo" value="fisico" <?=$last_tipo==='fisico' ? 'checked' : ''?>
+                            class="sr-only peer">
                             <div
                                 class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
                                 <i class="fas fa-tshirt text-xl text-green-400"></i>
@@ -96,7 +106,7 @@ endforeach; ?>
                 </div>
 
                 <!-- ═══ SELEÇÃO DE TAMANHOS (aparece só para físico) ═══ -->
-                <div id="tamanhos-section" class="hidden">
+                <div id="tamanhos-section" class="<?= $last_tipo === 'fisico' ? '' : 'hidden'?>">
                     <div class="p-5 rounded-xl border border-white/10 bg-white/[0.02] space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <i class="fas fa-ruler-combined text-admin-gray-400"></i>
@@ -117,7 +127,7 @@ else: ?>
                             class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:border-admin-primary focus:outline-none">
                             <option value="">Selecione o grupo de tamanhos</option>
                             <?php foreach ($grupos_tamanho as $gt): ?>
-                            <option value="<?= $gt['id']?>">
+                            <option value="<?= $gt['id']?>" <?=$last_grupo_tamanho==$gt['id'] ? 'selected' : ''?>>
                                 <?= htmlspecialchars($gt['nome'])?>
                             </option>
                             <?php
@@ -180,6 +190,7 @@ endif; ?>
 <script>
     // Dados dos tamanhos por grupo
     const tamanhosPorGrupo = <?= json_encode($tamanhos_json)?>;
+    const tamanhosSelecionados = <?= json_encode($last_tamanhos_selecionados)?>;
 
     // Toggle seção de tamanhos baseado no tipo
     document.querySelectorAll('input[name="tipo"]').forEach(radio => {
@@ -191,6 +202,14 @@ endif; ?>
                 section.classList.add('hidden');
             }
         });
+    });
+
+    // Inicialização se já vier com grupo selecionado (sessão)
+    window.addEventListener('load', () => {
+        const select = document.getElementById('grupo-tamanho-select');
+        if (select && select.value) {
+            renderTamanhos(select.value);
+        }
     });
 
     // Quando grupo de tamanho muda, mostrar checkboxes

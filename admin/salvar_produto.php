@@ -50,6 +50,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
             }
 
             $_SESSION['admin_message'] = "Produto adicionado com sucesso!";
+
+            // Salva apenas configurações de estrutura para o próximo cadastro
+            $_SESSION['last_product_config'] = [
+                'tipo' => $tipo,
+                'categoria_id' => $categoria_id,
+                'grupo_tamanho_id' => $grupo_tamanho_id,
+                'tamanhos_selecionados' => $tamanhos_selecionados
+            ];
+
         }
         catch (PDOException $e) {
             $_SESSION['admin_message'] = "Erro ao salvar o produto: " . $e->getMessage();
@@ -58,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     else {
         $_SESSION['admin_message'] = "Erro ao fazer upload da imagem.";
     }
-    header("Location: adicionar_produto.php");
+    header("Location: adicionar_produto.php?success=1");
     exit();
 }
 
