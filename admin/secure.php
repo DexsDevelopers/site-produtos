@@ -6,14 +6,39 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. Verifica se o usuário está logado. Se não, redireciona para o login.
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../admin_login.php'); // Redireciona para login de admin
-    exit();
-}
-
-// Inclui a configuração do banco de dados
+// Inclui a configuração do banco de dados (necessário para verificação de cookie)
 require_once '../config.php';
+
+// 1. Verifica se o usuário está logado. Se não, tenta via cookie ou redireciona.
+if (!isset($_SESSION['user_id'])) {
+
+    $logged_via_cookie = false;
+
+    // Tenta Login via Cookie (Lembrar de Mim)
+    if (isset($_COOKIE['remember_token'])) {
+        try {
+            $token_hash = hash('sha256', $_COOKIE['remember_token']);
+            $stmt = $pdo->prepare("SELECT u.id, u.nome, u.role FROM user_sessions s JOIN usuarios u ON s.user_id = u.id WHERE s.token_hash = ? AND s.expires_at > NOW()");
+            $stmt->execute([$token_hash]);
+            $user_cookie = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user_cookie && $user_cookie['role'] === 'admin') {
+                $_SESSION['user_id'] = $user_cookie['id'];
+                $_SESSION['user_nome'] = $user_cookie['nome'];
+                $logged_via_cookie = true;
+            // Opcional: Renovar token aqui
+            }
+        }
+        catch (Exception $e) {
+        // Falha silenciosa no cookie, vai para login
+        }
+    }
+
+    if (!$logged_via_cookie) {
+        header('Location: ../admin_login.php');
+        exit();
+    }
+}
 
 // 2. Verifica se o usuário logado é realmente um administrador
 try {
@@ -23,11 +48,14 @@ try {
 
     // Se o usuário não for encontrado ou não tiver o cargo 'admin', redireciona para a página inicial
     if (!$usuario || $usuario['role'] !== 'admin') {
+        // Remove sessão e cookie se inválido
+        session_destroy();
+        setcookie('remember_token', '', time() - 3600, '/');
         header('Location: ../index.php');
         exit();
     }
-} catch (PDOException $e) {
-    // Em caso de erro no banco, redireciona por segurança
+}
+catch (PDOException $e) {
     header('Location: ../index.php');
     exit();
 }

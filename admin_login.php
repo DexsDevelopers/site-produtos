@@ -3,21 +3,43 @@
 session_start();
 require_once 'config.php';
 
-// Se já estiver logado como admin, redireciona
-if (isset($_SESSION['user_id'])) {
-    try {
-        $stmt = $pdo->prepare("SELECT role FROM usuarios WHERE id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+// MANUTENÇÃO: Cria tabela de sessões se não existir
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS user_sessions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        token_hash VARCHAR(64) NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (token_hash)
+    )");
+}
+catch (Exception $e) {
+}
 
-        if ($usuario && $usuario['role'] === 'admin') {
+// AUTO-LOGIN: Verifica Cookie "Lembrar de Mim"
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    try {
+        $token_hash = hash('sha256', $_COOKIE['remember_token']);
+        $stmt = $pdo->prepare("SELECT u.id, u.nome, u.role FROM user_sessions s JOIN usuarios u ON s.user_id = u.id WHERE s.token_hash = ? AND s.expires_at > NOW()");
+        $stmt->execute([$token_hash]);
+        $user_cookie = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user_cookie && $user_cookie['role'] === 'admin') {
+            $_SESSION['user_id'] = $user_cookie['id'];
+            $_SESSION['user_nome'] = $user_cookie['nome'];
             header('Location: admin/index.php');
             exit();
         }
     }
-    catch (PDOException $e) {
-    // Continua
+    catch (Exception $e) {
     }
+}
+
+// Se já estiver logado (por sessão), redireciona
+if (isset($_SESSION['user_id'])) {
+    header('Location: admin/index.php');
+    exit();
 }
 
 $erro = '';
@@ -40,6 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = $usuario['id'];
                     $_SESSION['user_nome'] = $usuario['nome'];
+
+                    // LEMBRAR DE MIM
+                    if (isset($_POST['remember'])) {
+                        try {
+                            $token = bin2hex(random_bytes(32));
+                            $token_hash = hash('sha256', $token);
+                            $expires = date('Y-m-d H:i:s', time() + (86400 * 30)); // 30 dias
+
+                            $stmt = $pdo->prepare("INSERT INTO user_sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)");
+                            $stmt->execute([$usuario['id'], $token_hash, $expires]);
+
+                            // Cookie seguro (apenas HTTPS se disponível)
+                            $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+                            setcookie('remember_token', $token, time() + (86400 * 30), '/', '', $secure, true);
+                        }
+                        catch (Exception $e) {
+                        }
+                    }
+
                     header('Location: admin/index.php');
                     exit();
                 }
@@ -185,6 +226,14 @@ endif; ?>
             <div class="input-group">
                 <label>Senha</label>
                 <input type="password" name="senha" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+                <input type="checkbox" name="remember" id="remember"
+                    style="width: 18px; height: 18px; cursor: pointer; accent-color: #fff;">
+                <label for="remember"
+                    style="margin: 0; cursor: pointer; color: #ccc; font-size: 0.9rem; text-transform: none; letter-spacing: normal;">Lembrar
+                    de mim</label>
             </div>
 
             <button type="submit" class="btn-submit">
