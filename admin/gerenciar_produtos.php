@@ -95,8 +95,15 @@ catch (Exception $e) {
                                         title="<?= htmlspecialchars($produto['nome'])?>">
                                         <?= htmlspecialchars($produto['nome'])?>
                                     </div>
-                                    <div class="text-xs text-admin-gray-500">ID:
-                                        <?= $produto['id']?>
+                                    <div class="text-xs text-admin-gray-500 flex items-center gap-2">
+                                        <span>ID:
+                                            <?= $produto['id']?>
+                                        </span>
+                                        <?php $tipo = $produto['tipo'] ?? 'digital'; ?>
+                                        <span
+                                            class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase <?= $tipo === 'fisico' ? 'bg-green-500/15 text-green-400' : 'bg-blue-500/15 text-blue-400'?>">
+                                            <?= $tipo === 'fisico' ? 'Físico' : 'Digital'?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

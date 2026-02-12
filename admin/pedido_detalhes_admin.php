@@ -46,7 +46,7 @@ if (!$pedido) {
 
 // Buscar Itens
 $itens = $pdo->prepare("SELECT pi.*, p.imagem 
-                        FROM itens_pedido pi 
+                        FROM pedido_itens pi 
                         JOIN produtos p ON pi.produto_id = p.id 
                         WHERE pi.pedido_id = ?");
 $itens->execute([$id]);
@@ -87,6 +87,13 @@ endif; ?>
                             <div class="text-white font-medium">
                                 <?= $item['nome_produto']?>
                             </div>
+                            <?php if (!empty($item['valor_tamanho'])): ?>
+                            <div class="text-[10px] uppercase font-bold text-admin-primary/70 tracking-tight">
+                                TAMANHO:
+                                <?= htmlspecialchars($item['valor_tamanho'])?>
+                            </div>
+                            <?php
+    endif; ?>
                             <div class="text-sm text-admin-gray-400">
                                 <?= $item['quantidade']?>x
                                 <?= number_format($item['preco_unitario'], 2, ',', '.')?>
@@ -182,11 +189,11 @@ endforeach; ?>
                 <form method="POST" class="space-y-3">
                     <select name="status"
                         class="w-full bg-admin-gray-800 text-white border border-admin-gray-600 rounded p-2">
-                        <option value="pendente" <?=$pedido['status']=='pendente' ? 'selected' : ''?>>Pendente</option>
-                        <option value="pago" <?=$pedido['status']=='pago' ? 'selected' : ''?>>Pago</option>
-                        <option value="enviado" <?=$pedido['status']=='enviado' ? 'selected' : ''?>>Enviado</option>
-                        <option value="entregue" <?=$pedido['status']=='entregue' ? 'selected' : ''?>>Entregue</option>
-                        <option value="cancelado" <?=$pedido['status']=='cancelado' ? 'selected' : ''?>>Cancelado
+                        <option value="pendente" <?= $pedido['status'] == 'pendente' ? 'selected' : '' ?>>Pendente</option>
+                        <option value="pago" <?= $pedido['status'] == 'pago' ? 'selected' : '' ?>>Pago</option>
+                        <option value="enviado" <?= $pedido['status'] == 'enviado' ? 'selected' : '' ?>>Enviado</option>
+                        <option value="entregue" <?= $pedido['status'] == 'entregue' ? 'selected' : '' ?>>Entregue</option>
+                        <option value="cancelado" <?= $pedido['status'] == 'cancelado' ? 'selected' : '' ?>>Cancelado
                         </option>
                     </select>
                     <button type="submit" name="mudar_status"

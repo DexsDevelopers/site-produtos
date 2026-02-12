@@ -53,6 +53,25 @@ try {
         }
         $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
     }
+
+    // Buscar tamanhos disponíveis para produto físico
+    $produto_tamanhos = [];
+    if ($produto_selecionado && ($produto_selecionado['tipo'] ?? 'digital') === 'fisico') {
+        try {
+            $stmt_tam = $pdo->prepare(
+                "SELECT t.id, t.valor, pt.estoque 
+                 FROM produto_tamanhos pt 
+                 JOIN tamanhos t ON pt.tamanho_id = t.id 
+                 WHERE pt.produto_id = ?
+                 ORDER BY t.ordem ASC"
+            );
+            $stmt_tam->execute([$produto_id]);
+            $produto_tamanhos = $stmt_tam->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch (Exception $e) {
+        // Tabela pode não existir
+        }
+    }
 }
 catch (Exception $e) {
     error_log("Erro em produto.php: " . $e->getMessage());
@@ -365,6 +384,20 @@ require_once 'templates/header.php';
         color: var(--text-muted);
         font-size: 0.85rem;
     }
+
+    /* Size selector */
+    .size-option:hover {
+        border-color: var(--text-primary) !important;
+        color: var(--text-primary) !important;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+    }
 </style>
 
 <!-- Breadcrumb -->
@@ -450,23 +483,55 @@ endif; ?>
             <?php
 endif; ?>
 
+            <!-- Size Selector (Physical products only) -->
+            <?php if (!empty($produto_tamanhos)): ?>
+            <div class="size-selector" style="margin-bottom:24px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <span style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-secondary);">Tamanho</span>
+                    <span id="selected-size-label" style="font-size:0.8rem;color:var(--text-muted);">Selecione</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <?php foreach ($produto_tamanhos as $tam): 
+                        $disponivel = $tam['estoque'] > 0;
+                    ?>
+                    <button type="button" 
+                            class="size-option <?= $disponivel ? '' : 'out-of-stock' ?>" 
+                            data-size-id="<?= $tam['id'] ?>" 
+                            data-size-value="<?= htmlspecialchars($tam['valor']) ?>"
+                            onclick="<?= $disponivel ? 'selectSize(this)' : 'void(0)' ?>"
+                            <?= $disponivel ? '' : 'disabled' ?>
+                            style="min-width:52px;padding:10px 16px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font-body);font-weight:600;font-size:0.9rem;cursor:<?= $disponivel ? 'pointer' : 'not-allowed' ?>;text-align:center;transition:all 0.2s ease; <?= $disponivel ? '' : 'opacity:0.4;position:relative;' ?>">
+                        <?= htmlspecialchars($tam['valor']) ?>
+                        <?php if (!$disponivel): ?>
+                        <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 7px; background: #ff4444; color: white; padding: 1px 4px; border-radius: 3px; font-weight: 900; text-transform: uppercase; white-space: nowrap;">Esgotado</span>
+                        <?php endif; ?>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+                <input type="hidden" id="selected-size-id" value="">
+            </div>
+            <?php endif; ?>
+
             <!-- Action Buttons -->
             <div style="display:flex;flex-direction:column;gap:12px;">
                 <?php if (!empty($metodos_pagamento)): ?>
                 <?php foreach ($metodos_pagamento as $metodo): ?>
                 <a href="<?= $metodo['url']?>?produto_id=<?= $produto_selecionado['id']?>&quantidade=1"
-                    class="product-action-btn product-action-primary">
+                    class="product-action-btn product-action-primary checkout-link"
+                    <?= !empty($produto_tamanhos) ? 'onclick="return validateSize(this)"' : '' ?>>
                     <i class="<?= $metodo['icon']?>"></i>
                     <?= htmlspecialchars($metodo['btn_text'])?>
                 </a>
                 <?php
     endforeach; ?>
                 <?php
-endif; ?>
+ endif; ?>
 
                 <form id="add-to-cart-form" style="margin:0;">
                     <input type="hidden" name="produto_id" value="<?= $produto_selecionado['id']?>">
-                    <button type="submit" class="product-action-btn product-action-secondary">
+                    <input type="hidden" name="tamanho_id" id="cart-tamanho-id" value="">
+                    <button type="submit" class="product-action-btn product-action-secondary"
+                        <?= !empty($produto_tamanhos) ? 'onclick="return validateSize(this)"' : '' ?>>
                         <i class="fas fa-shopping-bag"></i>
                         Adicionar ao Carrinho
                     </button>
@@ -549,6 +614,51 @@ endif; ?>
         document.querySelectorAll('.product-tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabName).classList.add('active');
         btn.classList.add('active');
+    }
+
+    // Size Selection
+    function selectSize(btn) {
+        // Remove active from all
+        document.querySelectorAll('.size-option').forEach(el => {
+            el.style.borderColor = 'var(--border-color)';
+            el.style.background = 'var(--bg-card)';
+            el.style.color = 'var(--text-secondary)';
+        });
+        // Activate selected
+        btn.style.borderColor = 'var(--text-primary)';
+        btn.style.background = 'var(--text-primary)';
+        btn.style.color = 'var(--bg-primary)';
+        // Update hidden inputs
+        const sizeId = btn.dataset.sizeId;
+        const sizeValue = btn.dataset.sizeValue;
+        document.getElementById('selected-size-id').value = sizeId;
+        document.getElementById('cart-tamanho-id').value = sizeId;
+        document.getElementById('selected-size-label').textContent = sizeValue;
+        // Update checkout links with size
+        document.querySelectorAll('.checkout-link').forEach(link => {
+            const url = new URL(link.href, window.location.origin);
+            url.searchParams.set('tamanho_id', sizeId);
+            link.href = url.toString();
+        });
+    }
+
+    function validateSize(link) {
+        const sizeId = document.getElementById('selected-size-id');
+        if (sizeId && !sizeId.value) {
+            // Visual shake effect
+            const selector = document.querySelector('.size-selector');
+            selector.style.animation = 'none';
+            selector.offsetHeight; // trigger reflow
+            selector.style.animation = 'shake 0.5s ease';
+            // Highlight
+            document.getElementById('selected-size-label').textContent = '⚠️ Selecione um tamanho';
+            document.getElementById('selected-size-label').style.color = '#f87171';
+            setTimeout(() => {
+                document.getElementById('selected-size-label').style.color = '';
+            }, 2000);
+            return false;
+        }
+        return true;
     }
 
     document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {

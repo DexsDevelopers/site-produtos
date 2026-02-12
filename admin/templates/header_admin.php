@@ -121,6 +121,12 @@ require_once dirname(__DIR__) . '/../config.php';
                     <span>Categorias</span>
                 </a>
 
+                <a href="gerenciar_tamanhos.php"
+                    class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_tamanhos.php' ? 'active' : ''?>">
+                    <i class="fas fa-ruler-combined w-5 text-center"></i>
+                    <span>Tamanhos</span>
+                </a>
+
                 <a href="gerenciar_banners.php"
                     class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
                     <i class="fas fa-image w-5 text-center group-hover:scale-110 transition-transform"></i>

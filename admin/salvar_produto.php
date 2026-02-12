@@ -1,5 +1,5 @@
 <?php
-// admin/salvar_produto.php (VERSÃO FINAL COM CORREÇÃO DE TIPO DE DADO)
+// admin/salvar_produto.php (COM SISTEMA DE TAMANHOS)
 require_once 'secure.php';
 
 // --- LÓGICA PARA ADICIONAR UM NOVO PRODUTO ---
@@ -12,6 +12,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $tipo = ($_POST['tipo'] ?? 'digital') === 'fisico' ? 'fisico' : 'digital';
+    $grupo_tamanho_id = !empty($_POST['grupo_tamanho_id']) ? (int)$_POST['grupo_tamanho_id'] : null;
+    $tamanhos_selecionados = $_POST['tamanhos_selecionados'] ?? [];
+
+    // Se for digital, limpa dados de tamanho
+    if ($tipo === 'digital') {
+        $grupo_tamanho_id = null;
+        $tamanhos_selecionados = [];
+    }
 
     if (empty($nome) || empty($preco) || empty($categoria_id) || !isset($_FILES['imagem']) || $_FILES['imagem']['error'] !== 0) {
         $_SESSION['admin_message'] = "Nome, Preço, Categoria e Imagem são obrigatórios.";
@@ -27,8 +36,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     if (move_uploaded_file($_FILES['imagem']['tmp_name'], $target_file)) {
         $imagem_path = "assets/uploads/" . $new_filename;
         try {
-            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id, destaque) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id, $destaque]);
+            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id, destaque, tipo, grupo_tamanho_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id, $destaque, $tipo, $grupo_tamanho_id]);
+            $novo_produto_id = $pdo->lastInsertId();
+
+            // Salvar tamanhos selecionados
+            if ($tipo === 'fisico' && !empty($tamanhos_selecionados)) {
+                $stmt_tam = $pdo->prepare("INSERT INTO produto_tamanhos (produto_id, tamanho_id, estoque) VALUES (?, ?, ?)");
+                foreach ($tamanhos_selecionados as $tam_id) {
+                    $estoque = (int)($_POST['estoque_' . $tam_id] ?? 0);
+                    $stmt_tam->execute([$novo_produto_id, (int)$tam_id, $estoque]);
+                }
+            }
+
             $_SESSION['admin_message'] = "Produto adicionado com sucesso!";
         }
         catch (PDOException $e) {
@@ -53,6 +73,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $tipo = ($_POST['tipo'] ?? 'digital') === 'fisico' ? 'fisico' : 'digital';
+    $grupo_tamanho_id = !empty($_POST['grupo_tamanho_id']) ? (int)$_POST['grupo_tamanho_id'] : null;
+    $tamanhos_selecionados = $_POST['tamanhos_selecionados'] ?? [];
+
+    // Se for digital, limpa dados de tamanho
+    if ($tipo === 'digital') {
+        $grupo_tamanho_id = null;
+        $tamanhos_selecionados = [];
+    }
 
     if (empty($nome) || empty($preco) || empty($id) || empty($categoria_id)) {
         $_SESSION['admin_message'] = "Nome, Preço e Categoria são obrigatórios.";
@@ -80,10 +109,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     }
 
     try {
-        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id, destaque = :destaque WHERE id = :id";
+        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id, destaque = :destaque, tipo = :tipo, grupo_tamanho_id = :grupo_tam WHERE id = :id";
         $stmt = $pdo->prepare($sql);
 
-        // A MÁGICA ESTÁ AQUI: bindParam força o tipo de dado correto
         $stmt->bindParam(':nome', $nome);
         $stmt->bindParam(':desc_curta', $descricao_curta);
         $stmt->bindParam(':desc', $descricao);
@@ -92,9 +120,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         $stmt->bindParam(':img', $imagem_path);
         $stmt->bindParam(':cat_id', $categoria_id, PDO::PARAM_INT);
         $stmt->bindParam(':destaque', $destaque, PDO::PARAM_INT);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Forçamos o ID a ser um INTEIRO
+        $stmt->bindParam(':tipo', $tipo);
+        $stmt->bindParam(':grupo_tam', $grupo_tamanho_id, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         $stmt->execute();
+
+        // Atualizar tamanhos: remove antigos e insere novos
+        $pdo->prepare("DELETE FROM produto_tamanhos WHERE produto_id = ?")->execute([$id]);
+        if ($tipo === 'fisico' && !empty($tamanhos_selecionados)) {
+            $stmt_tam = $pdo->prepare("INSERT INTO produto_tamanhos (produto_id, tamanho_id, estoque) VALUES (?, ?, ?)");
+            foreach ($tamanhos_selecionados as $tam_id) {
+                $estoque = (int)($_POST['estoque_' . $tam_id] ?? 0);
+                $stmt_tam->execute([$id, (int)$tam_id, $estoque]);
+            }
+        }
+
         $_SESSION['admin_message'] = "Produto atualizado com sucesso!";
     }
     catch (PDOException $e) {

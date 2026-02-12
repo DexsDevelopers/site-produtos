@@ -7,10 +7,11 @@ require_once 'includes/file_storage.php';
 // Se recebeu produto_id via GET, adiciona ao carrinho primeiro
 if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
     $produto_id = (int)$_GET['produto_id'];
+    $tamanho_id = (int)($_GET['tamanho_id'] ?? 0);
     $quantidade = max(1, (int)($_GET['quantidade'] ?? 1));
 
     if ($produto_id > 0) {
-        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem FROM produtos WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, tipo FROM produtos WHERE id = ?");
         $stmt->execute([$produto_id]);
         $produto = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -19,12 +20,24 @@ if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
                 $_SESSION['carrinho'] = [];
             }
 
+            $tamanho_valor = null;
+            if ($produto['tipo'] === 'fisico' && $tamanho_id > 0) {
+                $stmt_tam = $pdo->prepare("SELECT valor FROM tamanhos WHERE id = ?");
+                $stmt_tam->execute([$tamanho_id]);
+                $tamanho_valor = $stmt_tam->fetchColumn();
+            }
+
+            // Identificador único (Produto + Tamanho)
+            $cart_key = $produto_id . ($tamanho_id > 0 ? '_' . $tamanho_id : '');
+
             // Adiciona ou atualiza item no carrinho
-            $_SESSION['carrinho'][$produto_id] = [
+            $_SESSION['carrinho'][$cart_key] = [
                 'id' => $produto['id'],
                 'nome' => $produto['nome'],
                 'preco' => $produto['preco'],
                 'imagem' => $produto['imagem'],
+                'tamanho_id' => $tamanho_id,
+                'tamanho_valor' => $tamanho_valor,
                 'quantidade' => $quantidade
             ];
 
@@ -52,9 +65,10 @@ $valor_total = 0;
 
 foreach ($carrinho_itens as $item) {
     $valor_total += $item['preco'] * $item['quantidade'];
+    $nome_exibicao = $item['nome'] . (!empty($item['tamanho_valor']) ? ' - Tamanho: ' . $item['tamanho_valor'] : '');
     $items[] = [
-        'name' => $item['nome'],
-        'description' => $item['nome'], // Adicionando descrição obrigatória
+        'name' => $nome_exibicao,
+        'description' => $nome_exibicao,
         'price' => (int)round($item['preco'] * 100), // Preço em centavos
         'quantity' => (int)$item['quantidade']
     ];
@@ -74,11 +88,13 @@ try {
     $stmt->execute([$user_id, $valor_total]);
     $pedido_id = $pdo->lastInsertId();
 
-    $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?)");
+    $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, tamanho_id, valor_tamanho, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($carrinho_itens as $item) {
         $stmt_item->execute([
             $pedido_id,
             $item['id'],
+            $item['tamanho_id'] ?? null,
+            $item['tamanho_valor'] ?? null,
             $item['nome'],
             $item['quantidade'],
             $item['preco']

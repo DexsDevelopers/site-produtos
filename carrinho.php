@@ -6,45 +6,22 @@ require_once 'config.php';
 // Process Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $produto_id = (int)($_POST['produto_id'] ?? 0);
+    $cart_key = $_POST['cart_key'] ?? '';
 
     if (!isset($_SESSION['carrinho']))
         $_SESSION['carrinho'] = [];
 
     switch ($action) {
-        case 'add':
-            if ($produto_id > 0) {
-                $stmt = $pdo->prepare("SELECT id, nome, preco, imagem FROM produtos WHERE id = ?");
-                $stmt->execute([$produto_id]);
-                $produto = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($produto) {
-                    if (isset($_SESSION['carrinho'][$produto_id])) {
-                        $_SESSION['carrinho'][$produto_id]['quantidade']++;
-                    }
-                    else {
-                        $_SESSION['carrinho'][$produto_id] = [
-                            'id' => $produto['id'],
-                            'nome' => $produto['nome'],
-                            'preco' => $produto['preco'],
-                            'imagem' => $produto['imagem'],
-                            'quantidade' => 1
-                        ];
-                    }
-                }
-            }
-            break;
-
         case 'remove':
-            if ($produto_id > 0 && isset($_SESSION['carrinho'][$produto_id])) {
-                unset($_SESSION['carrinho'][$produto_id]);
+            if (!empty($cart_key) && isset($_SESSION['carrinho'][$cart_key])) {
+                unset($_SESSION['carrinho'][$cart_key]);
             }
             break;
 
         case 'update':
             $quantidade = max(1, (int)($_POST['quantidade'] ?? 1));
-            if ($produto_id > 0 && isset($_SESSION['carrinho'][$produto_id])) {
-                $_SESSION['carrinho'][$produto_id]['quantidade'] = $quantidade;
+            if (!empty($cart_key) && isset($_SESSION['carrinho'][$cart_key])) {
+                $_SESSION['carrinho'][$cart_key]['quantidade'] = $quantidade;
             }
             break;
 
@@ -93,7 +70,7 @@ else: ?>
 
         <!-- Lista de Itens -->
         <div style="display: flex; flex-direction: column; gap: 24px;">
-            <?php foreach ($carrinho_itens as $item): ?>
+            <?php foreach ($carrinho_itens as $cart_key => $item): ?>
             <div
                 style="display: flex; gap: 20px; background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); align-items: center;">
                 <!-- Imagem -->
@@ -106,16 +83,26 @@ else: ?>
         else: ?>
                     <div
                         style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: 2rem;">
-                        <i class="fas fa-image"></i></div>
+                        <i class="fas fa-image"></i>
+                    </div>
                     <?php
         endif; ?>
                 </div>
 
                 <!-- Info -->
                 <div style="flex: 1;">
-                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 4px;">
                         <?= htmlspecialchars($item['nome'])?>
                     </h3>
+                    
+                    <?php if (!empty($item['tamanho_valor'])): ?>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">
+                        <span style="text-transform: uppercase; font-weight: 600; font-size: 0.75rem; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+                            Tamanho: <?= htmlspecialchars($item['tamanho_valor']) ?>
+                        </span>
+                    </div>
+                    <?php endif; ?>
+
                     <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">
                         <?= formatarPreco($item['preco'])?>
                     </div>
@@ -124,7 +111,7 @@ else: ?>
                 <!-- Quantidade -->
                 <form method="POST" class="form-qtd" style="display: flex; align-items: center; gap: 8px;">
                     <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="produto_id" value="<?= $item['id']?>">
+                    <input type="hidden" name="cart_key" value="<?= $cart_key ?>">
                     <input type="number" name="quantidade" value="<?= $item['quantidade']?>" min="1" max="99"
                         style="width: 60px; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); text-align: center;"
                         onchange="this.form.submit()">
@@ -133,7 +120,7 @@ else: ?>
                 <!-- Remover -->
                 <form method="POST" onsubmit="return confirm('Remover este item?');">
                     <input type="hidden" name="action" value="remove">
-                    <input type="hidden" name="produto_id" value="<?= $item['id']?>">
+                    <input type="hidden" name="cart_key" value="<?= $cart_key ?>">
                     <button type="submit"
                         style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 8px;">
                         <i class="fas fa-trash"></i>
