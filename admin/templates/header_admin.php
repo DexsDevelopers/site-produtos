@@ -146,9 +146,15 @@ require_once dirname(__DIR__) . '/../config.php';
                 </a>
 
                 <a href="gerenciar_afiliados.php"
-                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_afiliados.php' ? 'active text-white bg-white/5' : ''?>">
                     <i class="fas fa-handshake w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span class="font-medium">Afiliados</span>
+                </a>
+
+                <a href="gestao_midias.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'gestao_midias.php' ? 'active text-white bg-white/5' : ''?>">
+                    <i class="fas fa-photo-video w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Mídias</span>
                 </a>
 
                 <a href="gerenciar_pagamentos.php"
@@ -193,6 +199,11 @@ require_once dirname(__DIR__) . '/../config.php';
                 class="w-10 h-10 bg-white rounded-full flex items-center justify-center -mt-6 border-4 border-black shadow-lg">
                 <i class="fas fa-plus text-black"></i>
             </div>
+        </a>
+        <a href="gestao_midias.php"
+            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'gestao_midias.php' ? 'active' : ''?>">
+            <i class="fas fa-photo-video"></i>
+            <span class="text-[10px] font-medium uppercase tracking-wide">Mídias</span>
         </a>
         <a href="pedidos.php"
             class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : ''?>">
