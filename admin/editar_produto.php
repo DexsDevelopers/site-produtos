@@ -191,17 +191,17 @@ function renderTamanhos(grupoId) {
         const estoque = tamanhosEstoque[tam.id] || 0;
         
         const div = document.createElement('div');
-        div.className = 'flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-all';
+        div.className = 'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all';
         div.innerHTML = `
-            <label class="flex items-center gap-2 cursor-pointer flex-1">
+            <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
                 <input type="checkbox" name="tamanhos_selecionados[]" value="${tam.id}" ${isChecked ? 'checked' : ''} 
-                       class="w-4 h-4 bg-admin-gray-800 border-admin-gray-600 rounded text-admin-primary focus:ring-admin-primary/20">
-                <span class="text-sm font-medium text-white">${tam.valor}</span>
+                       class="w-5 h-5 bg-admin-gray-800 border-admin-gray-600 rounded text-admin-primary focus:ring-0">
+                <span class="text-sm font-bold text-white uppercase">${tam.valor}</span>
             </label>
-            <div class="flex items-center gap-1">
-                <span class="text-[10px] text-admin-gray-500 uppercase font-bold">Estoque:</span>
+            <div class="flex items-center gap-2 bg-admin-gray-900/50 p-1.5 px-3 rounded-lg border border-white/5">
+                <span class="text-[9px] font-black text-admin-gray-500 uppercase tracking-tighter">Estoque</span>
                 <input type="number" name="estoque_${tam.id}" value="${estoque}" min="0" 
-                       class="w-16 p-1 bg-admin-gray-900 border border-admin-gray-700 rounded text-xs text-white text-center focus:border-admin-primary focus:outline-none">
+                       class="w-14 bg-transparent border-none p-0 text-sm font-bold text-white text-center focus:ring-0">
             </div>
         `;
         list.appendChild(div);
