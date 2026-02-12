@@ -112,9 +112,17 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                         </select>
 
                         <div id="tamanhos-checkboxes" class="<?= $grupo_tamanho_id ? '' : 'hidden' ?>">
-                            <label class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-3">
-                                Selecione os tamanhos e defina o estoque
-                            </label>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
+                                    Selecione os tamanhos e defina o estoque
+                                </label>
+                                <div class="flex items-center gap-2 bg-white/5 p-1 rounded-lg border border-white/10">
+                                    <input type="number" id="bulk-stock" placeholder="Qtd" min="0" class="w-16 p-1 bg-admin-gray-900 border-none rounded text-xs text-center text-white focus:ring-0">
+                                    <button type="button" onclick="aplicarEstoqueEmMassa()" class="text-[10px] font-bold uppercase bg-white text-black px-2 py-1 rounded hover:bg-gray-200 transition-colors">
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
                             <div id="tamanhos-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 <!-- Preenchido via JS -->
                             </div>
@@ -218,6 +226,19 @@ function selecionarTodos() {
 
 function deselecionarTodos() {
     document.querySelectorAll('#tamanhos-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+}
+
+function aplicarEstoqueEmMassa() {
+    const valor = document.getElementById('bulk-stock').value;
+    if (valor === '') return;
+    
+    document.querySelectorAll('#tamanhos-list div').forEach(div => {
+        const checkbox = div.querySelector('input[type="checkbox"]');
+        const stockInput = div.querySelector('input[type="number"]');
+        if (checkbox && checkbox.checked && stockInput) {
+            stockInput.value = valor;
+        }
+    });
 }
 </script>
 
