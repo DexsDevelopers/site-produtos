@@ -182,22 +182,24 @@ catch (Exception $e) {
 
                     <?php if (!empty($produtos_recentes)): ?>
                     <?php foreach ($produtos_recentes as $produto): ?>
-                    <div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
-                        <div class="w-12 h-12 bg-admin-gray-800 rounded-lg overflow-hidden">
-                            <img src="../<?= htmlspecialchars($produto['imagem'])?>"
-                                class="w-full h-full object-cover">
+                    <div
+                        class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/5 group">
+                        <div class="w-12 h-12 bg-admin-gray-800 rounded-lg overflow-hidden border border-white/10">
+                            <img src="../<?= htmlspecialchars($produto['imagem'])?>" class="w-full h-full object-cover">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-white truncate">
+                            <h4 class="font-medium text-white truncate text-sm">
                                 <?= htmlspecialchars($produto['nome'])?>
                             </h4>
-                            <p class="text-xs text-admin-gray-400">R$
+                            <p class="text-[10px] uppercase font-bold text-admin-primary tracking-wider mt-0.5">
+                                R$
                                 <?= number_format($produto['preco'], 2, ',', '.')?>
                             </p>
                         </div>
                         <a href="editar_produto.php?id=<?= $produto['id']?>"
-                            class="text-admin-gray-500 hover:text-white">
-                            <i class="fas fa-pen"></i>
+                            class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white text-admin-gray-400 hover:text-black rounded-lg transition-all"
+                            title="Editar">
+                            <i class="fas fa-pen text-xs"></i>
                         </a>
                     </div>
                     <?php
