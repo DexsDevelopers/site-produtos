@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 // admin/pedido_detalhes_admin.php
 require_once 'secure.php';
 $page_title = 'Detalhes do Pedido';
@@ -191,11 +189,11 @@ endforeach; ?>
                 <form method="POST" class="space-y-3">
                     <select name="status"
                         class="w-full bg-admin-gray-900 text-white border border-admin-gray-700 rounded p-2">
-                        <option value="pendente" <?=$pedido['status']=='pendente' ? 'selected' : ''?>>Pendente</option>
-                        <option value="pago" <?=$pedido['status']=='pago' ? 'selected' : ''?>>Pago</option>
-                        <option value="enviado" <?=$pedido['status']=='enviado' ? 'selected' : ''?>>Enviado</option>
-                        <option value="entregue" <?=$pedido['status']=='entregue' ? 'selected' : ''?>>Entregue</option>
-                        <option value="cancelado" <?=$pedido['status']=='cancelado' ? 'selected' : ''?>>Cancelado
+                        <option value="pendente" <?= $pedido['status'] == 'pendente' ? 'selected' : '' ?>>Pendente</option>
+                        <option value="pago" <?= $pedido['status'] == 'pago' ? 'selected' : '' ?>>Pago</option>
+                        <option value="enviado" <?= $pedido['status'] == 'enviado' ? 'selected' : '' ?>>Enviado</option>
+                        <option value="entregue" <?= $pedido['status'] == 'entregue' ? 'selected' : '' ?>>Entregue</option>
+                        <option value="cancelado" <?= $pedido['status'] == 'cancelado' ? 'selected' : '' ?>>Cancelado
                         </option>
                     </select>
                     <button type="submit" name="mudar_status"

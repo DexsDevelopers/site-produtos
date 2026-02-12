@@ -181,39 +181,43 @@ require_once dirname(__DIR__) . '/../config.php';
     </div>
 
     <!-- Bottom Navigation (Mobile Only) -->
+    <!-- Bottom Navigation (Mobile Only) Modernized -->
     <nav
-        class="bottom-nav fixed bottom-0 left-0 right-0 h-16 bg-admin-gray-800 border-t border-white/10 flex items-center justify-around lg:hidden z-40 px-2 safe-area-pb">
+        class="fixed bottom-0 left-0 right-0 h-[80px] bg-black/90 backdrop-blur-xl border-t border-white/5 flex items-end justify-around lg:hidden z-50 pb-5 px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+
         <a href="index.php"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''?>">
-            <i class="fas fa-tachometer-alt"></i>
-            <span class="text-[10px] font-medium uppercase tracking-wide">Home</span>
+            class="flex-1 flex flex-col items-center justify-end pb-2 gap-1 text-gray-500 hover:text-white transition-all active:text-white <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? '!text-white' : ''?>">
+            <div class="h-6 flex items-center"><i class="fas fa-home text-xl mb-0.5"></i></div>
+            <span class="text-[10px] font-medium tracking-wide">Início</span>
         </a>
-        <a href="gerenciar_produtos.php"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_produtos.php' ? 'active' : ''?>">
-            <i class="fas fa-box"></i>
-            <span class="text-[10px] font-medium uppercase tracking-wide">Prods</span>
-        </a>
-        <a href="adicionar_produto.php"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'adicionar_produto.php' ? 'active' : ''?>">
-            <div
-                class="w-10 h-10 bg-white rounded-full flex items-center justify-center -mt-6 border-4 border-black shadow-lg">
-                <i class="fas fa-plus text-black"></i>
-            </div>
-        </a>
-        <a href="gestao_midias.php"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'gestao_midias.php' ? 'active' : ''?>">
-            <i class="fas fa-photo-video"></i>
-            <span class="text-[10px] font-medium uppercase tracking-wide">Mídias</span>
-        </a>
+
         <a href="pedidos.php"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1 <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active' : ''?>">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="text-[10px] font-medium uppercase tracking-wide">Pedidos</span>
+            class="flex-1 flex flex-col items-center justify-end pb-2 gap-1 text-gray-500 hover:text-white transition-all active:text-white <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? '!text-white' : ''?>">
+            <div class="h-6 flex items-center"><i class="fas fa-box text-xl mb-0.5"></i></div>
+            <span class="text-[10px] font-medium tracking-wide">Pedidos</span>
         </a>
+
+        <!-- Central Add Button -->
+        <div class="relative w-16 flex justify-center z-10 pointer-events-none">
+            <div class="absolute -top-10 flex flex-col items-center pointer-events-auto">
+                <a href="adicionar_produto.php"
+                    class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.4)] border-4 border-black active:scale-95 transition-transform hover:shadow-[0_0_25px_rgba(255,255,255,0.6)]">
+                    <i class="fas fa-plus text-black text-xl"></i>
+                </a>
+                <span class="mt-1 text-[10px] font-medium text-gray-400 tracking-wide">Novo</span>
+            </div>
+        </div>
+
+        <a href="gestao_midias.php"
+            class="flex-1 flex flex-col items-center justify-end pb-2 gap-1 text-gray-500 hover:text-white transition-all active:text-white <?= basename($_SERVER['PHP_SELF']) == 'gestao_midias.php' ? '!text-white' : ''?>">
+            <div class="h-6 flex items-center"><i class="fas fa-photo-video text-xl mb-0.5"></i></div>
+            <span class="text-[10px] font-medium tracking-wide">Mídias</span>
+        </a>
+
         <button id="mobile-menu-btn"
-            class="bottom-nav-item flex flex-col items-center justify-center w-full h-full gap-1">
-            <i class="fas fa-bars"></i>
-            <span class="text-[10px] font-medium uppercase tracking-wide">Menu</span>
+            class="flex-1 flex flex-col items-center justify-end pb-2 gap-1 text-gray-500 hover:text-white transition-all active:text-white">
+            <div class="h-6 flex items-center"><i class="fas fa-bars text-xl mb-0.5"></i></div>
+            <span class="text-[10px] font-medium tracking-wide">Menu</span>
         </button>
     </nav>
 
