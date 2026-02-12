@@ -230,7 +230,7 @@ endif; ?>
 
             <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
                 <input type="checkbox" name="remember" id="remember"
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: #fff;">
+                    style="width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
                 <label for="remember"
                     style="margin: 0; cursor: pointer; color: #ccc; font-size: 0.9rem; text-transform: none; letter-spacing: normal;">Lembrar
                     de mim</label>
