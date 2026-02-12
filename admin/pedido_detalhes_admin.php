@@ -33,7 +33,7 @@ if (isset($_POST['mudar_status'])) {
 }
 
 // Buscar Pedido com LEFT JOIN para prevenir erros se usuário for deletado
-$stmt = $pdo->prepare("SELECT p.*, u.nome, u.email, u.telefone 
+$stmt = $pdo->prepare("SELECT p.*, u.nome, u.email 
                        FROM pedidos p 
                        LEFT JOIN usuarios u ON p.usuario_id = u.id 
                        WHERE p.id = ?");
@@ -182,10 +182,6 @@ endforeach; ?>
                     <div class="flex items-center gap-2">
                         <i class="fas fa-envelope w-5 opacity-50"></i>
                         <?= htmlspecialchars($pedido['email'] ?? 'E-mail não disponível')?>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-phone w-5 opacity-50"></i>
-                        <?= htmlspecialchars($pedido['telefone'] ?? 'Não informado')?>
                     </div>
                 </div>
             </div>
