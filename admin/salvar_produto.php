@@ -51,12 +51,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
 
             $_SESSION['admin_message'] = "Produto adicionado com sucesso!";
 
-            // Salva apenas configurações de estrutura para o próximo cadastro
+            // Coleta os estoques para persistência
+            $estoque_persist = [];
+            if ($tipo === 'fisico' && !empty($tamanhos_selecionados)) {
+                foreach ($tamanhos_selecionados as $tam_id) {
+                    $estoque_persist[$tam_id] = (int)($_POST['estoque_' . $tam_id] ?? 0);
+                }
+            }
+
+            // Salva configurações para o próximo cadastro (Cadastro em Massa)
             $_SESSION['last_product_config'] = [
                 'tipo' => $tipo,
                 'categoria_id' => $categoria_id,
                 'grupo_tamanho_id' => $grupo_tamanho_id,
-                'tamanhos_selecionados' => $tamanhos_selecionados
+                'tamanhos_selecionados' => $tamanhos_selecionados,
+                'tamanhos_estoque' => $estoque_persist
             ];
 
         }
