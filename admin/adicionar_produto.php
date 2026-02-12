@@ -88,7 +88,7 @@ endif; ?>
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:border-admin-primary focus:outline-none">
                         <option value="">Selecione uma categoria</option>
                         <?php foreach ($categorias as $cat): ?>
-                        <option value="<?= $cat['id']?>" <?= $last_categoria == $cat['id'] ? 'selected' : '' ?>>
+                        <option value="<?= $cat['id']?>" <?=$last_categoria==$cat['id'] ? 'selected' : ''?>>
                             <?= htmlspecialchars($cat['nome'])?>
                         </option>
                         <?php
@@ -101,8 +101,8 @@ endforeach; ?>
                     <label class="block text-sm font-medium text-admin-gray-300 mb-3">Tipo do Produto</label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="tipo-card relative cursor-pointer">
-                            <input type="radio" name="tipo" value="digital" <?= $last_tipo === 'digital' ? 'checked' : ''
-    ?> class="sr-only peer">
+                            <input type="radio" name="tipo" value="digital" <?=$last_tipo==='digital' ? 'checked' : ''
+                                ?> class="sr-only peer">
                             <div
                                 class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
                                 <i class="fas fa-cloud-download-alt text-xl text-blue-400"></i>
@@ -111,7 +111,7 @@ endforeach; ?>
                             </div>
                         </label>
                         <label class="tipo-card relative cursor-pointer">
-                            <input type="radio" name="tipo" value="fisico" <?= $last_tipo === 'fisico' ? 'checked' : '' ?>
+                            <input type="radio" name="tipo" value="fisico" <?=$last_tipo==='fisico' ? 'checked' : ''?>
                             class="sr-only peer">
                             <div
                                 class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
@@ -136,7 +136,7 @@ endforeach; ?>
                             class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white">
                             <option value="">Selecione o grupo de tamanhos</option>
                             <?php foreach ($grupos_tamanho as $gt): ?>
-                            <option value="<?= $gt['id']?>" <?= $last_grupo_tamanho == $gt['id'] ? 'selected' : '' ?>>
+                            <option value="<?= $gt['id']?>" <?=$last_grupo_tamanho==$gt['id'] ? 'selected' : ''?>>
                                 <?= htmlspecialchars($gt['nome'])?>
                             </option>
                             <?php
@@ -198,8 +198,8 @@ endforeach; ?>
 </div>
 
 <script>
-    const tamanhosPorGrupo = <?= json_encode($tamanhos_json)?>;
-    const tamanhosSelecionados = <?= json_encode($last_tamanhos_selecionados)?>;
+    const tamanhosPorGrupo = <?= json_encode($tamanhos_json) ?>;
+    const tamanhosSelecionados = <?= json_encode($last_tamanhos_selecionados) ?>;
 
     // Toggle seção Físico/Digital
     document.querySelectorAll('input[name="tipo"]').forEach(radio => {
@@ -223,10 +223,11 @@ endforeach; ?>
         list.innerHTML = '';
 
         tamanhosPorGrupo[grupoId].forEach(tam => {
-            const isChecked = tamanhosSelecionados.length === 0 |                ionados.includes(tam.id.toString()) ||
-                             s(parseInt(tam.id));
+            const isChecked = tamanhosSelecionados.length === 0 ||
+                tamanhosSelecionados.includes(tam.id.toString()) ||
+                tamanhosSelecionados.includes(parseInt(tam.id));
 
-            const div = docElement('div');
+            const div = document.createElement('div');
             div.className = 'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all';
             div.innerHTML = `
                 <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
@@ -247,7 +248,6 @@ endforeach; ?>
     const select = document.getElementById('grupo-tamanho-select');
     if (select) {
         select.addEventListener('change', (e) => renderTamanhos(e.target.value));
-        // Init caso já venha selecionado
         if (select.value) renderTamanhos(select.value);
     }
 
@@ -263,7 +263,8 @@ endforeach; ?>
         const val = document.getElementById('bulk-stock').value;
         if (val === '') return;
         document.querySelectorAll('#tamanhos-list div').forEach(div => {
-            const cb = div.quconst input = div.querySelector('input[type="number"]');
+            const cb = div.querySelector('input[type="checkbox"]');
+            const input = div.querySelector('input[type="number"]');
             if (cb && cb.checked && input) input.value = val;
         });
     }
