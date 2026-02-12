@@ -30,7 +30,62 @@ try {
     </div>
 
     <div class="admin-card overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Visualização Mobile (Cards) -->
+        <div class="md:hidden space-y-4 p-4">
+            <?php if (empty($pedidos)): ?>
+            <div class="text-center text-admin-gray-500 py-8">
+                <i class="fas fa-shopping-bag text-4xl mb-3 opacity-50"></i>
+                <p>Nenhum pedido encontrado.</p>
+            </div>
+            <?php else: ?>
+            <?php foreach ($pedidos as $pedido): 
+                     $statusClass = match(strtolower($pedido['status'])) {
+                        'pago', 'concluido', 'entregue' => 'status-success',
+                        'cancelado', 'recusado' => 'status-danger',
+                        'pendente', 'aguardando' => 'status-warning',
+                        default => 'bg-gray-500/10 text-gray-400 border border-gray-500/20 px-2.5 py-0.5 rounded-full text-xs font-medium'
+                    };
+                ?>
+            <div class="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-white font-bold block">#
+                            <?= $pedido['id'] ?>
+                        </span>
+                        <span class="text-xs text-admin-gray-400">
+                            <?= date('d/m/Y H:i', strtotime($pedido['data_pedido'])) ?>
+                        </span>
+                    </div>
+                    <span class="<?= $statusClass ?>">
+                        <?= htmlspecialchars($pedido['status']) ?>
+                    </span>
+                </div>
+
+                <div>
+                    <div class="text-sm text-white font-medium">
+                        <?= htmlspecialchars($pedido['nome_cliente'] ?? 'Cliente Removido') ?>
+                    </div>
+                    <div class="text-xs text-admin-gray-500">
+                        <?= htmlspecialchars($pedido['email_cliente'] ?? '-') ?>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                    <span class="text-white font-bold">
+                        <?= formatarPreco($pedido['valor_total']) ?>
+                    </span>
+                    <a href="pedido_detalhes_admin.php?id=<?= $pedido['id'] ?>"
+                        class="text-xs font-bold text-admin-primary bg-admin-primary/10 px-3 py-2 rounded-lg hover:bg-admin-primary/20 transition-all">
+                        DETALHES <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- Visualização Desktop (Tabela) -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full">
                 <thead>
                     <tr class="bg-admin-gray-800/50">
