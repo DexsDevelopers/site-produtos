@@ -14,7 +14,7 @@ try {
     $categorias_pais = [];
 
     foreach ($todas_categorias as $cat) {
-        if ($cat['parent_id'] === null) {
+        if (empty($cat['parent_id'])) {
             $categorias_hierarquia[$cat['id']] = $cat;
             $categorias_hierarquia[$cat['id']]['subcategorias'] = [];
             $categorias_pais[] = $cat;
@@ -22,7 +22,7 @@ try {
     }
 
     foreach ($todas_categorias as $cat) {
-        if ($cat['parent_id'] !== null && isset($categorias_hierarquia[$cat['parent_id']])) {
+        if (!empty($cat['parent_id']) && isset($categorias_hierarquia[$cat['parent_id']])) {
             $categorias_hierarquia[$cat['parent_id']]['subcategorias'][] = $cat;
         }
     }
@@ -73,13 +73,35 @@ catch (Exception $e) {
                                 da Categoria</label>
                             <input type="text" name="nome" required placeholder="Ex: Tênis" class="w-full">
                         </div>
+                        <!-- Tipo de Categoria -->
                         <div>
+                            <label
+                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Tipo
+                                de Categoria</label>
+                            <div class="flex gap-4 mb-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="tipo_categoria" value="principal" checked
+                                        onclick="document.getElementById('parent_select_container').classList.add('hidden'); document.getElementById('parent_id_select').value = '';"
+                                        class="text-admin-primary focus:ring-admin-primary bg-admin-gray-900 border-white/10">
+                                    <span class="text-white text-sm">Principal</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="tipo_categoria" value="subcategoria"
+                                        onclick="document.getElementById('parent_select_container').classList.remove('hidden')"
+                                        class="text-admin-primary focus:ring-admin-primary bg-admin-gray-900 border-white/10">
+                                    <span class="text-white text-sm">Subcategoria</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Select de Pai (Oculto inicialmente) -->
+                        <div id="parent_select_container" class="hidden">
                             <label for="parent_id"
-                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Categoria
-                                Pai (Opcional)</label>
-                            <select name="parent_id"
-                                class="w-full bg-admin-gray-900 border border-white/10 text-white p-2 rounded-lg">
-                                <option value="">Nenhuma (Pai)</option>
+                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Selecione
+                                a Categoria Pai</label>
+                            <select name="parent_id" id="parent_id_select"
+                                class="w-full bg-admin-gray-900 border border-white/10 text-white p-2 rounded-lg focus:border-admin-primary focus:ring-1 focus:ring-admin-primary outline-none">
+                                <option value="" selected disabled>Escolha uma categoria...</option>
                                 <?php foreach ($categorias_pais as $pai): ?>
                                 <option value="<?= $pai['id']?>">
                                     <?= htmlspecialchars($pai['nome'])?>
@@ -87,7 +109,6 @@ catch (Exception $e) {
                                 <?php
 endforeach; ?>
                             </select>
-                            <p class="text-[10px] text-admin-gray-500 mt-1">Selecione para criar uma subcategoria.</p>
                         </div>
                         <button type="submit" name="adicionar"
                             class="btn btn-primary w-full bg-white text-black hover:bg-gray-200">

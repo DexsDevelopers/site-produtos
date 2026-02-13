@@ -76,19 +76,36 @@ if ($categoria_id > 0) {
                         <p class="text-xs text-admin-gray-400 mt-1">Nome que aparecerá na loja</p>
                     </div>
 
+                    <!-- Tipo de Categoria e Pai -->
                     <div>
+                        <label class="block text-sm font-medium text-admin-gray-300 mb-2">
+                            Tipo de Categoria
+                        </label>
+                        <div class="flex gap-4 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer bg-admin-gray-900 border border-white/10 px-4 py-2 rounded-lg hover:border-admin-primary/50 transition-colors">
+                                <input type="radio" name="tipo_categoria" value="principal" <?= empty($categoria['parent_id']) ? 'checked' : '' ?> onclick="document.getElementById('parent_id_container').classList.add('hidden'); document.getElementById('parent_id').value = '';" class="text-admin-primary focus:ring-admin-primary bg-admin-gray-800 border-white/20">
+                                <span class="text-white text-sm">Principal</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer bg-admin-gray-900 border border-white/10 px-4 py-2 rounded-lg hover:border-admin-primary/50 transition-colors">
+                                <input type="radio" name="tipo_categoria" value="subcategoria" <?= !empty($categoria['parent_id']) ? 'checked' : '' ?> onclick="document.getElementById('parent_id_container').classList.remove('hidden')" class="text-admin-primary focus:ring-admin-primary bg-admin-gray-800 border-white/20">
+                                <span class="text-white text-sm">Subcategoria</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="parent_id_container" class="<?= empty($categoria['parent_id']) ? 'hidden' : '' ?>">
                         <label for="parent_id" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                            Categoria Pai
+                            Selecione a Categoria Pai
                         </label>
                         <select name="parent_id" id="parent_id" class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all">
-                            <option value="">Nenhuma (Categoria Principal)</option>
+                            <option value="">Escolha uma categoria...</option>
                             <?php foreach ($categorias_pais as $pai): ?>
                                 <option value="<?= $pai['id'] ?>" <?= (isset($categoria['parent_id']) && $categoria['parent_id'] == $pai['id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($pai['nome']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="text-xs text-admin-gray-400 mt-1">Transforme esta categoria em uma subcategoria</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Este item será uma subcategoria da opção selecionada.</p>
                     </div>
 
                     <div>
