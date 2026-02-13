@@ -19,7 +19,8 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ]);
-} catch (PDOException $e) {
+}
+catch (PDOException $e) {
     // Em caso de erro, mostra uma mensagem mais amigável
     die("Erro de conexão com o banco de dados. Verifique as configurações.");
 }
@@ -30,50 +31,63 @@ require_once __DIR__ . '/includes/file_storage.php';
 $fileStorage = new FileStorage();
 
 // --- FUNÇÕES GLOBAIS ---
-function formatarPreco($preco) {
-    if (!is_numeric($preco)) { return 'R$ 0,00'; }
+function formatarPreco($preco)
+{
+    if (!is_numeric($preco)) {
+        return 'R$ 0,00';
+    }
     return 'R$ ' . number_format((float)$preco, 2, ',', '.');
 }
 
-function formatarPrecoPagBank($preco) {
-    if (!is_numeric($preco)) { return '0.00'; }
+function formatarPrecoPagBank($preco)
+{
+    if (!is_numeric($preco)) {
+        return '0.00';
+    }
     return number_format((float)$preco, 2, '.', '');
 }
 
 // --- FUNÇÕES DE SEGURANÇA ---
-function sanitizarEntrada($dados) {
+function sanitizarEntrada($dados)
+{
     if (is_array($dados)) {
         return array_map('sanitizarEntrada', $dados);
     }
     return htmlspecialchars(trim($dados), ENT_QUOTES, 'UTF-8');
 }
 
-function validarEmail($email) {
+function validarEmail($email)
+{
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
-function validarSenha($senha) {
+function validarSenha($senha)
+{
     return strlen($senha) >= 6;
 }
 
-function gerarTokenCSRF() {
+function gerarTokenCSRF()
+{
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
 
-function verificarTokenCSRF($token) {
+function verificarTokenCSRF($token)
+{
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-function redirecionarComMensagem($url, $tipo, $mensagem) {
+function redirecionarComMensagem($url, $tipo, $mensagem)
+{
     $_SESSION[$tipo . '_message'] = $mensagem;
     header("Location: $url");
     exit();
 }
 
-function exibirMensagem($tipo) {
+function exibirMensagem($tipo)
+{
     if (isset($_SESSION[$tipo . '_message'])) {
         $mensagem = $_SESSION[$tipo . '_message'];
         unset($_SESSION[$tipo . '_message']);
@@ -88,4 +102,33 @@ if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
 }
+
+// --- CONTADOR DE VISITAS (Simples) ---
+try {
+    // Verifica se a tabela existe (para evitar erros em migrações)
+    // Em produção, isso deveria ser feito apenas na instalação, mas aqui garante robustez
+
+    $visitante_ip = $_SERVER['REMOTE_ADDR'];
+    $data_hoje = date('Y-m-d');
+
+    // Cookie para não contar o mesmo usuário várias vezes no dia (sessão de 24h)
+    if (!isset($_COOKIE['visita_hoje'])) {
+        // Registra no banco
+        $stmt_visita = $pdo->prepare("INSERT INTO site_visitas (ip_address, data_visita, hora_visita, pagina_visitada, user_agent) VALUES (?, ?, ?, ?, ?)");
+        $stmt_visita->execute([
+            $visitante_ip,
+            $data_hoje,
+            date('H:i:s'),
+            $_SERVER['REQUEST_URI'] ?? 'home',
+            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+        ]);
+
+        // Define cookie por 24 horas
+        setcookie('visita_hoje', '1', time() + 86400, "/");
+    }
+}
+catch (Exception $e) {
+// Silencia erros de log para não atrapalhar a navegação
+}
+
 ?>

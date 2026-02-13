@@ -11,6 +11,12 @@ $vendas_hoje = 0;
 $faturamento = 0;
 
 try {
+    // 0. Visitas Hoje
+    $visitas_hoje = 0;
+    $stmt = $pdo->query("SELECT COUNT(DISTINCT ip_address) FROM site_visitas WHERE data_visita = CURDATE()");
+    if ($stmt)
+        $visitas_hoje = $stmt->fetchColumn();
+
     // 1. Total Produtos
     $stmt = $pdo->query("SELECT COUNT(*) FROM produtos");
     if ($stmt)
@@ -71,7 +77,21 @@ catch (PDOException $e) {
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-6">
+        <!-- Visitas Hoje -->
+        <div class="stat-card rounded-xl p-6 group cursor-default">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
+                    <i class="fas fa-eye text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-admin-primary bg-admin-primary/10 px-2 py-1 rounded">Hoje</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">
+                <?= $visitas_hoje?>
+            </h3>
+            <p class="text-sm text-admin-gray-400">Acessos ao site</p>
+        </div>
         <!-- Vendas Hoje -->
         <div class="stat-card rounded-xl p-6 group cursor-default">
             <div class="flex items-center justify-between mb-4">
