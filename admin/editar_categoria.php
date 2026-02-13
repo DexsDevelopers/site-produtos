@@ -40,7 +40,8 @@ if ($categoria_id > 0) {
     <div class="flex items-center justify-between mb-8">
         <div>
             <h1 class="text-3xl font-bold text-white">
-                <?= $categoria ? 'Editar Categoria' : 'Nova Categoria' ?>
+                <?= $categoria ? 'Editar Categoria' : 'Nova Categoria' ?> 
+                <span class="text-xs bg-admin-primary/20 text-admin-primary px-2 py-1 rounded-full ml-2">v<?= date('H:i') ?></span>
             </h1>
             <p class="text-admin-gray-400 mt-2">
                 <?= $categoria ? 'Modifique os dados da categoria' : 'Crie uma nova categoria para organizar seus produtos' ?>
