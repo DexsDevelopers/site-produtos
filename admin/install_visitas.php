@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once '../config.php';
 try {
     $sql = "CREATE TABLE IF NOT EXISTS site_visitas (
         id INT AUTO_INCREMENT PRIMARY KEY,
