@@ -62,7 +62,7 @@ catch (Exception $e) {
     <!-- Form Section -->
     <div class="lg:col-span-1">
         <div class="sticky top-24 space-y-6">
-            <h2 class="text-2xl font-bold text-white">Nova Categoria</h2>
+            <h2 class="text-2xl font-bold text-white">Nova Categoria <!-- V: <?= date('Y-m-d H:i:s')?> --></h2>
 
             <div class="admin-card p-6">
                 <form action="processa_categoria.php" method="POST">
