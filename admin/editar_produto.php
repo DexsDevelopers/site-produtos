@@ -13,7 +13,31 @@ if ($produto_id > 0) {
     } catch (PDOException $e) { die("Erro ao buscar produto: " . $e->getMessage()); }
 }
 if (!$produto) { $_SESSION['admin_message'] = "Produto não encontrado."; header("Location: index.php"); exit(); }
-$categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
+$stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
+$todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+
+// Organiza em hierarquia
+$categorias = [];
+$pais = [];
+foreach ($todas_categorias as $cat) {
+    if ($cat['parent_id'] === null) {
+        $pais[$cat['id']] = $cat;
+        $pais[$cat['id']]['subcategorias'] = [];
+    }
+}
+foreach ($todas_categorias as $cat) {
+    if ($cat['parent_id'] !== null && isset($pais[$cat['parent_id']])) {
+        $pais[$cat['parent_id']]['subcategorias'][] = $cat;
+    }
+}
+// Lista plana para o select
+foreach ($pais as $pai) {
+    $categorias[] = $pai;
+    foreach ($pai['subcategorias'] as $sub) {
+        $sub['is_sub'] = true;
+        $categorias[] = $sub;
+    }
+}
 
 // Tipo do produto (default: digital)
 $tipo_produto = $produto['tipo'] ?? 'digital';
@@ -60,7 +84,11 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                     <label for="categoria_id" class="block text-sm font-medium text-admin-gray-300 mb-2">Categoria</label>
                     <select name="categoria_id" required class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                         <option value="">Selecione uma categoria</option>
-                        <?php foreach ($categorias as $categoria): ?><option value="<?= $categoria['id'] ?>" <?= ($produto['categoria_id'] == $categoria['id']) ? 'selected' : '' ?>><?= htmlspecialchars($categoria['nome']) ?></option><?php endforeach; ?>
+                        <?php foreach ($categorias as $cat): ?>
+                        <option value="<?= $cat['id'] ?>" <?= ($produto['categoria_id'] == $cat['id']) ? 'selected' : '' ?>>
+                            <?= isset($cat['is_sub']) ? '— ' : '' ?><?= htmlspecialchars($cat['nome']) ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 

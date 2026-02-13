@@ -18,19 +18,36 @@ try {
         exit;
     }
 
+    // Busca IDs de subcategorias (caso esta seja uma categoria pai)
+    $ids_categorias = [$categoria_id];
+    try {
+        $stmt_subs = $pdo->prepare("SELECT id FROM categorias WHERE parent_id = ?");
+        $stmt_subs->execute([$categoria_id]);
+        $subs = $stmt_subs->fetchAll(PDO::FETCH_COLUMN);
+        if (!empty($subs)) {
+            $ids_categorias = array_merge($ids_categorias, $subs);
+        }
+    }
+    catch (PDOException $e) {
+    // Se a coluna parent_id não existir ainda, ignora
+    }
+
     // Paginação
+    $placeholders = implode(',', array_fill(0, count($ids_categorias), '?'));
     $offset = ($pagina - 1) * $itens_por_pagina;
-    $count_stmt = $pdo->prepare("SELECT COUNT(*) FROM produtos WHERE categoria_id = ?");
-    $count_stmt->execute([$categoria_id]);
+
+    $count_stmt = $pdo->prepare("SELECT COUNT(*) FROM produtos WHERE categoria_id IN ($placeholders)");
+    $count_stmt->execute($ids_categorias);
     $total_produtos = $count_stmt->fetchColumn();
     $total_paginas = ceil($total_produtos / $itens_por_pagina);
 
     // Produtos
-    $stmt_prod = $pdo->prepare("SELECT * FROM produtos WHERE categoria_id = ? ORDER BY id DESC LIMIT ? OFFSET ?");
-    $stmt_prod->bindValue(1, $categoria_id, PDO::PARAM_INT);
-    $stmt_prod->bindValue(2, $itens_por_pagina, PDO::PARAM_INT);
-    $stmt_prod->bindValue(3, $offset, PDO::PARAM_INT);
-    $stmt_prod->execute();
+    $ids_para_produtos = $ids_categorias;
+    $ids_para_produtos[] = $itens_por_pagina;
+    $ids_para_produtos[] = $offset;
+
+    $stmt_prod = $pdo->prepare("SELECT * FROM produtos WHERE categoria_id IN ($placeholders) ORDER BY id DESC LIMIT ? OFFSET ?");
+    $stmt_prod->execute($ids_para_produtos);
     $produtos = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
 
 }

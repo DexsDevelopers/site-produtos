@@ -6,22 +6,54 @@ require_once 'templates/header_admin.php';
 
 // Busca todas as categorias
 try {
-    $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
+    $todas_categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Organiza em hierarquia
+    $categorias_hierarquia = [];
+    $categorias_pais = [];
+
+    foreach ($todas_categorias as $cat) {
+        if ($cat['parent_id'] === null) {
+            $categorias_hierarquia[$cat['id']] = $cat;
+            $categorias_hierarquia[$cat['id']]['subcategorias'] = [];
+            $categorias_pais[] = $cat;
+        }
+    }
+
+    foreach ($todas_categorias as $cat) {
+        if ($cat['parent_id'] !== null && isset($categorias_hierarquia[$cat['parent_id']])) {
+            $categorias_hierarquia[$cat['parent_id']]['subcategorias'][] = $cat;
+        }
+    }
+
+    // Lista plana para o loop da tabela (mantendo a ordem hierárquica)
+    $categorias = [];
+    foreach ($categorias_hierarquia as $pai) {
+        $categorias[] = $pai;
+        if (!empty($pai['subcategorias'])) {
+            foreach ($pai['subcategorias'] as $sub) {
+                $sub['is_sub'] = true;
+                $categorias[] = $sub;
+            }
+        }
+    }
 }
 catch (Exception $e) {
-    // Se a coluna exibir_home não existir, tenta migrar automaticamente
-    if (strpos($e->getMessage(), 'Unknown column \'exibir_home\'') !== false) {
+    // Se a coluna parent_id não existir, tenta migrar automaticamente
+    if (strpos($e->getMessage(), 'Unknown column \'parent_id\'') !== false) {
+        $pdo->exec("ALTER TABLE categorias ADD COLUMN parent_id INT DEFAULT NULL");
+        header("Location: gerenciar_categorias.php");
+        exit();
+    }
+    else if (strpos($e->getMessage(), 'Unknown column \'exibir_home\'') !== false) {
         require_once 'migrar_destaques.php';
-        // Tenta buscar novamente após migrar
-        try {
-            $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC')->fetchAll(PDO::FETCH_ASSOC);
-        }
-        catch (Exception $e2) {
-            $categorias = [];
-        }
+        header("Location: gerenciar_categorias.php");
+        exit();
     }
     else {
         $categorias = [];
+        $categorias_pais = [];
     }
 }
 ?>
@@ -40,6 +72,22 @@ catch (Exception $e) {
                                 class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Nome
                                 da Categoria</label>
                             <input type="text" name="nome" required placeholder="Ex: Tênis" class="w-full">
+                        </div>
+                        <div>
+                            <label for="parent_id"
+                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Categoria
+                                Pai (Opcional)</label>
+                            <select name="parent_id"
+                                class="w-full bg-admin-gray-900 border border-white/10 text-white p-2 rounded-lg">
+                                <option value="">Nenhuma (Pai)</option>
+                                <?php foreach ($categorias_pais as $pai): ?>
+                                <option value="<?= $pai['id']?>">
+                                    <?= htmlspecialchars($pai['nome'])?>
+                                </option>
+                                <?php
+endforeach; ?>
+                            </select>
+                            <p class="text-[10px] text-admin-gray-500 mt-1">Selecione para criar uma subcategoria.</p>
                         </div>
                         <button type="submit" name="adicionar"
                             class="btn btn-primary w-full bg-white text-black hover:bg-gray-200">
@@ -83,7 +131,7 @@ endif; ?>
                                 Ordem</th>
                             <th
                                 class="px-6 py-4 text-left text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
-                                Nome</th>
+                                Nome / Subcat</th>
                             <th
                                 class="px-6 py-4 text-center text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
                                 Home</th>
@@ -95,14 +143,15 @@ endif; ?>
                     <tbody class="divide-y divide-white/5">
                         <?php if (empty($categorias)): ?>
                         <tr>
-                            <td colspan="3" class="px-6 py-12 text-center text-admin-gray-500">
+                            <td colspan="4" class="px-6 py-12 text-center text-admin-gray-500">
                                 Nenhuma categoria cadastrada.
                             </td>
                         </tr>
                         <?php
 else: ?>
                         <?php foreach ($categorias as $index => $categoria): ?>
-                        <tr class="group hover:bg-white/5 transition-colors">
+                        <tr
+                            class="group hover:bg-white/5 transition-colors <?= isset($categoria['is_sub']) ? 'bg-white/[0.02]' : ''?>">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <div class="flex flex-col gap-1">
@@ -130,7 +179,22 @@ else: ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                                <?= htmlspecialchars($categoria['nome'])?>
+                                <div class="flex items-center gap-2">
+                                    <?php if (isset($categoria['is_sub'])): ?>
+                                    <span class="text-admin-gray-600 ml-4"><i
+                                            class="fas fa-level-up-alt fa-rotate-90"></i></span>
+                                    <span class="text-admin-gray-300">
+                                        <?= htmlspecialchars($categoria['nome'])?>
+                                    </span>
+                                    <?php
+        else: ?>
+                                    <i class="fas fa-folder text-admin-primary/50 mr-1"></i>
+                                    <span class="text-white font-bold">
+                                        <?= htmlspecialchars($categoria['nome'])?>
+                                    </span>
+                                    <?php
+        endif; ?>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <a href="processa_visibilidade_categoria.php?id=<?= $categoria['id']?>&visivel=<?= $categoria['exibir_home'] ? 0 : 1?>"

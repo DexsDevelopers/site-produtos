@@ -17,11 +17,21 @@ if ($categoria_id > 0) {
             header("Location: gerenciar_categorias.php");
             exit();
         }
+
+        // Busca categorias que podem ser pais (não podem ser a própria categoria)
+        $stmt_pais = $pdo->prepare("SELECT id, nome FROM categorias WHERE id != ? AND parent_id IS NULL ORDER BY nome ASC");
+        $stmt_pais->execute([$categoria_id]);
+        $categorias_pais = $stmt_pais->fetchAll(PDO::FETCH_ASSOC);
+
     } catch (PDOException $e) {
         $_SESSION['admin_message'] = "Erro ao buscar categoria: " . $e->getMessage();
         header("Location: gerenciar_categorias.php");
         exit();
     }
+} else {
+    // Para nova categoria
+    $stmt_pais = $pdo->query("SELECT id, nome FROM categorias WHERE parent_id IS NULL ORDER BY nome ASC");
+    $categorias_pais = $stmt_pais->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 
@@ -64,6 +74,21 @@ if ($categoria_id > 0) {
                                class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
                                placeholder="Ex: Eletrônicos, Roupas, Casa...">
                         <p class="text-xs text-admin-gray-400 mt-1">Nome que aparecerá na loja</p>
+                    </div>
+
+                    <div>
+                        <label for="parent_id" class="block text-sm font-medium text-admin-gray-300 mb-2">
+                            Categoria Pai
+                        </label>
+                        <select name="parent_id" id="parent_id" class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all">
+                            <option value="">Nenhuma (Categoria Principal)</option>
+                            <?php foreach ($categorias_pais as $pai): ?>
+                                <option value="<?= $pai['id'] ?>" <?= (isset($categoria['parent_id']) && $categoria['parent_id'] == $pai['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($pai['nome']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="text-xs text-admin-gray-400 mt-1">Transforme esta categoria em uma subcategoria</p>
                     </div>
 
                     <div>

@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Busca categorias do banco de dados para o menu
-$categorias_menu = [];
+$categorias_hierarquia = [];
 try {
     if (!isset($pdo)) {
         if (file_exists(__DIR__ . '/../config.php')) {
@@ -14,13 +14,24 @@ try {
     }
 
     if (isset($pdo)) {
-        $stmt_categorias = $pdo->query("SELECT id, nome FROM categorias ORDER BY ordem ASC, nome ASC");
-        $categorias_menu = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+        $stmt_categorias = $pdo->query("SELECT id, nome, parent_id FROM categorias ORDER BY parent_id ASC, ordem ASC, nome ASC");
+        $todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+
+        // Organiza em hierarquia
+        foreach ($todas_categorias as $cat) {
+            if ($cat['parent_id'] === null) {
+                $categorias_hierarquia[$cat['id']] = $cat;
+                $categorias_hierarquia[$cat['id']]['subcategorias'] = [];
+            }
+            else if (isset($categorias_hierarquia[$cat['parent_id']])) {
+                $categorias_hierarquia[$cat['parent_id']]['subcategorias'][] = $cat;
+            }
+        }
     }
 }
 catch (Exception $e) {
     error_log("Erro ao buscar categorias: " . $e->getMessage());
-    $categorias_menu = [];
+    $categorias_hierarquia = [];
 }
 
 $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho']) : 0;
@@ -158,7 +169,7 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
                 <div class="nav-menu">
                     <a href="index.php" class="nav-link active">Início</a>
                     <a href="busca.php?todos=1" class="nav-link">Catálogo</a>
-                    <?php if (!empty($categorias_menu)): ?>
+                    <?php if (!empty($categorias_hierarquia)): ?>
                     <div class="nav-dropdown">
                         <button class="nav-link nav-dropdown-trigger">
                             Categorias
@@ -169,10 +180,25 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
                             </svg>
                         </button>
                         <div class="nav-dropdown-menu">
-                            <?php foreach ($categorias_menu as $categoria): ?>
-                            <a href="categoria.php?id=<?= $categoria['id']?>" class="nav-dropdown-item">
-                                <?= htmlspecialchars($categoria['nome'])?>
-                            </a>
+                            <?php foreach ($categorias_hierarquia as $pai): ?>
+                            <div class="nav-dropdown-group">
+                                <a href="categoria.php?id=<?= $pai['id']?>" class="nav-dropdown-item font-bold">
+                                    <?= htmlspecialchars($pai['nome'])?>
+                                </a>
+                                <?php if (!empty($pai['subcategorias'])): ?>
+                                <div class="subcategories-list pl-4 pb-2">
+                                    <?php foreach ($pai['subcategorias'] as $sub): ?>
+                                    <a href="categoria.php?id=<?= $sub['id']?>"
+                                        class="nav-dropdown-subitem text-xs block py-1 text-gray-400 hover:text-white transition-colors">
+                                        —
+                                        <?= htmlspecialchars($sub['nome'])?>
+                                    </a>
+                                    <?php
+            endforeach; ?>
+                                </div>
+                                <?php
+        endif; ?>
+                            </div>
                             <?php
     endforeach; ?>
                         </div>
@@ -269,14 +295,27 @@ endif; ?>
                 </a>
             </div>
 
-            <?php if (!empty($categorias_menu)): ?>
+            <?php if (!empty($categorias_hierarquia)): ?>
             <div class="mobile-menu-section">
                 <div class="mobile-menu-label">Categorias</div>
-                <?php foreach ($categorias_menu as $categoria): ?>
-                <a href="categoria.php?id=<?= $categoria['id']?>" class="mobile-menu-link">
-                    <i class="fas fa-tag"></i>
-                    <?= htmlspecialchars($categoria['nome'])?>
-                </a>
+                <?php foreach ($categorias_hierarquia as $pai): ?>
+                <div class="mobile-cat-group">
+                    <a href="categoria.php?id=<?= $pai['id']?>" class="mobile-menu-link">
+                        <i class="fas fa-tag"></i>
+                        <?= htmlspecialchars($pai['nome'])?>
+                    </a>
+                    <?php if (!empty($pai['subcategorias'])): ?>
+                    <div class="mobile-subcats ml-8 border-l border-white/5 space-y-1">
+                        <?php foreach ($pai['subcategorias'] as $sub): ?>
+                        <a href="categoria.php?id=<?= $sub['id']?>" class="mobile-menu-link !py-1 !text-xs opacity-70">
+                            <?= htmlspecialchars($sub['nome'])?>
+                        </a>
+                        <?php
+            endforeach; ?>
+                    </div>
+                    <?php
+        endif; ?>
+                </div>
                 <?php
     endforeach; ?>
             </div>

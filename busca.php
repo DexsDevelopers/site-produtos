@@ -17,7 +17,31 @@ $resultados = [];
 $total_resultados = 0;
 $total_paginas = 0;
 
-$categorias = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC);
+$stmt_categorias = $pdo->query("SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC, nome ASC");
+$todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+
+// Organiza em hierarquia
+$categorias = [];
+$pais = [];
+foreach ($todas_categorias as $cat) {
+    if ($cat['parent_id'] === null) {
+        $pais[$cat['id']] = $cat;
+        $pais[$cat['id']]['subcategorias'] = [];
+    }
+}
+foreach ($todas_categorias as $cat) {
+    if ($cat['parent_id'] !== null && isset($pais[$cat['parent_id']])) {
+        $pais[$cat['parent_id']]['subcategorias'][] = $cat;
+    }
+}
+// Lista plana para o select
+foreach ($pais as $pai) {
+    $categorias[] = $pai;
+    foreach ($pai['subcategorias'] as $sub) {
+        $sub['is_sub'] = true;
+        $categorias[] = $sub;
+    }
+}
 
 if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $mostrar_todos) {
     try {
@@ -28,7 +52,8 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $
             $termo_limpo = preg_replace('/[^a-zA-Z0-9\s]/', '', $termo);
             $termos = explode(' ', $termo_limpo);
             $termos = array_filter($termos, function ($t) {
-                return strlen($t) > 1; });
+                return strlen($t) > 1;
+            });
 
             if (empty($termos))
                 $termos = [$termo_limpo];
@@ -52,8 +77,20 @@ if (!empty($termo) || $categoria_id > 0 || $preco_min > 0 || $preco_max > 0 || $
         }
 
         if ($categoria_id > 0) {
-            $where_conditions[] = "categoria_id = ?";
-            $params[] = $categoria_id;
+            // Busca IDs de subcategorias (caso esta seja uma categoria pai)
+            $ids_categorias = [$categoria_id];
+            $stmt_subs = $pdo->prepare("SELECT id FROM categorias WHERE parent_id = ?");
+            $stmt_subs->execute([$categoria_id]);
+            $subs = $stmt_subs->fetchAll(PDO::FETCH_COLUMN);
+            if (!empty($subs)) {
+                $ids_categorias = array_merge($ids_categorias, $subs);
+            }
+
+            $placeholders = implode(',', array_fill(0, count($ids_categorias), '?'));
+            $where_conditions[] = "categoria_id IN ($placeholders)";
+            foreach ($ids_categorias as $id) {
+                $params[] = $id;
+            }
         }
 
         if ($preco_min > 0) {
@@ -223,7 +260,8 @@ endif; ?>
                     <select name="categoria" class="form-control">
                         <option value="">Todas</option>
                         <?php foreach ($categorias as $cat): ?>
-                        <option value="<?= $cat['id']?>" <?=$categoria_id==$cat['id'] ? 'selected' : ''?>>
+                        <option value="<?= $cat['id']?>" <?= $categoria_id == $cat['id'] ? 'selected' : '' ?>>
+                            <?= isset($cat['is_sub']) ? '— ' : ''?>
                             <?= htmlspecialchars($cat['nome'])?>
                         </option>
                         <?php
@@ -233,10 +271,10 @@ endforeach; ?>
                 <div class="form-group">
                     <label>Ordenar</label>
                     <select name="ordenar" class="form-control">
-                        <option value="relevancia" <?=$ordenar=='relevancia' ? 'selected' : ''?>>Relevância</option>
-                        <option value="preco_asc" <?=$ordenar=='preco_asc' ? 'selected' : ''?>>Menor Preço</option>
-                        <option value="preco_desc" <?=$ordenar=='preco_desc' ? 'selected' : ''?>>Maior Preço</option>
-                        <option value="nome" <?=$ordenar=='nome' ? 'selected' : ''?>>Nome A-Z</option>
+                        <option value="relevancia" <?= $ordenar == 'relevancia' ? 'selected' : '' ?>>Relevância</option>
+                        <option value="preco_asc" <?= $ordenar == 'preco_asc' ? 'selected' : '' ?>>Menor Preço</option>
+                        <option value="preco_desc" <?= $ordenar == 'preco_desc' ? 'selected' : '' ?>>Maior Preço</option>
+                        <option value="nome" <?= $ordenar == 'nome' ? 'selected' : '' ?>>Nome A-Z</option>
                     </select>
                 </div>
             </div>
