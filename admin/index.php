@@ -13,7 +13,7 @@ $faturamento = 0;
 try {
     // 0. Visitas Hoje
     $visitas_hoje = 0;
-    $stmt = $pdo->query("SELECT COUNT(DISTINCT ip_address) FROM site_visitas WHERE data_visita = CURDATE()");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM site_visitas WHERE data_visita = CURDATE()");
     if ($stmt)
         $visitas_hoje = $stmt->fetchColumn();
 
