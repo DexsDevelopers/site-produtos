@@ -11,9 +11,34 @@ try {
         titulo VARCHAR(255), 
         tipo ENUM('imagem', 'video'), 
         path VARCHAR(255), 
-        data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        grupo_id VARCHAR(50) DEFAULT NULL
     )");
-    $midias = $pdo->query("SELECT * FROM midias ORDER BY data_criacao DESC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Tenta adicionar a coluna grupo_id caso ela não exista (para compatibilidade)
+    try {
+        $pdo->exec("ALTER TABLE midias ADD COLUMN grupo_id VARCHAR(50) DEFAULT NULL");
+    }
+    catch (PDOException $e) {
+    // Coluna já existe, ignora
+    }
+
+    $all_midias = $pdo->query("SELECT * FROM midias ORDER BY data_criacao DESC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Agrupa as mídias
+    $midias = [];
+    foreach ($all_midias as $m) {
+        $gid = $m['grupo_id'] ?: 'single_' . $m['id'];
+        if (!isset($midias[$gid])) {
+            $midias[$gid] = [
+                'grupo_id' => $gid,
+                'titulo' => $m['titulo'],
+                'data_criacao' => $m['data_criacao'],
+                'items' => []
+            ];
+        }
+        $midias[$gid]['items'][] = $m;
+    }
 }
 catch (PDOException $e) {
     $midias = [];
@@ -50,51 +75,89 @@ endif; ?>
     <?php
 else: ?>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <?php foreach ($midias as $midia): ?>
-        <div
-            class="admin-card rounded-2xl overflow-hidden group border border-white/5 hover:border-white/20 transition-all flex flex-col">
+        <?php foreach ($midias as $grupo):
+        $capa = $grupo['items'][0]; // Primeira mídia é a capa
+        $total = count($grupo['items']);
+        $is_video = $capa['tipo'] === 'video';
+        $grupo_id = $grupo['grupo_id'];
+?>
+        <div class="admin-card rounded-2xl overflow-hidden group border border-white/5 hover:border-white/20 transition-all flex flex-col relative">
+            
+            <!-- Contador se houver mais de 1 -->
+            <?php if ($total > 1): ?>
+            <div class="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
+                <span class="text-xs font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-layer-group text-admin-primary"></i>
+                    +<?= $total - 1?>
+                </span>
+            </div>
+            <?php
+        endif; ?>
+
             <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                <?php if ($midia['tipo'] === 'imagem'): ?>
-                <img src="../<?= $midia['path']?>" alt="<?= htmlspecialchars($midia['titulo'])?>"
+                <?php if (!$is_video): ?>
+                <img src="../<?= $capa['path']?>" alt="<?= htmlspecialchars($capa['titulo'])?>"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 <?php
         else: ?>
-                <video class="w-full h-full object-cover">
-                    <source src="../<?= $midia['path']?>" type="video/mp4">
+                <video class="w-full h-full object-cover" muted loop onmouseover="this.play()" onmouseout="this.pause();this.currentTime=0;">
+                    <source src="../<?= $capa['path']?>" type="video/mp4">
                 </video>
-                <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
                     <i class="fas fa-play-circle text-4xl text-white group-hover:scale-110 transition-transform"></i>
                 </div>
                 <?php
         endif; ?>
 
                 <!-- Overlay de Ações -->
-                <div
-                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <a href="../<?= $midia['path']?>" download
-                        class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-all"
-                        title="Baixar">
-                        <i class="fas fa-download"></i>
-                    </a>
-                    <button onclick="confirmarExclusao(<?= $midia['id']?>)"
-                        class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition-all"
-                        title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
+                    
+                    <div class="flex gap-3">
+                        <!-- Botão Baixar (Single ou Zip) -->
+                        <?php if ($total > 1): ?>
+                            <a href="baixar_midia.php?grupo_id=<?= $grupo_id?>" 
+                               class="w-12 h-12 bg-admin-primary text-black rounded-full flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-admin-primary/20"
+                               title="Baixar Todas (ZIP)">
+                                <i class="fas fa-file-archive text-lg"></i>
+                            </a>
+                        <?php
+        else: ?>
+                            <a href="../<?= $capa['path']?>" download
+                               class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-all shadow-lg"
+                               title="Baixar">
+                                <i class="fas fa-download text-lg"></i>
+                            </a>
+                        <?php
+        endif; ?>
+
+                        <!-- Botão Excluir (Todo o grupo) -->
+                        <button onclick="confirmarExclusao('<?= $grupo_id?>')"
+                            class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-red-500/20"
+                            title="Excluir Postagem">
+                            <i class="fas fa-trash-alt text-lg"></i>
+                        </button>
+                    </div>
+
+                    <span class="text-white/60 text-xs font-medium uppercase tracking-widest">
+                        <?= $total > 1 ? 'Baixar Pack Completo' : 'Baixar Mídia'?>
+                    </span>
+
                 </div>
             </div>
 
             <div class="p-4 bg-white/[0.02]">
                 <h3 class="text-white font-bold text-sm truncate uppercase tracking-tight">
-                    <?= htmlspecialchars($midia['titulo'])?>
+                    <?= htmlspecialchars($grupo['titulo'])?>
                 </h3>
                 <div class="flex items-center justify-between mt-2">
                     <span class="text-[10px] text-admin-gray-500 uppercase font-bold flex items-center gap-1">
-                        <i class="fas <?= $midia['tipo'] === 'imagem' ? 'fa-image' : 'fa-video'?>"></i>
-                        <?= $midia['tipo'] === 'imagem' ? 'Foto' : 'Vídeo'?>
+                        <i class="fas <?= $is_video ? 'fa-video' : 'fa-image'?>"></i>
+                        <?= $is_video ? 'Vídeo' : 'Imagem'?>
+                        <?php if ($total > 1)
+            echo " + " . ($total - 1) . " extras"; ?>
                     </span>
                     <span class="text-[10px] text-admin-gray-600">
-                        <?= date('d/m/Y', strtotime($midia['data_criacao']))?>
+                        <?= date('d/m/Y', strtotime($grupo['data_criacao']))?>
                     </span>
                 </div>
             </div>
@@ -127,18 +190,16 @@ endif; ?>
             </div>
 
             <div class="space-y-3">
-                <label class="block text-xs font-bold text-admin-gray-400 uppercase tracking-widest mb-3">Arquivo (Foto
-                    ou Vídeo)</label>
+                <label class="block text-xs font-bold text-admin-gray-400 uppercase tracking-widest mb-3">Arquivos (Selecione um ou mais)</label>
                 <div class="relative group">
-                    <input type="file" name="arquivo" required accept="image/*,video/*" id="input-arquivo"
+                    <input type="file" name="arquivo[]" required accept="image/*,video/*" id="input-arquivo" multiple
                         class="hidden">
                     <label for="input-arquivo"
                         class="w-full py-10 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 hover:border-white/20 transition-all group-hover:border-admin-primary/50">
-                        <i
-                            class="fas fa-cloud-upload-alt text-4xl text-admin-gray-600 group-hover:text-admin-primary transition-colors mb-3"></i>
+                        <i class="fas fa-images text-4xl text-admin-gray-600 group-hover:text-admin-primary transition-colors mb-3"></i>
                         <span class="text-sm font-bold text-admin-gray-400 group-hover:text-white"
-                            id="label-texto">Clique para selecionar</span>
-                        <span class="text-[10px] text-admin-gray-600 mt-1 uppercase">Imagens ou vídeos (MP4)</span>
+                            id="label-texto">Clique para selecionar fotos/vídeos</span>
+                        <span class="text-[10px] text-admin-gray-600 mt-1 uppercase">Suporta seleção múltipla</span>
                     </label>
                 </div>
             </div>
@@ -153,15 +214,19 @@ endif; ?>
 
 <script>
     document.getElementById('input-arquivo').onchange = function () {
-        if (this.files[0]) {
-            document.getElementById('label-texto').innerText = this.files[0].name;
+        if (this.files.length > 0) {
+            if (this.files.length === 1) {
+                document.getElementById('label-texto').innerText = this.files[0].name;
+            } else {
+                document.getElementById('label-texto').innerText = this.files.length + " arquivos selecionados";
+            }
             document.getElementById('label-texto').classList.add('text-admin-primary');
         }
     };
 
-    function confirmarExclusao(id) {
-        if (confirm("Tem certeza que deseja excluir esta mídia? Esta ação não pode ser desfeita.")) {
-            window.location.href = "excluir_midia.php?id=" + id;
+    function confirmarExclusao(grupo_id) {
+        if (confirm("Tem certeza que deseja excluir esta postagem? Todas as mídias dela serão apagadas.")) {
+            window.location.href = "excluir_midia.php?grupo_id=" + grupo_id;
         }
     }
 </script>
