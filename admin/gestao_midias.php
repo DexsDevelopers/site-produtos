@@ -145,11 +145,16 @@ else: ?>
                 </div>
             </div>
 
-            <div class="p-4 bg-white/[0.02]">
-                <h3 class="text-white font-bold text-sm truncate uppercase tracking-tight">
-                    <?= htmlspecialchars($grupo['titulo'])?>
-                </h3>
-                <div class="flex items-center justify-between mt-2">
+            <div class="p-4 bg-white/[0.02] flex flex-col flex-1">
+                <div class="flex justify-between items-start gap-3">
+                    <h3 class="text-white font-bold text-sm break-words whitespace-pre-wrap uppercase tracking-tight flex-1" id="titulo-<?= $grupo_id ?>">
+                        <?= htmlspecialchars($grupo['titulo'])?>
+                    </h3>
+                    <button type="button" onclick="copiarTextoBtn('titulo-<?= $grupo_id ?>', this)" class="text-admin-gray-400 hover:text-white transition-colors pt-0.5 shrink-0" title="Copiar Texto">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between mt-4">
                     <span class="text-[10px] text-admin-gray-500 uppercase font-bold flex items-center gap-1">
                         <i class="fas <?= $is_video ? 'fa-video' : 'fa-image'?>"></i>
                         <?= $is_video ? 'Vídeo' : 'Imagem'?>
