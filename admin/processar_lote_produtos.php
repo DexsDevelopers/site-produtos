@@ -57,6 +57,18 @@ try {
             }
             break;
 
+        case 'set_free_shipping':
+            $stmt = $pdo->prepare("UPDATE produtos SET frete_gratis = 1 WHERE id IN ($placeholders)");
+            $stmt->execute($produtos_ids);
+            $_SESSION['admin_message'] = count($produtos_ids) . " produtos marcados com Frete Grátis.";
+            break;
+
+        case 'unset_free_shipping':
+            $stmt = $pdo->prepare("UPDATE produtos SET frete_gratis = 0 WHERE id IN ($placeholders)");
+            $stmt->execute($produtos_ids);
+            $_SESSION['admin_message'] = count($produtos_ids) . " produtos com Frete Grátis removido.";
+            break;
+
         case 'set_featured':
             $stmt = $pdo->prepare("UPDATE produtos SET destaque = 1 WHERE id IN ($placeholders)");
             $stmt->execute($produtos_ids);
