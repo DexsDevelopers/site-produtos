@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/index.php - Dashboard Premium
 require_once 'secure.php';
 $page_title = 'Dashboard';
@@ -13,9 +13,20 @@ $faturamento = 0;
 try {
     // 0. Visitas Hoje
     $visitas_hoje = 0;
-    $stmt = $pdo->query("SELECT COUNT(*) FROM site_visitas WHERE data_visita = CURDATE()");
-    if ($stmt)
-        $visitas_hoje = $stmt->fetchColumn();
+    $visitas_mobile = 0;
+    $visitas_desktop = 0;
+    
+    // Contagem total única por IP
+    $stmt = $pdo->query("SELECT COUNT(DISTINCT ip_address) FROM site_visitas WHERE data_visita = CURDATE()");
+    if ($stmt) $visitas_hoje = $stmt->fetchColumn();
+
+    // Contagem por dispositivo
+    $stmt = $pdo->query("SELECT dispositivo, COUNT(DISTINCT ip_address) as total FROM site_visitas WHERE data_visita = CURDATE() GROUP BY dispositivo");
+    if ($stmt) {
+        $stats = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $visitas_mobile = $stats['Mobile'] ?? 0;
+        $visitas_desktop = $stats['Desktop'] ?? 0;
+    }
 
     // 1. Total Produtos
     $stmt = $pdo->query("SELECT COUNT(*) FROM produtos");
@@ -27,12 +38,12 @@ try {
     if ($stmt)
         $total_usuarios = $stmt->fetchColumn();
 
-    // 3. Vendas Hoje (Compatível MySQL/MariaDB)
+    // 3. Vendas Hoje
     $stmt = $pdo->query("SELECT COUNT(*) FROM pedidos WHERE date(data_pedido) = CURDATE()");
     if ($stmt)
         $vendas_hoje = $stmt->fetchColumn();
 
-    // 4. Faturamento Mês Atual (Compatível MySQL/MariaDB)
+    // 4. Faturamento Mês Atual
     $stmt = $pdo->query("
         SELECT COALESCE(SUM(valor_total), 0) 
         FROM pedidos 
@@ -44,137 +55,119 @@ try {
         $faturamento = $stmt->fetchColumn();
 
 }
-catch (PDOException $e) {
-// Silencia erros no dashboard para não quebrar a página, mas loga se possível
-// error_log($e->getMessage());
-}
+catch (PDOException $e) {}
 ?>
 
-<!-- HTML DO DASHBOARD (O RESTANTE DA PAGINA SEGUE IGUAL) -->
 <div class="space-y-8">
     <!-- Welcome Section -->
     <div class="admin-card rounded-2xl p-6 relative overflow-hidden">
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-white mb-2">
-                    Painel de Controle
-                </h1>
+                <h1 class="text-3xl font-bold text-white mb-2">Painel de Controle</h1>
                 <p class="text-admin-gray-400">Visão geral da sua loja MACARIO BRAZIL</p>
             </div>
             <div class="mt-4 sm:mt-0">
                 <div class="flex items-center gap-2 text-sm text-admin-gray-400 bg-white/5 px-4 py-2 rounded-full">
                     <i class="fas fa-calendar-alt"></i>
-                    <span>
-                        <?= date('d/m/Y')?>
-                    </span>
+                    <span><?= date('d/m/Y')?></span>
                 </div>
             </div>
         </div>
-        <!-- Efeito de fundo -->
-        <div
-            class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none">
-        </div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-6">
         <!-- Visitas Hoje -->
-        <div class="stat-card rounded-xl p-6 group cursor-default">
+        <div class="stat-card rounded-xl p-6 group cursor-default relative overflow-hidden">
             <div class="flex items-center justify-between mb-4">
-                <div
-                    class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
+                <div class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
                     <i class="fas fa-eye text-xl"></i>
                 </div>
-                <span class="text-xs font-semibold text-admin-primary bg-admin-primary/10 px-2 py-1 rounded">Hoje</span>
+                <div class="flex flex-col items-end gap-1">
+                    <span class="text-[9px] font-black text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded uppercase tracking-tighter flex items-center gap-1">
+                        <i class="fas fa-desktop text-[8px]"></i> <?= $visitas_desktop ?>
+                    </span>
+                    <span class="text-[9px] font-black text-admin-primary bg-admin-primary/10 px-2 py-0.5 rounded uppercase tracking-tighter flex items-center gap-1">
+                        <i class="fas fa-mobile-alt text-[8px]"></i> <?= $visitas_mobile ?>
+                    </span>
+                </div>
             </div>
-            <h3 class="text-3xl font-bold text-white mb-1">
-                <?= $visitas_hoje?>
-            </h3>
-            <p class="text-sm text-admin-gray-400">Acessos ao site</p>
+            <h3 class="text-3xl font-bold text-white mb-1"><?= $visitas_hoje?></h3>
+            <p class="text-sm text-admin-gray-400">Visitantes Únicos</p>
+            
+            <?php 
+                $total_v = $visitas_hoje ?: 1;
+                $perc_m = ($visitas_mobile / $total_v) * 100;
+            ?>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-white/5">
+                <div class="h-full bg-admin-primary transition-all duration-1000" style="width: <?= $perc_m ?>%"></div>
+            </div>
         </div>
-        <!-- Vendas Hoje -->
+
+        <!-- Outros cards... -->
         <div class="stat-card rounded-xl p-6 group cursor-default">
             <div class="flex items-center justify-between mb-4">
-                <div
-                    class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
+                <div class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
                     <i class="fas fa-shopping-bag text-xl"></i>
                 </div>
                 <span class="text-xs font-semibold text-green-400 bg-green-400/10 px-2 py-1 rounded">Hoje</span>
             </div>
-            <h3 class="text-3xl font-bold text-white mb-1">
-                <?= $vendas_hoje?>
-            </h3>
+            <h3 class="text-3xl font-bold text-white mb-1"><?= $vendas_hoje?></h3>
             <p class="text-sm text-admin-gray-400">Vendas confirmadas</p>
         </div>
 
-        <!-- Faturamento Mês -->
         <div class="stat-card rounded-xl p-6 group cursor-default">
             <div class="flex items-center justify-between mb-4">
-                <div
-                    class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 group-hover:bg-green-400 group-hover:text-black transition-colors">
+                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 group-hover:bg-green-400 group-hover:text-black transition-colors">
                     <i class="fas fa-dollar-sign text-xl"></i>
                 </div>
                 <span class="text-xs font-semibold text-admin-gray-500 bg-white/5 px-2 py-1 rounded">Este Mês</span>
             </div>
-            <h3 class="text-3xl font-bold text-white mb-1">R$
-                <?= number_format($faturamento, 2, ',', '.')?>
-            </h3>
+            <h3 class="text-3xl font-bold text-white mb-1">R$ <?= number_format($faturamento, 2, ',', '.')?></h3>
             <p class="text-sm text-admin-gray-400">Receita bruta</p>
         </div>
 
-        <!-- Total Produtos -->
         <div class="stat-card rounded-xl p-6 group cursor-default">
             <div class="flex items-center justify-between mb-4">
-                <div
-                    class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 group-hover:bg-purple-400 group-hover:text-black transition-colors">
+                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 group-hover:bg-purple-400 group-hover:text-black transition-colors">
                     <i class="fas fa-box text-xl"></i>
                 </div>
             </div>
-            <h3 class="text-3xl font-bold text-white mb-1">
-                <?= $total_produtos?>
-            </h3>
+            <h3 class="text-3xl font-bold text-white mb-1"><?= $total_produtos?></h3>
             <p class="text-sm text-admin-gray-400">Produtos ativos</p>
         </div>
 
-        <!-- Total Usuários -->
         <div class="stat-card rounded-xl p-6 group cursor-default">
             <div class="flex items-center justify-between mb-4">
-                <div
-                    class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 group-hover:bg-blue-400 group-hover:text-black transition-colors">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 group-hover:bg-blue-400 group-hover:text-black transition-colors">
                     <i class="fas fa-users text-xl"></i>
                 </div>
             </div>
-            <h3 class="text-3xl font-bold text-white mb-1">
-                <?= $total_usuarios?>
-            </h3>
+            <h3 class="text-3xl font-bold text-white mb-1"><?= $total_usuarios?></h3>
             <p class="text-sm text-admin-gray-400">Clientes cadastrados</p>
         </div>
     </div>
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Ações Rápidas -->
         <div class="lg:col-span-1 space-y-6">
             <div class="admin-card rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-white mb-4">Gestão Rápida</h3>
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="adicionar_produto.php"
-                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                    <a href="adicionar_produto.php" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
                         <i class="fas fa-plus text-admin-primary group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-medium text-white">Add Produto</span>
                     </a>
-                    <a href="gerenciar_cupons.php"
-                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                    <a href="gerenciar_cupons.php" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
                         <i class="fas fa-ticket-alt text-yellow-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-medium text-white">Cupons</span>
                     </a>
-                    <a href="gerenciar_afiliados.php"
-                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                    <a href="gerenciar_afiliados.php" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
                         <i class="fas fa-handshake text-blue-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-medium text-white">Afiliados</span>
                     </a>
-                    <a href="gerenciar_banners.php"
-                        class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
+                    <a href="gerenciar_banners.php" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-center gap-2 group">
                         <i class="fas fa-image text-purple-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-medium text-white">Banners</span>
                     </a>
@@ -182,53 +175,33 @@ catch (PDOException $e) {
             </div>
         </div>
 
-        <!-- Produtos Recentes -->
         <div class="lg:col-span-2">
             <div class="admin-card rounded-xl p-6 h-full">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-semibold text-white">Últimos Produtos</h3>
                     <a href="gerenciar_produtos.php" class="text-sm text-admin-gray-400 hover:text-white">Ver todos</a>
                 </div>
-
                 <div class="space-y-3">
                     <?php
-try {
-    $produtos_recentes = $pdo->query('SELECT * FROM produtos ORDER BY id DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
-}
-catch (Exception $e) {
-    $produtos_recentes = [];
-}
-?>
-
+                    try { $produtos_recentes = $pdo->query("SELECT * FROM produtos ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC); }
+                    catch (Exception $e) { $produtos_recentes = []; }
+                    ?>
                     <?php if (!empty($produtos_recentes)): ?>
-                    <?php foreach ($produtos_recentes as $produto): ?>
-                    <div
-                        class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/5 group">
-                        <div class="w-12 h-12 bg-admin-gray-800 rounded-lg overflow-hidden border border-white/10">
-                            <img src="../<?= htmlspecialchars($produto['imagem'])?>" class="w-full h-full object-cover">
+                        <?php foreach ($produtos_recentes as $produto): ?>
+                        <div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/5 group">
+                            <div class="w-12 h-12 bg-admin-gray-800 rounded-lg overflow-hidden border border-white/10">
+                                <img src="../<?= htmlspecialchars($produto['imagem'])?>" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-white truncate text-sm"><?= htmlspecialchars($produto['nome'])?></h4>
+                                <p class="text-[10px] uppercase font-bold text-admin-primary tracking-wider mt-0.5"><?= formatarPreco($produto['preco']) ?></p>
+                            </div>
+                            <a href="editar_produto.php?id=<?= $produto['id']?>" class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white text-admin-gray-400 hover:text-black rounded-lg transition-all"><i class="fas fa-pen text-xs"></i></a>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-white truncate text-sm">
-                                <?= htmlspecialchars($produto['nome'])?>
-                            </h4>
-                            <p class="text-[10px] uppercase font-bold text-admin-primary tracking-wider mt-0.5">
-                                R$
-                                <?= number_format($produto['preco'], 2, ',', '.')?>
-                            </p>
-                        </div>
-                        <a href="editar_produto.php?id=<?= $produto['id']?>"
-                            class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white text-admin-gray-400 hover:text-black rounded-lg transition-all"
-                            title="Editar">
-                            <i class="fas fa-pen text-xs"></i>
-                        </a>
-                    </div>
-                    <?php
-    endforeach; ?>
-                    <?php
-else: ?>
-                    <p class="text-center text-admin-gray-500 py-4">Sem produtos recentes.</p>
-                    <?php
-endif; ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-center text-admin-gray-500 py-4">Sem produtos recentes.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
