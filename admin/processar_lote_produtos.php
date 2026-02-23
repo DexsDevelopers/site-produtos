@@ -39,6 +39,24 @@ try {
             }
             break;
 
+        case 'adjust_price_fixed':
+            $fixed_val = floatval($_POST['bulk_price_adjustment_fixed'] ?? 0);
+            if ($fixed_val != 0) {
+                $stmt = $pdo->prepare("UPDATE produtos SET preco = preco + ? WHERE id IN ($placeholders)");
+                $stmt->execute(array_merge([$fixed_val], $produtos_ids));
+                $_SESSION['admin_message'] = "Preços de " . count($produtos_ids) . " produtos ajustados em R$ " . number_format($fixed_val, 2, ',', '.') . ".";
+            }
+            break;
+
+        case 'set_price_fixed':
+            $new_price = floatval($_POST['bulk_price_set_fixed'] ?? 0);
+            if ($new_price >= 0) {
+                $stmt = $pdo->prepare("UPDATE produtos SET preco = ? WHERE id IN ($placeholders)");
+                $stmt->execute(array_merge([$new_price], $produtos_ids));
+                $_SESSION['admin_message'] = "Novo preço de R$ " . number_format($new_price, 2, ',', '.') . " aplicado a " . count($produtos_ids) . " produtos.";
+            }
+            break;
+
         case 'set_featured':
             $stmt = $pdo->prepare("UPDATE produtos SET destaque = 1 WHERE id IN ($placeholders)");
             $stmt->execute($produtos_ids);
