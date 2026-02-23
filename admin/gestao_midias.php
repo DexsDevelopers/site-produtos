@@ -194,11 +194,11 @@ require_once 'templates/header_admin.php';
             <!-- Content Area -->
             <div class="p-6 flex flex-col flex-1 border-t border-white/5">
                 <div class="flex justify-between items-start gap-4 mb-4">
-                    <h3 class="text-white font-bold text-sm line-clamp-2 uppercase tracking-tight leading-relaxed" id="titulo-<?= $grupo_id ?>">
+                    <h3 class="text-white font-bold text-sm uppercase tracking-tight leading-relaxed" id="titulo-<?= $grupo_id ?>">
                         <?= htmlspecialchars($grupo['titulo']) ?>
                     </h3>
                     <button type="button" onclick="copiarTextoBtn('titulo-<?= $grupo_id ?>', this)" 
-                        class="w-8 h-8 rounded-lg bg-white/5 text-admin-gray-500 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center shrink-0">
+                        class="w-8 h-8 rounded-lg bg-white/10 text-admin-gray-400 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center shrink-0">
                         <i class="fas fa-copy text-xs"></i>
                     </button>
                 </div>
@@ -320,6 +320,21 @@ require_once 'templates/header_admin.php';
             modal.classList.add('hidden');
             document.getElementById('preview-container').innerHTML = '';
         }, 300);
+    }
+
+    function copiarTextoBtn(elementoId, btn) {
+        const texto = document.getElementById(elementoId).innerText;
+        navigator.clipboard.writeText(texto).then(() => {
+            const icon = btn.querySelector('i');
+            const originalClass = icon.className;
+            icon.className = 'fas fa-check text-green-500';
+            setTimeout(() => {
+                icon.className = originalClass;
+            }, 2000);
+        }).catch(err => {
+            console.error('Erro ao copiar: ', err);
+            alert('Não foi possível copiar o texto.');
+        });
     }
 
     // Atalho ESC para fechar previews
