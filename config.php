@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // config.php (VERSÃO COM BANCO DE DADOS RESTAURADA)
 
 // Inicia a sessão se não estiver iniciada
@@ -21,73 +21,49 @@ try {
     ]);
 }
 catch (PDOException $e) {
-    // Em caso de erro, mostra uma mensagem mais amigável
     die("Erro de conexão com o banco de dados. Verifique as configurações.");
 }
 
 // --- SISTEMA DE ARMAZENAMENTO PARA CHAVE PIX ---
-// Carrega FileStorage apenas para gerenciar chave PIX (mesmo usando banco para produtos)
 require_once __DIR__ . '/includes/file_storage.php';
 $fileStorage = new FileStorage();
 
 // --- FUNÇÕES GLOBAIS ---
-function formatarPreco($preco)
-{
-    if (!is_numeric($preco)) {
-        return 'R$ 0,00';
-    }
+function formatarPreco($preco) {
+    if (!is_numeric($preco)) return 'R$ 0,00';
     return 'R$ ' . number_format((float)$preco, 2, ',', '.');
 }
 
-function formatarPrecoPagBank($preco)
-{
-    if (!is_numeric($preco)) {
-        return '0.00';
-    }
+function formatarPrecoPagBank($preco) {
+    if (!is_numeric($preco)) return '0.00';
     return number_format((float)$preco, 2, '.', '');
 }
 
 // --- FUNÇÕES DE SEGURANÇA ---
-function sanitizarEntrada($dados)
-{
-    if (is_array($dados)) {
-        return array_map('sanitizarEntrada', $dados);
-    }
+function sanitizarEntrada($dados) {
+    if (is_array($dados)) return array_map('sanitizarEntrada', $dados);
     return htmlspecialchars(trim($dados), ENT_QUOTES, 'UTF-8');
 }
 
-function validarEmail($email)
-{
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-}
+function validarEmail($email) { return filter_var($email, FILTER_VALIDATE_EMAIL) !== false; }
+function validarSenha($senha) { return strlen($senha) >= 6; }
 
-function validarSenha($senha)
-{
-    return strlen($senha) >= 6;
-}
-
-function gerarTokenCSRF()
-{
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
+function gerarTokenCSRF() {
+    if (!isset($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     return $_SESSION['csrf_token'];
 }
 
-function verificarTokenCSRF($token)
-{
+function verificarTokenCSRF($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-function redirecionarComMensagem($url, $tipo, $mensagem)
-{
+function redirecionarComMensagem($url, $tipo, $mensagem) {
     $_SESSION[$tipo . '_message'] = $mensagem;
     header("Location: $url");
     exit();
 }
 
-function exibirMensagem($tipo)
-{
+function exibirMensagem($tipo) {
     if (isset($_SESSION[$tipo . '_message'])) {
         $mensagem = $_SESSION[$tipo . '_message'];
         unset($_SESSION[$tipo . '_message']);
@@ -97,38 +73,57 @@ function exibirMensagem($tipo)
 }
 
 // --- CONFIGURAÇÕES BÁSICAS ---
-// Headers básicos de segurança
 if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
 }
 
-// --- CONTADOR DE VISITAS (Simples) ---
+// --- CONTADOR DE VISITAS ROBUSTO (Unique IP + Device Detect) ---
 try {
-    // Verifica se a tabela existe (para evitar erros em migrações)
-    // Em produção, isso deveria ser feito apenas na instalação, mas aqui garante robustez
+    // 1. Garante que a tabela e as colunas existem
+    $pdo->exec("CREATE TABLE IF NOT EXISTS site_visitas (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ip_address VARCHAR(45) NOT NULL,
+        data_visita DATE NOT NULL,
+        hora_visita TIME NOT NULL,
+        pagina_visitada VARCHAR(255) DEFAULT 'home',
+        user_agent TEXT,
+        dispositivo ENUM('Mobile', 'Desktop') DEFAULT 'Desktop',
+        INDEX (data_visita),
+        INDEX (ip_address)
+    )");
 
-    $visitante_ip = $_SERVER['REMOTE_ADDR'];
-    $data_hoje = date('Y-m-d');
+    try {
+        $pdo->exec("ALTER TABLE site_visitas ADD COLUMN dispositivo ENUM('Mobile', 'Desktop') DEFAULT 'Desktop'");
+    } catch (PDOException $e) {}
 
-    // Cookie para não contar o mesmo usuário várias vezes no dia (sessão de 24h)
-    if (!isset($_COOKIE['visita_hoje'])) {
-        // Registra no banco
-        $stmt_visita = $pdo->prepare("INSERT INTO site_visitas (ip_address, data_visita, hora_visita, pagina_visitada, user_agent) VALUES (?, ?, ?, ?, ?)");
-        $stmt_visita->execute([
-            $visitante_ip,
-            $data_hoje,
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $hoje = date('Y-m-d');
+
+    // Detecção simplificada de Mobile
+    $is_mobile = preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $user_agent);
+    $device = $is_mobile ? 'Mobile' : 'Desktop';
+
+    // 2. Verifica se este IP já visitou HOJE (Check no DB para IP único real)
+    $stmt_check = $pdo->prepare("SELECT id FROM site_visitas WHERE ip_address = ? AND data_visita = ? LIMIT 1");
+    $stmt_check->execute([$ip, $hoje]);
+    $ja_visitou = $stmt_check->fetch();
+
+    if (!$ja_visitou && !isset($_COOKIE['vst_track'])) {
+        // Registra a visita
+        $stmt_ins = $pdo->prepare("INSERT INTO site_visitas (ip_address, data_visita, hora_visita, pagina_visitada, user_agent, dispositivo) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt_ins->execute([
+            $ip,
+            $hoje,
             date('H:i:s'),
             $_SERVER['REQUEST_URI'] ?? 'home',
-            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+            $user_agent,
+            $device
         ]);
 
-        // Define cookie por 24 horas
-        setcookie('visita_hoje', '1', time() + 86400, "/");
+        setcookie('vst_track', 'active', time() + 86400, "/");
     }
-}
-catch (Exception $e) {
-// Silencia erros de log para não atrapalhar a navegação
-}
+} catch (Exception $e) {}
 
 ?>
