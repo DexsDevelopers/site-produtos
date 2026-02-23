@@ -239,6 +239,8 @@ require_once 'templates/header_admin.php';
                         <option value="">AÇÕES EM MASSA...</option>
                         <option value="change_category">Alterar Categoria</option>
                         <option value="adjust_price">Ajustar Preço (%)</option>
+                        <option value="adjust_price_fixed">Ajustar Preço (R$)</option>
+                        <option value="set_price_fixed">Definir Novo Preço (R$)</option>
                         <option value="set_featured">Marcar como Destaque</option>
                         <option value="unset_featured">Remover Destaque</option>
                         <option value="delete">Excluir Permanente</option>
@@ -338,6 +340,32 @@ document.addEventListener('DOMContentLoaded', function() {
             span.innerText = '%';
             span.className = 'ml-1 font-bold text-xs';
             bulkExtraFields.appendChild(span);
+        } else if (action === 'adjust_price_fixed') {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.name = 'bulk_price_adjustment_fixed';
+            input.placeholder = 'Ex: 50.00 ou -20.00';
+            input.required = true;
+            input.className = 'bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-32';
+            bulkExtraFields.appendChild(input);
+            const span = document.createElement('span');
+            span.innerText = 'R$';
+            span.className = 'ml-1 font-bold text-xs';
+            bulkExtraFields.prepend(span);
+        } else if (action === 'set_price_fixed') {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.name = 'bulk_price_set_fixed';
+            input.placeholder = 'Ex: 299.90';
+            input.required = true;
+            input.className = 'bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-32';
+            bulkExtraFields.appendChild(input);
+            const span = document.createElement('span');
+            span.innerText = 'R$';
+            span.className = 'ml-1 font-bold text-xs';
+            bulkExtraFields.prepend(span);
         }
     });
 
