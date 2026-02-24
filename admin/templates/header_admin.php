@@ -66,8 +66,8 @@ require_once dirname(dirname(__FILE__)) . '/../config.php';
                 <a href="gerenciar_produtos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_produtos.php' ? 'active' : ''); ?>">
                     <i class="fas fa-box w-5 text-center"></i><span>Produtos</span>
                 </a>
-                <a href="adicionar_produto.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'adicionar_produto.php' ? 'active' : ''); ?>">
-                    <i class="fas fa-plus-circle w-5 text-center"></i><span>Adicionar Produto</span>
+                <a href="gestao_midias.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gestao_midias.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-images w-5 text-center"></i><span>Mídias</span>
                 </a>
                 <a href="gerenciar_categorias.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_categorias.php' ? 'active' : ''); ?>">
                     <i class="fas fa-tags w-5 text-center"></i><span>Categorias</span>
@@ -75,21 +75,38 @@ require_once dirname(dirname(__FILE__)) . '/../config.php';
                 <a href="gerenciar_tamanhos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_tamanhos.php' ? 'active' : ''); ?>">
                     <i class="fas fa-ruler-combined w-5 text-center"></i><span>Tamanhos</span>
                 </a>
-                <a href="gerenciar_banners.php" class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?php echo($current_page == 'gerenciar_banners.php' ? 'active text-white bg-white/5' : ''); ?>">
-                    <i class="fas fa-image w-5 text-center group-hover:scale-110 transition-transform"></i><span>Banners</span>
+                <a href="gerenciar_banners.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_banners.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-image w-5 text-center"></i><span>Banners</span>
                 </a>
-                <a href="pedidos.php" class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?php echo($current_page == 'pedidos.php' ? 'active text-white bg-white/5' : ''); ?>">
-                    <i class="fas fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i><span>Pedidos</span>
+                <a href="gerenciar_cupons.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_cupons.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-ticket-alt w-5 text-center"></i><span>Cupons</span>
                 </a>
-                <a href="usuarios.php" class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?php echo($current_page == 'usuarios.php' ? 'active text-white bg-white/5' : ''); ?>">
-                    <i class="fas fa-users w-5 text-center group-hover:scale-110 transition-transform"></i><span>Clientes</span>
+                <a href="pedidos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'pedidos.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-shopping-bag w-5 text-center"></i><span>Pedidos</span>
                 </a>
-                <a href="../index.php" target="_blank" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl">
-                    <i class="fas fa-external-link-alt w-5 text-center"></i><span>Ver Loja</span>
+                <a href="carrinhos_abandonados.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'carrinhos_abandonados.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-shopping-cart w-5 text-center"></i><span>Carrinhos</span>
                 </a>
-                <a href="../logout.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-400">
-                    <i class="fas fa-sign-out-alt w-5 text-center"></i><span>Sair</span>
+                <a href="gerenciar_afiliados.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_afiliados.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-users-cog w-5 text-center"></i><span>Afiliados</span>
                 </a>
+                <a href="usuarios.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'usuarios.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-users w-5 text-center"></i><span>Clientes</span>
+                </a>
+                <a href="gerenciar_pagamentos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_pagamentos.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-credit-card w-5 text-center"></i><span>Pagamentos</span>
+                </a>
+                <a href="gerenciar_pix.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_pix.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-qrcode w-5 text-center"></i><span>Gerenciar PIX</span>
+                </a>
+                <div class="pt-4 mt-4 border-t border-white/5">
+                    <a href="../index.php" target="_blank" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl">
+                        <i class="fas fa-external-link-alt w-5 text-center"></i><span>Ver Loja</span>
+                    </a>
+                    <a href="../logout.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-400">
+                        <i class="fas fa-sign-out-alt w-5 text-center"></i><span>Sair</span>
+                    </a>
+                </div>
             </nav>
         </div>
     </div>
