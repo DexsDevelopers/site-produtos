@@ -2,7 +2,7 @@
 // admin/verificar_banner_columns.php - Verificar colunas da tabela banners
 require_once 'secure.php';
 
-echo "<h2>Verificação das Colunas da Tabela Banners</h2>";
+echo "<h2>VerificaÃ§Ã£o das Colunas da Tabela Banners</h2>";
 
 try {
     // Verificar estrutura atual da tabela
@@ -16,17 +16,17 @@ try {
     }
     echo "</ul>";
     
-    // Verificar se as colunas necessárias existem
+    // Verificar se as colunas necessÃ¡rias existem
     $required_columns = ['subtitulo', 'texto_botao', 'posicao', 'nova_aba', 'data_criacao', 'data_atualizacao'];
     $existing_columns = array_column($columns, 'Field');
     
-    echo "<h3>Colunas Necessárias:</h3>";
+    echo "<h3>Colunas NecessÃ¡rias:</h3>";
     echo "<ul>";
     foreach ($required_columns as $col) {
         if (in_array($col, $existing_columns)) {
-            echo "<li style='color: green;'><strong>{$col}</strong> - ✅ Existe</li>";
+            echo "<li style='color: green;'><strong>{$col}</strong> - âœ… Existe</li>";
         } else {
-            echo "<li style='color: red;'><strong>{$col}</strong> - ❌ Faltando</li>";
+            echo "<li style='color: red;'><strong>{$col}</strong> - âŒ Faltando</li>";
         }
     }
     echo "</ul>";
@@ -62,7 +62,7 @@ try {
         echo ";";
         echo "</pre>";
     } else {
-        echo "<h3 style='color: green;'>✅ Todas as colunas necessárias estão presentes!</h3>";
+        echo "<h3 style='color: green;'>âœ… Todas as colunas necessÃ¡rias estÃ£o presentes!</h3>";
     }
     
 } catch (PDOException $e) {

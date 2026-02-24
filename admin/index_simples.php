@@ -12,10 +12,10 @@ echo "<div class='admin-card rounded-xl p-6'>";
 echo "<h1 class='text-3xl font-bold text-white mb-4'>Dashboard Simplificado</h1>";
 
 try {
-    // Teste básico de conexão
-    echo "<p class='text-green-400 mb-4'>✅ Conexão com banco estabelecida</p>";
+    // Teste bÃ¡sico de conexÃ£o
+    echo "<p class='text-green-400 mb-4'>âœ… ConexÃ£o com banco estabelecida</p>";
     
-    // Busca estatísticas básicas
+    // Busca estatÃ­sticas bÃ¡sicas
     $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn();
     $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
     
@@ -27,9 +27,9 @@ try {
     echo "<p class='text-white text-3xl font-bold'>$total_produtos</p>";
     echo "</div>";
     
-    // Card de Usuários
+    // Card de UsuÃ¡rios
     echo "<div class='bg-green-600 p-6 rounded-lg'>";
-    echo "<h3 class='text-white text-lg font-semibold mb-2'>Total de Usuários</h3>";
+    echo "<h3 class='text-white text-lg font-semibold mb-2'>Total de UsuÃ¡rios</h3>";
     echo "<p class='text-white text-3xl font-bold'>$total_usuarios</p>";
     echo "</div>";
     
@@ -44,7 +44,7 @@ try {
         foreach ($produtos as $produto) {
             echo "<div class='bg-gray-700 p-4 rounded-lg'>";
             echo "<h4 class='text-white font-semibold'>" . htmlspecialchars($produto['nome']) . "</h4>";
-            echo "<p class='text-gray-300'>Preço: R$ " . number_format($produto['preco'], 2, ',', '.') . "</p>";
+            echo "<p class='text-gray-300'>PreÃ§o: R$ " . number_format($produto['preco'], 2, ',', '.') . "</p>";
             echo "<p class='text-gray-400 text-sm'>ID: " . $produto['id'] . "</p>";
             echo "</div>";
         }

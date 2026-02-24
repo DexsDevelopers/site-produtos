@@ -45,7 +45,7 @@ foreach ($grupos_tamanho as $g) {
     $tamanhos_json[$g['id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Persistência de configurações básicas para cadastro em massa
+// PersistÃªncia de configuraÃ§Ãµes bÃ¡sicas para cadastro em massa
 $config = $_SESSION['last_product_config'] ?? [];
 $last_tipo = $config['tipo'] ?? 'digital';
 $last_categoria = $config['categoria_id'] ?? 0;
@@ -75,30 +75,30 @@ endif; ?>
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                 </div>
 
-                <!-- Descrições -->
+                <!-- DescriÃ§Ãµes -->
                 <div>
-                    <label for="descricao_curta" class="block text-sm font-medium text-admin-gray-300 mb-2">Descrição
+                    <label for="descricao_curta" class="block text-sm font-medium text-admin-gray-300 mb-2">DescriÃ§Ã£o
                         Curta (vitrine)</label>
                     <input type="text" name="descricao_curta" maxlength="100"
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                 </div>
                 <div>
-                    <label for="descricao" class="block text-sm font-medium text-admin-gray-300 mb-2">Descrição
+                    <label for="descricao" class="block text-sm font-medium text-admin-gray-300 mb-2">DescriÃ§Ã£o
                         Completa</label>
                     <textarea name="descricao" rows="5"
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none resize-vertical"></textarea>
                 </div>
 
-                <!-- Preços -->
+                <!-- PreÃ§os -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="preco" class="block text-sm font-medium text-admin-gray-300 mb-2">Preço (ex:
+                        <label for="preco" class="block text-sm font-medium text-admin-gray-300 mb-2">PreÃ§o (ex:
                             197.00)</label>
                         <input type="text" name="preco" required
                             class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                     </div>
                     <div>
-                        <label for="preco_antigo" class="block text-sm font-medium text-admin-gray-300 mb-2">Preço
+                        <label for="preco_antigo" class="block text-sm font-medium text-admin-gray-300 mb-2">PreÃ§o
                             Antigo (opcional)</label>
                         <input type="text" name="preco_antigo"
                             class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
@@ -114,7 +114,7 @@ endif; ?>
                         <option value="">Selecione uma categoria</option>
                         <?php foreach ($categorias as $cat): ?>
                         <option value="<?= $cat['id']?>" <?=$last_categoria==$cat['id'] ? 'selected' : ''?>>
-                            <?= isset($cat['is_sub']) ? '— ' : ''?>
+                            <?= isset($cat['is_sub']) ? 'â€” ' : ''?>
                             <?= htmlspecialchars($cat['nome'])?>
                         </option>
                         <?php
@@ -142,9 +142,9 @@ endforeach; ?>
                             <div
                                 class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
                                 <i class="fas fa-tshirt text-xl text-green-400"></i>
-                                <span class="text-sm font-semibold text-white">Físico</span>
-                                <span class="text-[10px] text-admin-gray-500 text-center">Roupas, Tênis,
-                                    Acessórios</span>
+                                <span class="text-sm font-semibold text-white">FÃ­sico</span>
+                                <span class="text-[10px] text-admin-gray-500 text-center">Roupas, TÃªnis,
+                                    AcessÃ³rios</span>
                             </div>
                         </label>
                     </div>
@@ -171,8 +171,8 @@ endforeach; ?>
 
                         <div id="tamanhos-container" class="hidden space-y-4 pt-4 border-t border-white/5">
                             <div class="flex items-center justify-between">
-                                <label class="text-xs font-bold text-admin-gray-400 uppercase tracking-widest">Opções
-                                    Disponíveis</label>
+                                <label class="text-xs font-bold text-admin-gray-400 uppercase tracking-widest">OpÃ§Ãµes
+                                    DisponÃ­veis</label>
                                 <div class="flex items-center gap-2 bg-white/5 p-1 rounded-lg border border-white/10">
                                     <input type="number" id="bulk-stock" placeholder="Qtd" min="0"
                                         class="w-14 p-1 bg-admin-gray-900 border-none rounded text-xs text-center text-white focus:ring-0">
@@ -191,7 +191,7 @@ endforeach; ?>
                                     Todos</button>
                                 <button type="button" onclick="deselecionarTodos()"
                                     class="text-[10px] uppercase font-bold text-admin-gray-500 hover:text-white transition-colors">Limpar
-                                    Seleção</button>
+                                    SeleÃ§Ã£o</button>
                             </div>
                         </div>
                     </div>
@@ -211,13 +211,13 @@ endforeach; ?>
                         class="w-5 h-5 bg-admin-gray-800 border-admin-gray-600 rounded text-admin-primary focus:ring-admin-primary/20">
                     <span
                         class="text-sm font-medium text-admin-gray-300 group-hover:text-white transition-colors">Exibir
-                        em destaque na página inicial</span>
+                        em destaque na pÃ¡gina inicial</span>
                 </label>
             </div>
 
             <button type="submit" name="adicionar"
                 class="w-full mt-10 bg-white text-black font-black text-lg py-5 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-tighter">
-                Adicionar Produto ao Catálogo
+                Adicionar Produto ao CatÃ¡logo
             </button>
         </form>
     </div>
@@ -228,7 +228,7 @@ endforeach; ?>
     const tamanhosSelecionados = <?= json_encode($last_tamanhos_selecionados)?>;
     const lastTamanhosEstoque = <?= json_encode($last_tamanhos_estoque)?>;
 
-    // Toggle seção Físico/Digital
+    // Toggle seÃ§Ã£o FÃ­sico/Digital
     document.querySelectorAll('input[name="tipo"]').forEach(radio => {
         radio.addEventListener('change', function () {
             const section = document.getElementById('tamanhos-section');

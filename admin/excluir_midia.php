@@ -5,7 +5,7 @@ require_once 'secure.php';
 if (isset($_GET['grupo_id'])) {
     $grupo_id = $_GET['grupo_id'];
 
-    // Busca todas as mídias do grupo para excluir os arquivos físicos
+    // Busca todas as mÃ­dias do grupo para excluir os arquivos fÃ­sicos
     $stmt = $pdo->prepare("SELECT path FROM midias WHERE grupo_id = ?");
     $stmt->execute([$grupo_id]);
     $midias = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -22,7 +22,7 @@ if (isset($_GET['grupo_id'])) {
         $stmt = $pdo->prepare("DELETE FROM midias WHERE grupo_id = ?");
         $stmt->execute([$grupo_id]);
 
-        $_SESSION['admin_message'] = "Postagem excluída com sucesso!";
+        $_SESSION['admin_message'] = "Postagem excluÃ­da com sucesso!";
     }
     else {
         // Tenta excluir single que pode ter sido passado como grupo_id (compatibilidade)
@@ -41,11 +41,11 @@ if (isset($_GET['grupo_id'])) {
 
                 $stmt = $pdo->prepare("DELETE FROM midias WHERE id = ?");
                 $stmt->execute([$id]);
-                $_SESSION['admin_message'] = "Mídia excluída com sucesso!";
+                $_SESSION['admin_message'] = "MÃ­dia excluÃ­da com sucesso!";
             }
         }
         else {
-            $_SESSION['admin_message'] = "Nenhuma mídia encontrada para este grupo.";
+            $_SESSION['admin_message'] = "Nenhuma mÃ­dia encontrada para este grupo.";
         }
     }
 
@@ -59,7 +59,7 @@ elseif (isset($_GET['id'])) {
     $midia = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($midia) {
-        // Deleta o arquivo físico
+        // Deleta o arquivo fÃ­sico
         $file_path = "../" . $midia['path'];
         if (file_exists($file_path)) {
             unlink($file_path);
@@ -69,10 +69,10 @@ elseif (isset($_GET['id'])) {
         $stmt = $pdo->prepare("DELETE FROM midias WHERE id = ?");
         $stmt->execute([$id]);
 
-        $_SESSION['admin_message'] = "Mídia excluída com sucesso!";
+        $_SESSION['admin_message'] = "MÃ­dia excluÃ­da com sucesso!";
     }
     else {
-        $_SESSION['admin_message'] = "Mídia não encontrada.";
+        $_SESSION['admin_message'] = "MÃ­dia nÃ£o encontrada.";
     }
 }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/gerenciar_afiliados.php - Gestão de Afiliados Premium com Busca
 require_once 'secure.php';
 $page_title = 'Afiliados';

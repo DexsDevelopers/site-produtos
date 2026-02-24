@@ -36,7 +36,7 @@
             }
         }
 
-        // Botão do header mobile
+        // BotÃ£o do header mobile
         if (mobileMenuBtn) {
             mobileMenuBtn.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -55,7 +55,7 @@
             });
         }
 
-        // Botão do bottom nav
+        // BotÃ£o do bottom nav
         if (bottomMenuBtn) {
             bottomMenuBtn.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -120,7 +120,7 @@
         });
     });
 
-    // Função para mostrar notificações (mobile-friendly)
+    // FunÃ§Ã£o para mostrar notificaÃ§Ãµes (mobile-friendly)
     function showNotification(message, type) {
         type = type || 'info';
         const notification = document.createElement('div');
@@ -170,19 +170,19 @@
         }, 3000);
     }
 
-    // Função para confirmar ações
+    // FunÃ§Ã£o para confirmar aÃ§Ãµes
     function confirmAction(message, callback) {
         if (confirm(message)) {
             callback();
         }
     }
 
-    // Função para formatar números
+    // FunÃ§Ã£o para formatar nÃºmeros
     function formatNumber(num) {
         return new Intl.NumberFormat('pt-BR').format(num);
     }
 
-    // Função para formatar moeda
+    // FunÃ§Ã£o para formatar moeda
     function formatCurrency(num) {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',

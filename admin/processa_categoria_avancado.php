@@ -1,8 +1,8 @@
 <?php
-// admin/processa_categoria_avancado.php - Processador Avançado de Categorias
+// admin/processa_categoria_avancado.php - Processador AvanÃ§ado de Categorias
 require_once 'secure.php';
 
-// --- LÓGICA PARA ADICIONAR NOVA CATEGORIA ---
+// --- LÃ“GICA PARA ADICIONAR NOVA CATEGORIA ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $nome = trim($_POST['nome']);
     $descricao = trim($_POST['descricao'] ?? '');
@@ -29,12 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
             $_SESSION['admin_message_type'] = 'error';
         }
     } else {
-        $_SESSION['admin_message'] = "O nome da categoria não pode ser vazio.";
+        $_SESSION['admin_message'] = "O nome da categoria nÃ£o pode ser vazio.";
         $_SESSION['admin_message_type'] = 'error';
     }
 }
 
-// --- LÓGICA PARA EDITAR CATEGORIA ---
+// --- LÃ“GICA PARA EDITAR CATEGORIA ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $categoria_id = (int)$_POST['categoria_id'];
     $nome = trim($_POST['nome']);
@@ -63,24 +63,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
             $_SESSION['admin_message_type'] = 'error';
         }
     } else {
-        $_SESSION['admin_message'] = "Dados inválidos para atualização.";
+        $_SESSION['admin_message'] = "Dados invÃ¡lidos para atualizaÃ§Ã£o.";
         $_SESSION['admin_message_type'] = 'error';
     }
 }
 
-// --- LÓGICA PARA DELETAR CATEGORIA ---
+// --- LÃ“GICA PARA DELETAR CATEGORIA ---
 if (isset($_GET['deletar'])) {
     $id = (int)$_GET['deletar'];
     
     if ($id > 0) {
         try {
-            // Verificar se há produtos nesta categoria
+            // Verificar se hÃ¡ produtos nesta categoria
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM produtos WHERE categoria_id = ?");
             $stmt->execute([$id]);
             $produtos_count = $stmt->fetchColumn();
             
             if ($produtos_count > 0) {
-                $_SESSION['admin_message'] = "Não é possível deletar esta categoria pois ela possui produtos associados. Remova os produtos primeiro.";
+                $_SESSION['admin_message'] = "NÃ£o Ã© possÃ­vel deletar esta categoria pois ela possui produtos associados. Remova os produtos primeiro.";
                 $_SESSION['admin_message_type'] = 'warning';
             } else {
                 $stmt = $pdo->prepare("DELETE FROM categorias WHERE id = ?");
@@ -95,7 +95,7 @@ if (isset($_GET['deletar'])) {
     }
 }
 
-// --- LÓGICA PARA ALTERAR STATUS ---
+// --- LÃ“GICA PARA ALTERAR STATUS ---
 if (isset($_GET['toggle_status'])) {
     $id = (int)$_GET['toggle_status'];
     
@@ -117,7 +117,7 @@ if (isset($_GET['toggle_status'])) {
     }
 }
 
-// --- LÓGICA PARA REORDENAR CATEGORIAS ---
+// --- LÃ“GICA PARA REORDENAR CATEGORIAS ---
 if (isset($_POST['reordenar'])) {
     $categorias = $_POST['categorias'] ?? [];
     
@@ -139,7 +139,7 @@ if (isset($_POST['reordenar'])) {
     }
 }
 
-// Redirecionar de volta para a página de gerenciamento
+// Redirecionar de volta para a pÃ¡gina de gerenciamento
 header("Location: gerenciar_categorias.php");
 exit();
 ?>

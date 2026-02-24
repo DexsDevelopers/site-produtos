@@ -1,5 +1,5 @@
 <?php
-// admin/processar_lote_produtos.php - Processador de Ações em Massa
+// admin/processar_lote_produtos.php - Processador de AÃ§Ãµes em Massa
 require_once 'secure.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -35,7 +35,7 @@ try {
                 $multiplier = 1 + ($percent / 100);
                 $stmt = $pdo->prepare("UPDATE produtos SET preco = preco * ? WHERE id IN ($placeholders)");
                 $stmt->execute(array_merge([$multiplier], $produtos_ids));
-                $_SESSION['admin_message'] = "Preços de " . count($produtos_ids) . " produtos ajustados em $percent%.";
+                $_SESSION['admin_message'] = "PreÃ§os de " . count($produtos_ids) . " produtos ajustados em $percent%.";
             }
             break;
 
@@ -44,7 +44,7 @@ try {
             if ($fixed_val != 0) {
                 $stmt = $pdo->prepare("UPDATE produtos SET preco = preco + ? WHERE id IN ($placeholders)");
                 $stmt->execute(array_merge([$fixed_val], $produtos_ids));
-                $_SESSION['admin_message'] = "Preços de " . count($produtos_ids) . " produtos ajustados em R$ " . number_format($fixed_val, 2, ',', '.') . ".";
+                $_SESSION['admin_message'] = "PreÃ§os de " . count($produtos_ids) . " produtos ajustados em R$ " . number_format($fixed_val, 2, ',', '.') . ".";
             }
             break;
 
@@ -53,20 +53,20 @@ try {
             if ($new_price >= 0) {
                 $stmt = $pdo->prepare("UPDATE produtos SET preco = ? WHERE id IN ($placeholders)");
                 $stmt->execute(array_merge([$new_price], $produtos_ids));
-                $_SESSION['admin_message'] = "Novo preço de R$ " . number_format($new_price, 2, ',', '.') . " aplicado a " . count($produtos_ids) . " produtos.";
+                $_SESSION['admin_message'] = "Novo preÃ§o de R$ " . number_format($new_price, 2, ',', '.') . " aplicado a " . count($produtos_ids) . " produtos.";
             }
             break;
 
         case 'set_free_shipping':
             $stmt = $pdo->prepare("UPDATE produtos SET frete_gratis = 1 WHERE id IN ($placeholders)");
             $stmt->execute($produtos_ids);
-            $_SESSION['admin_message'] = count($produtos_ids) . " produtos marcados com Frete Grátis.";
+            $_SESSION['admin_message'] = count($produtos_ids) . " produtos marcados com Frete GrÃ¡tis.";
             break;
 
         case 'unset_free_shipping':
             $stmt = $pdo->prepare("UPDATE produtos SET frete_gratis = 0 WHERE id IN ($placeholders)");
             $stmt->execute($produtos_ids);
-            $_SESSION['admin_message'] = count($produtos_ids) . " produtos com Frete Grátis removido.";
+            $_SESSION['admin_message'] = count($produtos_ids) . " produtos com Frete GrÃ¡tis removido.";
             break;
 
         case 'set_featured':
@@ -93,11 +93,11 @@ try {
 
             $stmt = $pdo->prepare("DELETE FROM produtos WHERE id IN ($placeholders)");
             $stmt->execute($produtos_ids);
-            $_SESSION['admin_message'] = count($produtos_ids) . " produtos excluídos permanentemente.";
+            $_SESSION['admin_message'] = count($produtos_ids) . " produtos excluÃ­dos permanentemente.";
             break;
 
         default:
-            $_SESSION['admin_message'] = "Ação inválida.";
+            $_SESSION['admin_message'] = "AÃ§Ã£o invÃ¡lida.";
     }
 
 }

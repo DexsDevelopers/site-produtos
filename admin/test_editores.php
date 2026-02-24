@@ -3,7 +3,7 @@
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
-// Verificar se as tabelas têm as colunas necessárias
+// Verificar se as tabelas tÃªm as colunas necessÃ¡rias
 function verificarColunas($pdo, $tabela, $colunas) {
     try {
         $stmt = $pdo->query("DESCRIBE $tabela");
@@ -26,14 +26,14 @@ function verificarColunas($pdo, $tabela, $colunas) {
     }
 }
 
-// Colunas necessárias para categorias
+// Colunas necessÃ¡rias para categorias
 $colunas_categorias = [
     'id', 'nome', 'descricao', 'ordem', 'icone', 'cor', 
     'ativa', 'destaque', 'meta_title', 'meta_description',
     'data_criacao', 'data_atualizacao'
 ];
 
-// Colunas necessárias para banners
+// Colunas necessÃ¡rias para banners
 $colunas_banners = [
     'id', 'titulo', 'subtitulo', 'link', 'texto_botao', 'tipo',
     'posicao', 'ativo', 'nova_aba', 'imagem', 'data_criacao', 'data_atualizacao'
@@ -60,17 +60,17 @@ try {
     $testes[] = ['nome' => 'Tabela Banners', 'status' => 'erro', 'mensagem' => $e->getMessage()];
 }
 
-// Teste 2: Verificar permissões de upload
+// Teste 2: Verificar permissÃµes de upload
 $upload_dir = '../assets/uploads/';
 $testes[] = [
-    'nome' => 'Diretório de Upload',
+    'nome' => 'DiretÃ³rio de Upload',
     'status' => is_dir($upload_dir) && is_writable($upload_dir) ? 'ok' : 'erro',
     'mensagem' => is_dir($upload_dir) ? 
-        (is_writable($upload_dir) ? 'Diretório existe e é gravável' : 'Diretório existe mas não é gravável') :
-        'Diretório não existe'
+        (is_writable($upload_dir) ? 'DiretÃ³rio existe e Ã© gravÃ¡vel' : 'DiretÃ³rio existe mas nÃ£o Ã© gravÃ¡vel') :
+        'DiretÃ³rio nÃ£o existe'
 ];
 
-// Teste 3: Verificar arquivos necessários
+// Teste 3: Verificar arquivos necessÃ¡rios
 $arquivos_necessarios = [
     'editar_categoria.php',
     'editar_banner.php',
@@ -84,15 +84,15 @@ foreach ($arquivos_necessarios as $arquivo) {
     $testes[] = [
         'nome' => "Arquivo $arquivo",
         'status' => file_exists($arquivo) ? 'ok' : 'erro',
-        'mensagem' => file_exists($arquivo) ? 'Arquivo existe' : 'Arquivo não encontrado'
+        'mensagem' => file_exists($arquivo) ? 'Arquivo existe' : 'Arquivo nÃ£o encontrado'
     ];
 }
 
-// Teste 4: Verificar sessão de admin
+// Teste 4: Verificar sessÃ£o de admin
 $testes[] = [
-    'nome' => 'Sessão de Admin',
+    'nome' => 'SessÃ£o de Admin',
     'status' => isset($_SESSION['user_id']) && isset($_SESSION['user_nome']) ? 'ok' : 'erro',
-    'mensagem' => isset($_SESSION['user_id']) ? 'Usuário logado' : 'Usuário não logado'
+    'mensagem' => isset($_SESSION['user_id']) ? 'UsuÃ¡rio logado' : 'UsuÃ¡rio nÃ£o logado'
 ];
 ?>
 
@@ -100,7 +100,7 @@ $testes[] = [
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white">Teste dos Editores</h1>
-        <p class="text-admin-gray-400 mt-2">Verificação das funcionalidades de edição de categorias e banners</p>
+        <p class="text-admin-gray-400 mt-2">VerificaÃ§Ã£o das funcionalidades de ediÃ§Ã£o de categorias e banners</p>
     </div>
 
     <!-- Status Geral -->
@@ -115,13 +115,13 @@ $testes[] = [
             </div>
             
             <?php if ($status_categorias['status'] === 'ok'): ?>
-                <p class="text-admin-gray-400 text-sm">Todas as colunas necessárias estão presentes</p>
+                <p class="text-admin-gray-400 text-sm">Todas as colunas necessÃ¡rias estÃ£o presentes</p>
             <?php else: ?>
                 <div class="space-y-2">
                     <p class="text-admin-error text-sm font-medium">Colunas faltando:</p>
                     <ul class="text-admin-gray-400 text-sm space-y-1">
                         <?php foreach ($status_categorias['faltando'] as $coluna): ?>
-                            <li>• <?= $coluna ?></li>
+                            <li>â€¢ <?= $coluna ?></li>
                         <?php endforeach; ?>
                     </ul>
                     <p class="text-admin-warning text-sm mt-2">
@@ -141,13 +141,13 @@ $testes[] = [
             </div>
             
             <?php if ($status_banners['status'] === 'ok'): ?>
-                <p class="text-admin-gray-400 text-sm">Todas as colunas necessárias estão presentes</p>
+                <p class="text-admin-gray-400 text-sm">Todas as colunas necessÃ¡rias estÃ£o presentes</p>
             <?php else: ?>
                 <div class="space-y-2">
                     <p class="text-admin-error text-sm font-medium">Colunas faltando:</p>
                     <ul class="text-admin-gray-400 text-sm space-y-1">
                         <?php foreach ($status_banners['faltando'] as $coluna): ?>
-                            <li>• <?= $coluna ?></li>
+                            <li>â€¢ <?= $coluna ?></li>
                         <?php endforeach; ?>
                     </ul>
                     <p class="text-admin-warning text-sm mt-2">
@@ -177,7 +177,7 @@ $testes[] = [
         </div>
     </div>
 
-    <!-- Ações -->
+    <!-- AÃ§Ãµes -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <div class="admin-card rounded-xl p-6">
             <h3 class="text-lg font-semibold text-white mb-4">Testar Editores</h3>
@@ -208,19 +208,19 @@ $testes[] = [
         </div>
     </div>
 
-    <!-- Instruções -->
+    <!-- InstruÃ§Ãµes -->
     <?php if ($status_categorias['status'] !== 'ok' || $status_banners['status'] !== 'ok'): ?>
         <div class="admin-card rounded-xl p-6 mt-8 bg-admin-warning/10 border border-admin-warning/20">
             <h3 class="text-lg font-semibold text-admin-warning mb-4">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                Ação Necessária
+                AÃ§Ã£o NecessÃ¡ria
             </h3>
             <div class="space-y-3 text-admin-gray-300">
-                <p>Para usar os editores avançados, você precisa atualizar o banco de dados:</p>
+                <p>Para usar os editores avanÃ§ados, vocÃª precisa atualizar o banco de dados:</p>
                 <ol class="list-decimal list-inside space-y-2 ml-4">
                     <li>Execute o arquivo <code>update_database.sql</code> no seu banco de dados</li>
                     <li>Verifique se todas as colunas foram adicionadas</li>
-                    <li>Teste novamente esta página</li>
+                    <li>Teste novamente esta pÃ¡gina</li>
                 </ol>
                 <div class="mt-4 p-4 bg-admin-gray-800 rounded-lg">
                     <p class="text-sm font-medium text-white mb-2">Comando SQL:</p>
@@ -235,7 +235,7 @@ $testes[] = [
                 Tudo Pronto!
             </h3>
             <p class="text-admin-gray-300">
-                Todas as funcionalidades estão configuradas corretamente. Você pode começar a usar os editores avançados de categorias e banners.
+                Todas as funcionalidades estÃ£o configuradas corretamente. VocÃª pode comeÃ§ar a usar os editores avanÃ§ados de categorias e banners.
             </p>
         </div>
     <?php endif; ?>

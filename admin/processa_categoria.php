@@ -2,12 +2,12 @@
 // admin/processa_categoria.php
 require_once 'secure.php';
 
-// --- LÓGICA PARA ADICIONAR NOVA CATEGORIA ---
+// --- LÃ“GICA PARA ADICIONAR NOVA CATEGORIA ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $nome = trim($_POST['nome']);
     $parent_id = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
     
-    // Campos adicionais do editor avançado (se existirem no POST)
+    // Campos adicionais do editor avanÃ§ado (se existirem no POST)
     $descricao = trim($_POST['descricao'] ?? '');
     $ordem = isset($_POST['ordem']) ? (int)$_POST['ordem'] : null;
     $icone = trim($_POST['icone'] ?? 'fas fa-tag');
@@ -26,12 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
                 $ordem = ($max_ordem !== false) ? $max_ordem + 1 : 0;
             }
 
-            // Tenta inserir com todos os campos possíveis
+            // Tenta inserir com todos os campos possÃ­veis
             try {
                 $stmt = $pdo->prepare("INSERT INTO categorias (nome, parent_id, descricao, ordem, icone, cor, ativa, destaque, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description]);
             } catch (PDOException $e) {
-                // Se falhar, tenta apenas os campos básicos (compatibilidade com versões anteriores da tabela)
+                // Se falhar, tenta apenas os campos bÃ¡sicos (compatibilidade com versÃµes anteriores da tabela)
                 $stmt = $pdo->prepare("INSERT INTO categorias (nome, ordem, parent_id) VALUES (?, ?, ?)");
                 $stmt->execute([$nome, $ordem, $parent_id]);
             }
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
             $_SESSION['admin_message'] = "Categoria adicionada com sucesso!";
         }
         catch (PDOException $e) {
-            // Se a coluna parent_id não existir, tenta adicionar
+            // Se a coluna parent_id nÃ£o existir, tenta adicionar
             if (strpos($e->getMessage(), "Unknown column 'parent_id'") !== false) {
                 $pdo->exec("ALTER TABLE categorias ADD COLUMN parent_id INT DEFAULT NULL");
                 // Tenta novamente
@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
         }
     }
     else {
-        $_SESSION['admin_message'] = "O nome da categoria não pode ser vazio.";
+        $_SESSION['admin_message'] = "O nome da categoria nÃ£o pode ser vazio.";
     }
 }
 
-// --- LÓGICA PARA EDITAR CATEGORIA ---
+// --- LÃ“GICA PARA EDITAR CATEGORIA ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $categoria_id = (int)$_POST['categoria_id'];
     $nome = trim($_POST['nome']);
@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
 
     if (!empty($nome) && $categoria_id > 0) {
         try {
-            // Tenta atualizar com todos os campos possíveis
+            // Tenta atualizar com todos os campos possÃ­veis
             try {
                 $stmt = $pdo->prepare("
                     UPDATE categorias 
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
                 ");
                 $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $categoria_id]);
             } catch (PDOException $e) {
-                // Fallback para campos básicos
+                // Fallback para campos bÃ¡sicos
                 $stmt = $pdo->prepare("UPDATE categorias SET nome = ?, parent_id = ?, ordem = ? WHERE id = ?");
                 $stmt->execute([$nome, $parent_id, $ordem, $categoria_id]);
             }
@@ -96,15 +96,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
             $_SESSION['admin_message'] = "Erro ao atualizar categoria: " . $e->getMessage();
         }
     } else {
-        $_SESSION['admin_message'] = "Dados inválidos para atualização.";
+        $_SESSION['admin_message'] = "Dados invÃ¡lidos para atualizaÃ§Ã£o.";
     }
 }
 
-// --- LÓGICA PARA DELETAR CATEGORIA ---
+// --- LÃ“GICA PARA DELETAR CATEGORIA ---
 if (isset($_GET['deletar'])) {
     $id = (int)$_GET['deletar'];
     try {
-        // Primeiro, remove o parent_id das subcategorias para não quebrá-las ou deletar em cascata indesejada
+        // Primeiro, remove o parent_id das subcategorias para nÃ£o quebrÃ¡-las ou deletar em cascata indesejada
         $stmt_sub = $pdo->prepare("UPDATE categorias SET parent_id = NULL WHERE parent_id = ?");
         $stmt_sub->execute([$id]);
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/gerenciar_cupons.php - Gestão de Cupons Premium com Filtros
 require_once 'secure.php';
 $page_title = 'Cupons';

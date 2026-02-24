@@ -8,16 +8,16 @@ if ($is_direct_access)
     echo "<h1>Migrando Banco de Dados...</h1>";
 
 try {
-    // 1. Adicionar destaque à tabela produtos
+    // 1. Adicionar destaque Ã  tabela produtos
     try {
         $pdo->exec("ALTER TABLE produtos ADD COLUMN destaque TINYINT(1) DEFAULT 0");
         if ($is_direct_access)
-            echo "<p>Coluna 'destaque' adicionada à tabela 'produtos'.</p>";
+            echo "<p>Coluna 'destaque' adicionada Ã  tabela 'produtos'.</p>";
     }
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column name') !== false || strpos($e->getMessage(), 'already exists') !== false) {
             if ($is_direct_access)
-                echo "<p>Coluna 'destaque' já existe na tabela 'produtos'.</p>";
+                echo "<p>Coluna 'destaque' jÃ¡ existe na tabela 'produtos'.</p>";
         }
         else {
             if ($is_direct_access)
@@ -25,16 +25,16 @@ try {
         }
     }
 
-    // 2. Adicionar exibir_home à tabela categorias
+    // 2. Adicionar exibir_home Ã  tabela categorias
     try {
         $pdo->exec("ALTER TABLE categorias ADD COLUMN exibir_home TINYINT(1) DEFAULT 1");
         if ($is_direct_access)
-            echo "<p>Coluna 'exibir_home' adicionada à tabela 'categorias'.</p>";
+            echo "<p>Coluna 'exibir_home' adicionada Ã  tabela 'categorias'.</p>";
     }
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column name') !== false || strpos($e->getMessage(), 'already exists') !== false) {
             if ($is_direct_access)
-                echo "<p>Coluna 'exibir_home' já existe na tabela 'categorias'.</p>";
+                echo "<p>Coluna 'exibir_home' jÃ¡ existe na tabela 'categorias'.</p>";
         }
         else {
             if ($is_direct_access)
@@ -43,12 +43,12 @@ try {
     }
 
     if ($is_direct_access) {
-        echo "<h2>Migração finalizada!</h2>";
+        echo "<h2>MigraÃ§Ã£o finalizada!</h2>";
         echo "<a href='gerenciar_produtos.php'>Voltar para Produtos</a>";
     }
 
 }
 catch (Exception $e) {
-    echo "<p style='color:red'>Erro crítico: " . $e->getMessage() . "</p>";
+    echo "<p style='color:red'>Erro crÃ­tico: " . $e->getMessage() . "</p>";
 }
 ?>

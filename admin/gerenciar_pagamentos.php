@@ -1,5 +1,5 @@
 <?php
-// admin/gerenciar_pagamentos.php - Gerenciar Métodos de Pagamento
+// admin/gerenciar_pagamentos.php - Gerenciar MÃ©todos de Pagamento
 $page_title = 'Gerenciar Pagamentos';
 require_once 'secure.php';
 require_once '../includes/file_storage.php';
@@ -7,7 +7,7 @@ require_once '../includes/file_storage.php';
 $fileStorage = new FileStorage();
 $config = $fileStorage->getConfig();
 
-// Processa formulário
+// Processa formulÃ¡rio
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -17,13 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cidade_pix = trim($_POST['cidade_pix'] ?? '');
         $pix_status = $_POST['pix_status'] ?? 'off';
         
-        // Validações
+        // ValidaÃ§Ãµes
         $erros_pix = [];
         
         if ($pix_status === 'on') {
-            if (empty($chave_pix)) $erros_pix[] = 'A chave PIX é obrigatória quando o método está ativo.';
-            if (empty($nome_pix)) $erros_pix[] = 'O nome do recebedor é obrigatório quando o método está ativo.';
-            if (empty($cidade_pix)) $erros_pix[] = 'A cidade é obrigatória quando o método está ativo.';
+            if (empty($chave_pix)) $erros_pix[] = 'A chave PIX Ã© obrigatÃ³ria quando o mÃ©todo estÃ¡ ativo.';
+            if (empty($nome_pix)) $erros_pix[] = 'O nome do recebedor Ã© obrigatÃ³rio quando o mÃ©todo estÃ¡ ativo.';
+            if (empty($cidade_pix)) $erros_pix[] = 'A cidade Ã© obrigatÃ³ria quando o mÃ©todo estÃ¡ ativo.';
         }
         
         if (empty($erros_pix)) {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             
             if ($resultado) {
-                $_SESSION['success_message'] = 'Configurações de PIX atualizadas!';
+                $_SESSION['success_message'] = 'ConfiguraÃ§Ãµes de PIX atualizadas!';
                 header('Location: gerenciar_pagamentos.php');
                 exit();
             }
@@ -43,12 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'infinitepay') {
         $infinite_tag = trim($_POST['infinite_tag'] ?? '');
         $infinite_status = $_POST['infinite_status'] ?? 'off';
-        // Remove @ ou $ se o usuário colocar
+        // Remove @ ou $ se o usuÃ¡rio colocar
         $infinite_tag = str_replace(['@', '$'], '', $infinite_tag);
         
         $erros_infinite = [];
         if ($infinite_status === 'on' && empty($infinite_tag)) {
-            $erros_infinite[] = 'A InfiniteTag é obrigatória quando o método está ativo.';
+            $erros_infinite[] = 'A InfiniteTag Ã© obrigatÃ³ria quando o mÃ©todo estÃ¡ ativo.';
         }
         
         if (empty($erros_infinite)) {
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             
             if ($resultado) {
-                $_SESSION['success_message'] = 'Configurações de InfinitePay atualizadas!';
+                $_SESSION['success_message'] = 'ConfiguraÃ§Ãµes de InfinitePay atualizadas!';
                 header('Location: gerenciar_pagamentos.php');
                 exit();
             }
@@ -74,7 +74,7 @@ require_once 'templates/header_admin.php';
     <div class="admin-card rounded-2xl p-6">
         <h1 class="text-3xl font-bold text-white mb-2">
             <i class="fas fa-credit-card mr-2 text-admin-primary"></i>
-            Métodos de Pagamento
+            MÃ©todos de Pagamento
         </h1>
         <p class="text-admin-gray-400">Configure como seus clientes podem pagar.</p>
     </div>
@@ -114,7 +114,7 @@ require_once 'templates/header_admin.php';
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-white mb-2">InfiniteTag (Seu usuário)</label>
+                        <label class="block text-sm font-medium text-white mb-2">InfiniteTag (Seu usuÃ¡rio)</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-admin-gray-400">$</span>
                             <input 
@@ -129,7 +129,7 @@ require_once 'templates/header_admin.php';
 
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
                         <i class="fas fa-save"></i>
-                        Salvar Configurações
+                        Salvar ConfiguraÃ§Ãµes
                     </button>
                 </div>
             </form>
@@ -137,9 +137,9 @@ require_once 'templates/header_admin.php';
             <div class="mt-6 p-4 bg-admin-gray-800/50 rounded-lg">
                 <h4 class="text-sm font-bold text-white mb-2">Como funciona?</h4>
                 <ul class="text-xs text-admin-gray-400 space-y-1">
-                    <li>• O cliente é redirecionado para a InfinitePay.</li>
-                    <li>• Suporta Cartão de Crédito e PIX.</li>
-                    <li>• Confirmação automática via Checkout Integrado.</li>
+                    <li>â€¢ O cliente Ã© redirecionado para a InfinitePay.</li>
+                    <li>â€¢ Suporta CartÃ£o de CrÃ©dito e PIX.</li>
+                    <li>â€¢ ConfirmaÃ§Ã£o automÃ¡tica via Checkout Integrado.</li>
                 </ul>
             </div>
         </div>
@@ -156,7 +156,7 @@ require_once 'templates/header_admin.php';
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-white">PIX Manual</h2>
-                            <p class="text-sm text-admin-gray-400">Transferência Direta</p>
+                            <p class="text-sm text-admin-gray-400">TransferÃªncia Direta</p>
                         </div>
                     </div>
 
@@ -201,7 +201,7 @@ require_once 'templates/header_admin.php';
 
                     <button type="submit" class="w-full bg-admin-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
                         <i class="fas fa-save"></i>
-                        Salvar Configurações
+                        Salvar ConfiguraÃ§Ãµes
                     </button>
                 </div>
             </form>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/pedido_detalhes_admin.php
 require_once 'secure.php';
 $page_title = 'Detalhes do Pedido';

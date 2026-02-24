@@ -3,19 +3,19 @@
 require_once 'secure.php';
 
 if (!isset($_GET['grupo_id'])) {
-    die("ID do grupo não especificado.");
+    die("ID do grupo nÃ£o especificado.");
 }
 
 $grupo_id = $_GET['grupo_id'];
 
 try {
-    // Busca todas as mídias do grupo
+    // Busca todas as mÃ­dias do grupo
     $stmt = $pdo->prepare("SELECT * FROM midias WHERE grupo_id = ?");
     $stmt->execute([$grupo_id]);
     $midias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($midias)) {
-        die("Nenhuma mídia encontrada para este grupo.");
+        die("Nenhuma mÃ­dia encontrada para este grupo.");
     }
 
     // Se for apenas 1 arquivo, redireciona direto para ele
@@ -28,11 +28,11 @@ try {
             exit;
         }
         else {
-            die("Arquivo não encontrado no servidor.");
+            die("Arquivo nÃ£o encontrado no servidor.");
         }
     }
 
-    // Se forem múltiplos, cria um ZIP
+    // Se forem mÃºltiplos, cria um ZIP
     $zipname = 'postagem_' . $grupo_id . '.zip';
     $zip_path = sys_get_temp_dir() . '/' . $zipname;
 
@@ -48,14 +48,14 @@ try {
 
         $zip->close();
 
-        // Força o download
+        // ForÃ§a o download
         if (file_exists($zip_path)) {
             header('Content-Type: application/zip');
             header('Content-Disposition: attachment; filename="' . $zipname . '"');
             header('Content-Length: ' . filesize($zip_path));
             readfile($zip_path);
 
-            // Remove o arquivo temporário
+            // Remove o arquivo temporÃ¡rio
             unlink($zip_path);
             exit;
         }
@@ -64,7 +64,7 @@ try {
         }
     }
     else {
-        die("Não foi possível criar o arquivo ZIP.");
+        die("NÃ£o foi possÃ­vel criar o arquivo ZIP.");
     }
 
 }

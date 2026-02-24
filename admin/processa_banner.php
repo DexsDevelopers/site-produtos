@@ -2,7 +2,7 @@
 // admin/processa_banner.php
 require_once 'secure.php';
 
-// --- LÓGICA PARA EDITAR BANNER ---
+// --- LÃ“GICA PARA EDITAR BANNER ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $banner_id = (int)$_POST['banner_id'];
     $titulo = trim($_POST['titulo']);
@@ -55,12 +55,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
             $_SESSION['admin_message_type'] = 'error';
         }
     } else {
-        $_SESSION['admin_message'] = "ID do banner inválido.";
+        $_SESSION['admin_message'] = "ID do banner invÃ¡lido.";
         $_SESSION['admin_message_type'] = 'error';
     }
 }
 
-// --- LÓGICA PARA ADICIONAR BANNER ---
+// --- LÃ“GICA PARA ADICIONAR BANNER ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $titulo = trim($_POST['titulo']);
     $subtitulo = trim($_POST['subtitulo']);
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $nova_aba = isset($_POST['nova_aba']) ? 1 : 0;
     
     if (!isset($_FILES['imagem']) || $_FILES['imagem']['error'] !== 0) {
-        $_SESSION['admin_message'] = "A imagem do banner é obrigatória.";
+        $_SESSION['admin_message'] = "A imagem do banner Ã© obrigatÃ³ria.";
         $_SESSION['admin_message_type'] = 'error';
         header("Location: gerenciar_banners.php");
         exit();
@@ -103,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     }
 }
 
-// --- LÓGICA PARA DELETAR BANNER ---
+// --- LÃ“GICA PARA DELETAR BANNER ---
 if (isset($_GET['deletar'])) {
     $id = (int)$_GET['deletar'];
     try {

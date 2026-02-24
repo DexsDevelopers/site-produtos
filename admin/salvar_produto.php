@@ -2,7 +2,7 @@
 // admin/salvar_produto.php (COM SISTEMA DE TAMANHOS)
 require_once 'secure.php';
 
-// --- LÓGICA PARA ADICIONAR UM NOVO PRODUTO ---
+// --- LÃ“GICA PARA ADICIONAR UM NOVO PRODUTO ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
 
     $nome = trim($_POST['nome']);
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     }
 
     if (empty($nome) || empty($preco) || empty($categoria_id) || !isset($_FILES['imagem']) || $_FILES['imagem']['error'] !== 0) {
-        $_SESSION['admin_message'] = "Nome, Preço, Categoria e Imagem são obrigatórios.";
+        $_SESSION['admin_message'] = "Nome, PreÃ§o, Categoria e Imagem sÃ£o obrigatÃ³rios.";
         header("Location: adicionar_produto.php");
         exit();
     }
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
 
             $_SESSION['admin_message'] = "Produto adicionado com sucesso!";
 
-            // Coleta os estoques para persistência
+            // Coleta os estoques para persistÃªncia
             $estoque_persist = [];
             if ($tipo === 'fisico' && !empty($tamanhos_selecionados)) {
                 foreach ($tamanhos_selecionados as $tam_id) {
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
                 }
             }
 
-            // Salva configurações para o próximo cadastro (Cadastro em Massa)
+            // Salva configuraÃ§Ãµes para o prÃ³ximo cadastro (Cadastro em Massa)
             $_SESSION['last_product_config'] = [
                 'tipo' => $tipo,
                 'categoria_id' => $categoria_id,
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     exit();
 }
 
-// --- LÓGICA PARA EDITAR UM PRODUTO EXISTENTE ---
+// --- LÃ“GICA PARA EDITAR UM PRODUTO EXISTENTE ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
 
     $id = (int)$_POST['id'];
@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     }
 
     if (empty($nome) || empty($preco) || empty($id) || empty($categoria_id)) {
-        $_SESSION['admin_message'] = "Nome, Preço e Categoria são obrigatórios.";
+        $_SESSION['admin_message'] = "Nome, PreÃ§o e Categoria sÃ£o obrigatÃ³rios.";
         header("Location: editar_produto.php?id=$id");
         exit();
     }

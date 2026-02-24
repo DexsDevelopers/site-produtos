@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // config.php - Base Configuration & Security
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

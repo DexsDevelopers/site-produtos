@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/carrinhos_abandonados.php - Gestão de Carrinhos Abandonados
 require_once 'secure.php';
 $page_title = 'Carrinhos Abandonados';

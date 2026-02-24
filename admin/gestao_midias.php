@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/gestao_midias.php - Premium Media Management
 require_once 'secure.php';
 $page_title = 'Gestão de Mídias';

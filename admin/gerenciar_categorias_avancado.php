@@ -1,12 +1,12 @@
 <?php
-// admin/gerenciar_categorias_avancado.php - Gerenciamento Avançado de Categorias
+// admin/gerenciar_categorias_avancado.php - Gerenciamento AvanÃ§ado de Categorias
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
 // Busca todas as categorias ordenadas
 $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC, nome ASC')->fetchAll(PDO::FETCH_ASSOC);
 
-// Estatísticas
+// EstatÃ­sticas
 $total_categorias = count($categorias);
 $categorias_ativas = count(array_filter($categorias, fn($c) => $c['ativa']));
 $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque']));
@@ -27,7 +27,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
         </div>
     </div>
 
-    <!-- Estatísticas -->
+    <!-- EstatÃ­sticas -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="admin-card rounded-xl p-6">
             <div class="flex items-center">
@@ -91,7 +91,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                 </button>
                 <button onclick="toggleBulkActions()" class="btn-secondary">
                     <i class="fas fa-check-square mr-2"></i>
-                    Ações em Lote
+                    AÃ§Ãµes em Lote
                 </button>
             </div>
         </div>
@@ -102,12 +102,12 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                     <div class="categoria-item bg-admin-gray-800 rounded-lg p-6 border border-admin-gray-700 hover:border-admin-primary/30 transition-all" data-id="<?= $categoria['id'] ?>">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
-                                <!-- Ícone -->
+                                <!-- Ãcone -->
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: <?= $categoria['cor'] ?>">
                                     <i class="<?= $categoria['icone'] ?> text-white text-lg"></i>
                                 </div>
                                 
-                                <!-- Informações -->
+                                <!-- InformaÃ§Ãµes -->
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-3">
                                         <h3 class="text-lg font-semibold text-white"><?= htmlspecialchars($categoria['nome']) ?></h3>
@@ -138,17 +138,17 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                                     
                                     <div class="flex items-center space-x-4 mt-2 text-xs text-admin-gray-500">
                                         <span>Ordem: <?= $categoria['ordem'] ?></span>
-                                        <span>•</span>
+                                        <span>â€¢</span>
                                         <span>Criada: <?= date('d/m/Y', strtotime($categoria['data_criacao'])) ?></span>
                                         <?php if ($categoria['data_atualizacao']): ?>
-                                            <span>•</span>
+                                            <span>â€¢</span>
                                             <span>Atualizada: <?= date('d/m/Y', strtotime($categoria['data_atualizacao'])) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Ações -->
+                            <!-- AÃ§Ãµes -->
                             <div class="flex items-center space-x-2">
                                 <a href="editar_categoria.php?id=<?= $categoria['id'] ?>" 
                                    class="p-2 text-admin-primary hover:bg-admin-primary/20 rounded-lg transition-colors"
@@ -187,7 +187,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
     </div>
 </div>
 
-<!-- Modal de Reordenação -->
+<!-- Modal de ReordenaÃ§Ã£o -->
 <div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeReorderOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full" onclick="event.stopPropagation()">
@@ -201,7 +201,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
             <p class="text-admin-gray-400 mb-6">Arraste e solte para reordenar as categorias</p>
             
             <div id="reorderList" class="space-y-2 max-h-96 overflow-y-auto">
-                <!-- Lista será preenchida via JavaScript -->
+                <!-- Lista serÃ¡ preenchida via JavaScript -->
             </div>
             
             <div class="flex justify-end gap-4 mt-6">
@@ -323,11 +323,11 @@ function saveReorder() {
 }
 
 function toggleBulkActions() {
-    // Implementar ações em lote
-    alert('Funcionalidade de ações em lote será implementada em breve!');
+    // Implementar aÃ§Ãµes em lote
+    alert('Funcionalidade de aÃ§Ãµes em lote serÃ¡ implementada em breve!');
 }
 
-// Tornar a lista arrastável
+// Tornar a lista arrastÃ¡vel
 document.addEventListener('DOMContentLoaded', function() {
     const reorderList = document.getElementById('reorderList');
     

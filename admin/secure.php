@@ -1,15 +1,15 @@
 <?php
 // admin/secure.php
 
-// Inicia a sessão se ainda não foi iniciada
+// Inicia a sessÃ£o se ainda nÃ£o foi iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Inclui a configuração do banco de dados (necessário para verificação de cookie)
+// Inclui a configuraÃ§Ã£o do banco de dados (necessÃ¡rio para verificaÃ§Ã£o de cookie)
 require_once '../config.php';
 
-// 1. Verifica se o usuário está logado. Se não, tenta via cookie ou redireciona.
+// 1. Verifica se o usuÃ¡rio estÃ¡ logado. Se nÃ£o, tenta via cookie ou redireciona.
 if (!isset($_SESSION['user_id'])) {
 
     $logged_via_cookie = false;
@@ -40,15 +40,15 @@ if (!isset($_SESSION['user_id'])) {
     }
 }
 
-// 2. Verifica se o usuário logado é realmente um administrador
+// 2. Verifica se o usuÃ¡rio logado Ã© realmente um administrador
 try {
     $stmt = $pdo->prepare("SELECT role FROM usuarios WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Se o usuário não for encontrado ou não tiver o cargo 'admin', redireciona para a página inicial
+    // Se o usuÃ¡rio nÃ£o for encontrado ou nÃ£o tiver o cargo 'admin', redireciona para a pÃ¡gina inicial
     if (!$usuario || $usuario['role'] !== 'admin') {
-        // Remove sessão e cookie se inválido
+        // Remove sessÃ£o e cookie se invÃ¡lido
         session_destroy();
         setcookie('remember_token', '', time() - 3600, '/');
         header('Location: ../index.php');
@@ -60,5 +60,5 @@ catch (PDOException $e) {
     exit();
 }
 
-// Se o script chegou até aqui, o usuário é um admin verificado.
+// Se o script chegou atÃ© aqui, o usuÃ¡rio Ã© um admin verificado.
 ?>

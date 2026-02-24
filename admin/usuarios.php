@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/usuarios.php - Gerenciamento de Clientes
 require_once 'secure.php';
 $page_title = 'Gerenciar Clientes';

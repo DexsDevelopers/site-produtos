@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/templates/header_admin.php - Header V2 (Macario Brazil Design System)
 require_once dirname(__DIR__) . '/../config.php';
 ?>

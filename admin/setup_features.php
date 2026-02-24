@@ -1,9 +1,9 @@
 <?php
-// admin/setup_features.php - Versão MySQL/MariaDB
+// admin/setup_features.php - VersÃ£o MySQL/MariaDB
 require_once __DIR__ . '/../config.php';
 
 echo "<pre>";
-echo "Iniciando configuração para MySQL/MariaDB...\n\n";
+echo "Iniciando configuraÃ§Ã£o para MySQL/MariaDB...\n\n";
 
 // 1. Tabela de Cupons
 try {
@@ -58,7 +58,7 @@ function columnExists(PDO $pdo, $table, $column)
 }
 
 try {
-    // Adiciona colunas se não existirem
+    // Adiciona colunas se nÃ£o existirem
     if (!columnExists($pdo, 'pedidos', 'codigo_rastreio')) {
         $pdo->exec("ALTER TABLE pedidos ADD COLUMN codigo_rastreio VARCHAR(100) NULL");
         echo "Coluna 'codigo_rastreio' adicionada.\n";
@@ -74,7 +74,7 @@ try {
         echo "Coluna 'url_rastreio' adicionada.\n";
     }
 
-    echo "Verificação de colunas em 'pedidos' concluída.\n";
+    echo "VerificaÃ§Ã£o de colunas em 'pedidos' concluÃ­da.\n";
 
 }
 catch (Exception $e) {
@@ -90,11 +90,11 @@ try {
         echo "Cupons de exemplo inseridos.\n";
     }
     else {
-        echo "Tabela cupons já contém dados.\n";
+        echo "Tabela cupons jÃ¡ contÃ©m dados.\n";
     }
 }
 catch (Exception $e) {
     echo "Erro inserir cupons: " . $e->getMessage() . "\n";
 }
 
-echo "\nSetup concluído com sucesso.</pre>";
+echo "\nSetup concluÃ­do com sucesso.</pre>";

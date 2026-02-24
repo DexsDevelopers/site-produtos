@@ -27,7 +27,7 @@ try {
         }
     }
 
-    // Lista plana para o loop da tabela (mantendo a ordem hierárquica)
+    // Lista plana para o loop da tabela (mantendo a ordem hierÃ¡rquica)
     $categorias = [];
     foreach ($categorias_hierarquia as $pai) {
         $categorias[] = $pai;
@@ -40,7 +40,7 @@ try {
     }
 }
 catch (Exception $e) {
-    // Se a coluna parent_id não existir, tenta migrar automaticamente
+    // Se a coluna parent_id nÃ£o existir, tenta migrar automaticamente
     if (strpos($e->getMessage(), 'Unknown column \'parent_id\'') !== false) {
         $pdo->exec("ALTER TABLE categorias ADD COLUMN parent_id INT DEFAULT NULL");
         header("Location: gerenciar_categorias.php");
@@ -71,7 +71,7 @@ catch (Exception $e) {
                             <label for="nome"
                                 class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Nome
                                 da Categoria</label>
-                            <input type="text" name="nome" required placeholder="Ex: Tênis" class="w-full">
+                            <input type="text" name="nome" required placeholder="Ex: TÃªnis" class="w-full">
                         </div>
                         <!-- Tipo de Categoria -->
                         <div>
@@ -158,7 +158,7 @@ endif; ?>
                                 Home</th>
                             <th
                                 class="px-6 py-4 text-right text-xs font-semibold text-admin-gray-400 uppercase tracking-wider">
-                                Ações</th>
+                                AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -220,7 +220,7 @@ else: ?>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <a href="processa_visibilidade_categoria.php?id=<?= $categoria['id']?>&visivel=<?= $categoria['exibir_home'] ? 0 : 1?>"
                                     class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors <?= $categoria['exibir_home'] ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-admin-gray-800 text-admin-gray-500 border border-white/5'?>"
-                                    title="<?= $categoria['exibir_home'] ? 'Visível na Home' : 'Oculto na Home'?>">
+                                    title="<?= $categoria['exibir_home'] ? 'VisÃ­vel na Home' : 'Oculto na Home'?>">
                                     <i class="fas <?= $categoria['exibir_home'] ? 'fa-eye' : 'fa-eye-slash'?>"></i>
                                     <?= $categoria['exibir_home'] ? 'Na Home' : 'Oculto'?>
                                 </a>

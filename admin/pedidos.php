@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/pedidos.php - Gerenciamento de Pedidos Premium
 require_once 'secure.php';
 $page_title = 'Gerenciar Pedidos';

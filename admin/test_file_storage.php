@@ -14,33 +14,33 @@ try {
     echo "<h2 class='info'>1. Carregando FileStorage...</h2>";
     require_once '../includes/file_storage.php';
     $fileStorage = new FileStorage();
-    echo "<p class='success'>✅ FileStorage carregado com sucesso</p>";
+    echo "<p class='success'>âœ… FileStorage carregado com sucesso</p>";
     
     echo "<h2 class='info'>2. Testando getProdutos()...</h2>";
     $produtos = $fileStorage->getProdutos();
-    echo "<p class='success'>✅ Produtos carregados: " . count($produtos) . "</p>";
+    echo "<p class='success'>âœ… Produtos carregados: " . count($produtos) . "</p>";
     
     echo "<h2 class='info'>3. Testando getConfig()...</h2>";
     $config = $fileStorage->getConfig();
-    echo "<p class='success'>✅ Config carregado</p>";
+    echo "<p class='success'>âœ… Config carregado</p>";
     echo "<pre>" . print_r($config, true) . "</pre>";
     
     echo "<h2 class='info'>4. Testando getCategorias()...</h2>";
     $categorias = $fileStorage->getCategorias();
-    echo "<p class='success'>✅ Categorias carregadas: " . count($categorias) . "</p>";
+    echo "<p class='success'>âœ… Categorias carregadas: " . count($categorias) . "</p>";
     
-    echo "<h2 class='info'>5. Verificando permissões...</h2>";
+    echo "<h2 class='info'>5. Verificando permissÃµes...</h2>";
     $dataDir = __DIR__ . '/../data';
     if (is_dir($dataDir)) {
-        echo "<p class='success'>✅ Diretório data existe</p>";
-        echo "<p class='info'>Permissões: " . substr(sprintf('%o', fileperms($dataDir)), -4) . "</p>";
-        echo "<p class='info'>Gravável: " . (is_writable($dataDir) ? 'Sim' : 'Não') . "</p>";
+        echo "<p class='success'>âœ… DiretÃ³rio data existe</p>";
+        echo "<p class='info'>PermissÃµes: " . substr(sprintf('%o', fileperms($dataDir)), -4) . "</p>";
+        echo "<p class='info'>GravÃ¡vel: " . (is_writable($dataDir) ? 'Sim' : 'NÃ£o') . "</p>";
     } else {
-        echo "<p class='error'>❌ Diretório data não existe</p>";
+        echo "<p class='error'>âŒ DiretÃ³rio data nÃ£o existe</p>";
     }
     
 } catch (Exception $e) {
-    echo "<p class='error'>❌ Erro: " . $e->getMessage() . "</p>";
+    echo "<p class='error'>âŒ Erro: " . $e->getMessage() . "</p>";
     echo "<p class='error'>Arquivo: " . $e->getFile() . "</p>";
     echo "<p class='error'>Linha: " . $e->getLine() . "</p>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";

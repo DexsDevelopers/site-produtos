@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // admin/index.php - Dashboard Premium
 require_once 'secure.php';
 $page_title = 'Dashboard';

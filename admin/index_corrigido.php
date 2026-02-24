@@ -12,9 +12,9 @@ require_once 'templates/header_admin.php';
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-white mb-2">
-                    Bem-vindo, <?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin') ?>! 👋
+                    Bem-vindo, <?= htmlspecialchars($_SESSION['user_nome'] ?? 'Admin') ?>! ðŸ‘‹
                 </h1>
-                <p class="text-admin-gray-400">Aqui está um resumo do que está acontecendo na sua loja hoje.</p>
+                <p class="text-admin-gray-400">Aqui estÃ¡ um resumo do que estÃ¡ acontecendo na sua loja hoje.</p>
             </div>
             <div class="mt-4 sm:mt-0">
                 <div class="flex items-center gap-2 text-sm text-admin-gray-400">
@@ -29,7 +29,7 @@ require_once 'templates/header_admin.php';
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <?php
         try {
-            // Busca estatísticas
+            // Busca estatÃ­sticas
             $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn();
             $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
             $total_categorias = $pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
@@ -53,15 +53,15 @@ require_once 'templates/header_admin.php';
             <div class="mt-4 flex items-center text-sm">
                 <i class="fas fa-arrow-up text-admin-success mr-1"></i>
                 <span class="text-admin-success">+12%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
+                <span class="text-admin-gray-400 ml-2">vs mÃªs anterior</span>
             </div>
         </div>
 
-        <!-- Total Usuários -->
+        <!-- Total UsuÃ¡rios -->
         <div class="stat-card rounded-xl p-6 transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-admin-gray-400">Total de Usuários</p>
+                    <p class="text-sm font-medium text-admin-gray-400">Total de UsuÃ¡rios</p>
                     <p class="text-3xl font-bold text-white"><?= $total_usuarios ?></p>
                 </div>
                 <div class="w-12 h-12 bg-admin-success/20 rounded-lg flex items-center justify-center">
@@ -71,7 +71,7 @@ require_once 'templates/header_admin.php';
             <div class="mt-4 flex items-center text-sm">
                 <i class="fas fa-arrow-up text-admin-success mr-1"></i>
                 <span class="text-admin-success">+8%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
+                <span class="text-admin-gray-400 ml-2">vs mÃªs anterior</span>
             </div>
         </div>
 
@@ -89,7 +89,7 @@ require_once 'templates/header_admin.php';
             <div class="mt-4 flex items-center text-sm">
                 <i class="fas fa-minus text-admin-gray-400 mr-1"></i>
                 <span class="text-admin-gray-400">0%</span>
-                <span class="text-admin-gray-400 ml-2">vs mês anterior</span>
+                <span class="text-admin-gray-400 ml-2">vs mÃªs anterior</span>
             </div>
         </div>
 
@@ -107,7 +107,7 @@ require_once 'templates/header_admin.php';
             <div class="mt-4 flex items-center text-sm">
                 <i class="fas fa-arrow-up text-admin-success mr-1"></i>
                 <span class="text-admin-success">+3</span>
-                <span class="text-admin-gray-400 ml-2">novos este mês</span>
+                <span class="text-admin-gray-400 ml-2">novos este mÃªs</span>
             </div>
         </div>
     </div>
@@ -173,9 +173,9 @@ require_once 'templates/header_admin.php';
 
         <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Usuários Recentes -->
+            <!-- UsuÃ¡rios Recentes -->
             <div class="admin-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Usuários Recentes</h3>
+                <h3 class="text-lg font-semibold text-white mb-4">UsuÃ¡rios Recentes</h3>
                 <div class="space-y-3">
                     <?php
                     try {
@@ -198,14 +198,14 @@ require_once 'templates/header_admin.php';
                         </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-admin-gray-400 text-sm">Nenhum usuário encontrado</p>
+                        <p class="text-admin-gray-400 text-sm">Nenhum usuÃ¡rio encontrado</p>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Ações Rápidas -->
+            <!-- AÃ§Ãµes RÃ¡pidas -->
             <div class="admin-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Ações Rápidas</h3>
+                <h3 class="text-lg font-semibold text-white mb-4">AÃ§Ãµes RÃ¡pidas</h3>
                 <div class="space-y-3">
                     <a href="adicionar_produto.php" 
                        class="block w-full bg-admin-primary hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg transition-colors">

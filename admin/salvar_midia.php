@@ -3,10 +3,10 @@
 require_once 'secure.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['arquivo'])) {
-    $titulo = $_POST['titulo'] ?? 'Postagem sem título';
+    $titulo = $_POST['titulo'] ?? 'Postagem sem tÃ­tulo';
     $arquivos = $_FILES['arquivo'];
 
-    // Gera um ID único para o grupo de mídias
+    // Gera um ID Ãºnico para o grupo de mÃ­dias
     $grupo_id = uniqid('post_', true);
 
     $total_arquivos = count($arquivos['name']);
@@ -59,10 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['arquivo'])) {
     }
 
     if ($sucesso_count > 0) {
-        $_SESSION['admin_message'] = "✅ $sucesso_count arquivo(s) enviado(s) com sucesso na postagem!";
+        $_SESSION['admin_message'] = "âœ… $sucesso_count arquivo(s) enviado(s) com sucesso na postagem!";
     }
     else {
-        $_SESSION['admin_message'] = "❌ Falha no envio. " . implode(", ", $erros);
+        $_SESSION['admin_message'] = "âŒ Falha no envio. " . implode(", ", $erros);
     }
 
     header("Location: gestao_midias.php");
