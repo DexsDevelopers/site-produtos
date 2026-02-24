@@ -19,10 +19,19 @@ foreach ($carrinho_itens as $item) {
     $total_preco += $item['preco'] * $item['quantidade'];
 }
 
-// Verifica status dos métodos de pagamento
-$config = $fileStorage->getConfig();
-$infinite_status = $config['infinite_status'] ?? 'off';
-$pix_status = $config['pix_status'] ?? 'off';
+// Verifica status dos métodos de pagamento no Banco de Dados
+$pix_status = 'off';
+$infinite_status = 'off';
+try {
+    $stmt_config = $pdo->query("SELECT chave, valor FROM configuracoes");
+    $configs_db = $stmt_config->fetchAll(PDO::FETCH_KEY_PAIR);
+    $pix_status = $configs_db['pix_status'] ?? 'off';
+    $infinite_status = $configs_db['infinite_status'] ?? 'off';
+} catch (Exception $e) {
+    // Caso a tabela ainda não exista, mantemos por padrão ligado para não travar a venda
+    $pix_status = 'on';
+    $infinite_status = 'on';
+}
 
 // Busca dados do usuário para pre-preencher o checkout
 $user_data = [];
