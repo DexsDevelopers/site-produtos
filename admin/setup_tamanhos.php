@@ -1,11 +1,11 @@
 <?php
-// admin/setup_tamanhos.php â€” MigraÃ§Ã£o para sistema de tamanhos
+// admin/setup_tamanhos.php — Migração para sistema de tamanhos
 require_once 'secure.php';
 
 $messages = [];
 
 try {
-    // 1. Tabela de grupos de tamanho (ex: "TÃªnis", "Roupas", "Bermudas")
+    // 1. Tabela de grupos de tamanho (ex: "Tênis", "Roupas", "Bermudas")
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS grupos_tamanho (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,7 +28,7 @@ try {
     ");
     $messages[] = "âœ… Tabela 'tamanhos' criada/verificada.";
 
-    // 3. Tabela de tamanhos disponÃ­veis por produto (estoque por tamanho)
+    // 3. Tabela de tamanhos disponíveis por produto (estoque por tamanho)
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS produto_tamanhos (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +49,7 @@ try {
     }
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column') !== false) {
-            $messages[] = "â„¹ï¸ Coluna 'tipo' jÃ¡ existe.";
+            $messages[] = "â„¹ï¸ Coluna 'tipo' já existe.";
         }
         else {
             throw $e;
@@ -63,7 +63,7 @@ try {
     }
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column') !== false) {
-            $messages[] = "â„¹ï¸ Coluna 'grupo_tamanho_id' jÃ¡ existe.";
+            $messages[] = "â„¹ï¸ Coluna 'grupo_tamanho_id' já existe.";
         }
         else {
             throw $e;
@@ -78,28 +78,28 @@ try {
     }
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column') !== false) {
-            $messages[] = "â„¹ï¸ Colunas de tamanho jÃ¡ existem em 'pedido_itens'.";
+            $messages[] = "â„¹ï¸ Colunas de tamanho já existem em 'pedido_itens'.";
         }
         else {
             throw $e;
         }
     }
 
-    // 7. Inserir grupos padrÃ£o se nÃ£o existirem
+    // 7. Inserir grupos padrão se não existirem
     $count = $pdo->query("SELECT COUNT(*) FROM grupos_tamanho")->fetchColumn();
     if ($count == 0) {
-        // Grupo: TÃªnis
-        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('TÃªnis', 'NumeraÃ§Ã£o para calÃ§ados')");
+        // Grupo: Tênis
+        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('Tênis', 'Numeração para calçados')");
         $tenis_id = $pdo->lastInsertId();
         $tenis_sizes = ['34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
         foreach ($tenis_sizes as $i => $size) {
             $stmt = $pdo->prepare("INSERT INTO tamanhos (grupo_id, valor, ordem) VALUES (?, ?, ?)");
             $stmt->execute([$tenis_id, $size, $i]);
         }
-        $messages[] = "âœ… Grupo 'TÃªnis' criado com " . count($tenis_sizes) . " tamanhos.";
+        $messages[] = "âœ… Grupo 'Tênis' criado com " . count($tenis_sizes) . " tamanhos.";
 
         // Grupo: Roupas
-        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('Roupas', 'Tamanhos para camisetas, calÃ§as, etc')");
+        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('Roupas', 'Tamanhos para camisetas, calças, etc')");
         $roupas_id = $pdo->lastInsertId();
         $roupas_sizes = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XXG'];
         foreach ($roupas_sizes as $i => $size) {
@@ -109,7 +109,7 @@ try {
         $messages[] = "âœ… Grupo 'Roupas' criado com " . count($roupas_sizes) . " tamanhos.";
 
         // Grupo: Bermudas/Shorts
-        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('Bermudas / Shorts', 'NumeraÃ§Ã£o para bermudas e shorts')");
+        $pdo->exec("INSERT INTO grupos_tamanho (nome, descricao) VALUES ('Bermudas / Shorts', 'Numeração para bermudas e shorts')");
         $bermuda_id = $pdo->lastInsertId();
         $bermuda_sizes = ['36', '38', '40', '42', '44', '46', '48'];
         foreach ($bermuda_sizes as $i => $size) {
@@ -119,10 +119,10 @@ try {
         $messages[] = "âœ… Grupo 'Bermudas / Shorts' criado com " . count($bermuda_sizes) . " tamanhos.";
     }
     else {
-        $messages[] = "â„¹ï¸ Grupos de tamanho jÃ¡ existem ($count grupos).";
+        $messages[] = "â„¹ï¸ Grupos de tamanho já existem ($count grupos).";
     }
 
-    $messages[] = "ðŸŽ‰ MigraÃ§Ã£o concluÃ­da com sucesso!";
+    $messages[] = "ðŸŽ‰ Migração concluída com sucesso!";
 }
 catch (PDOException $e) {
     $messages[] = "âŒ Erro: " . $e->getMessage();
@@ -134,7 +134,7 @@ require_once 'templates/header_admin.php';
 ?>
 
 <div class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold text-white mb-8">Setup â€” Sistema de Tamanhos</h1>
+    <h1 class="text-3xl font-bold text-white mb-8">Setup — Sistema de Tamanhos</h1>
     <div class="admin-card rounded-xl p-6 space-y-3">
         <?php foreach ($messages as $msg): ?>
         <div class="p-3 rounded-lg bg-white/5 text-sm text-white">

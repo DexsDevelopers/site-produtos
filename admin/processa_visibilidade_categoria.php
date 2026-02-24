@@ -14,7 +14,7 @@ if (isset($_GET['id']) && isset($_GET['visivel'])) {
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Unknown column \'exibir_home\'') !== false) {
             require_once 'migrar_destaques.php';
-            // Tenta novamente apÃ³s migrar
+            // Tenta novamente após migrar
             try {
                 $stmt = $pdo->prepare("UPDATE categorias SET exibir_home = ? WHERE id = ?");
                 $stmt->execute([$visivel, $id]);

@@ -29,14 +29,14 @@ try {
     $categorias = $fileStorage->getCategorias();
     echo "<p class='success'>âœ… Categorias carregadas: " . count($categorias) . "</p>";
     
-    echo "<h2 class='info'>5. Verificando permissÃµes...</h2>";
+    echo "<h2 class='info'>5. Verificando permissões...</h2>";
     $dataDir = __DIR__ . '/../data';
     if (is_dir($dataDir)) {
-        echo "<p class='success'>âœ… DiretÃ³rio data existe</p>";
-        echo "<p class='info'>PermissÃµes: " . substr(sprintf('%o', fileperms($dataDir)), -4) . "</p>";
-        echo "<p class='info'>GravÃ¡vel: " . (is_writable($dataDir) ? 'Sim' : 'NÃ£o') . "</p>";
+        echo "<p class='success'>âœ… Diretório data existe</p>";
+        echo "<p class='info'>Permissões: " . substr(sprintf('%o', fileperms($dataDir)), -4) . "</p>";
+        echo "<p class='info'>Gravável: " . (is_writable($dataDir) ? 'Sim' : 'Não') . "</p>";
     } else {
-        echo "<p class='error'>âŒ DiretÃ³rio data nÃ£o existe</p>";
+        echo "<p class='error'>âŒ Diretório data não existe</p>";
     }
     
 } catch (Exception $e) {

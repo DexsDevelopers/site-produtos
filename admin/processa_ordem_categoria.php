@@ -13,7 +13,7 @@ if (isset($_GET['id']) && isset($_GET['direcao'])) {
         $stmt = $pdo->query("SELECT id FROM categorias ORDER BY ordem ASC, id ASC");
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // 2. Encontra a posiÃ§Ã£o da categoria que queremos mover
+        // 2. Encontra a posição da categoria que queremos mover
         $index = array_search($id_para_mover, $ids);
 
         if ($index !== false) {
@@ -24,7 +24,7 @@ if (isset($_GET['id']) && isset($_GET['direcao'])) {
                 $ids[$index] = $temp;
             }
             elseif ($direcao === 'down' && $index < count($ids) - 1) {
-                // Troca com o prÃ³ximo
+                // Troca com o próximo
                 $temp = $ids[$index + 1];
                 $ids[$index + 1] = $ids[$index];
                 $ids[$index] = $temp;

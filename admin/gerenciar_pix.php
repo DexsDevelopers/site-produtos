@@ -7,25 +7,25 @@ require_once '../includes/file_storage.php';
 $fileStorage = new FileStorage();
 $config = $fileStorage->getConfig();
 
-// Processa formulÃ¡rio
+// Processa formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $chave_pix = trim($_POST['chave_pix'] ?? '');
     $nome_pix = trim($_POST['nome_pix'] ?? '');
     $cidade_pix = trim($_POST['cidade_pix'] ?? '');
     
-    // ValidaÃ§Ãµes
+    // Validações
     $erros = [];
     
     if (empty($chave_pix)) {
-        $erros[] = 'A chave PIX Ã© obrigatÃ³ria.';
+        $erros[] = 'A chave PIX é obrigatória.';
     }
     
     if (empty($nome_pix)) {
-        $erros[] = 'O nome do recebedor Ã© obrigatÃ³rio.';
+        $erros[] = 'O nome do recebedor é obrigatório.';
     }
     
     if (empty($cidade_pix)) {
-        $erros[] = 'A cidade Ã© obrigatÃ³ria.';
+        $erros[] = 'A cidade é obrigatória.';
     }
     
     // Valida formato da chave PIX
@@ -33,32 +33,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Remove caracteres especiais
         $chave_limpa = preg_replace('/[^0-9a-zA-Z@.-]/', '', $chave_pix);
         
-        // Valida se Ã© CPF, CNPJ, email, telefone ou chave aleatÃ³ria
+        // Valida se é CPF, CNPJ, email, telefone ou chave aleatória
         $valido = false;
         
         // Email
         if (filter_var($chave_limpa, FILTER_VALIDATE_EMAIL)) {
             $valido = true;
         }
-        // CPF (11 dÃ­gitos)
+        // CPF (11 dígitos)
         elseif (preg_match('/^[0-9]{11}$/', $chave_limpa)) {
             $valido = true;
         }
-        // CNPJ (14 dÃ­gitos)
+        // CNPJ (14 dígitos)
         elseif (preg_match('/^[0-9]{14}$/', $chave_limpa)) {
             $valido = true;
         }
-        // Telefone (10 ou 11 dÃ­gitos comeÃ§ando com +55)
+        // Telefone (10 ou 11 dígitos começando com +55)
         elseif (preg_match('/^\+55[0-9]{10,11}$/', $chave_limpa)) {
             $valido = true;
         }
-        // Chave aleatÃ³ria (UUID)
+        // Chave aleatória (UUID)
         elseif (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $chave_limpa)) {
             $valido = true;
         }
         
         if (!$valido) {
-            $erros[] = 'Formato de chave PIX invÃ¡lido. Use CPF, CNPJ, email, telefone (+5511999999999) ou chave aleatÃ³ria.';
+            $erros[] = 'Formato de chave PIX inválido. Use CPF, CNPJ, email, telefone (+5511999999999) ou chave aleatória.';
         }
     }
     
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: gerenciar_pix.php');
             exit();
         } else {
-            $erros[] = 'Erro ao salvar configuraÃ§Ã£o.';
+            $erros[] = 'Erro ao salvar configuração.';
         }
     }
 }
@@ -92,7 +92,7 @@ require_once 'templates/header_admin.php';
                     Gerenciar Chave PIX
                 </h1>
                 <p class="text-admin-gray-400">
-                    Configure a chave PIX que serÃ¡ usada em todos os produtos do site.
+                    Configure a chave PIX que será usada em todos os produtos do site.
                 </p>
             </div>
         </div>
@@ -118,7 +118,7 @@ require_once 'templates/header_admin.php';
         </div>
     <?php endif; ?>
 
-    <!-- FormulÃ¡rio -->
+    <!-- Formulário -->
     <div class="admin-card rounded-xl p-6">
         <form method="POST" class="space-y-6">
             <!-- Chave PIX -->
@@ -137,7 +137,7 @@ require_once 'templates/header_admin.php';
                     required
                 >
                 <p class="mt-2 text-sm text-admin-gray-400">
-                    Aceita: CPF, CNPJ, email, telefone (+5511999999999) ou chave aleatÃ³ria (UUID)
+                    Aceita: CPF, CNPJ, email, telefone (+5511999999999) ou chave aleatória (UUID)
                 </p>
             </div>
 
@@ -152,7 +152,7 @@ require_once 'templates/header_admin.php';
                     id="nome_pix" 
                     name="nome_pix" 
                     value="<?= htmlspecialchars($config['nome_pix'] ?? '') ?>"
-                    placeholder="Nome completo ou razÃ£o social"
+                    placeholder="Nome completo ou razão social"
                     class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-admin-primary transition-all"
                     required
                     maxlength="100"
@@ -170,19 +170,19 @@ require_once 'templates/header_admin.php';
                     id="cidade_pix" 
                     name="cidade_pix" 
                     value="<?= htmlspecialchars($config['cidade_pix'] ?? '') ?>"
-                    placeholder="Ex: SÃ£o Paulo"
+                    placeholder="Ex: São Paulo"
                     class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-admin-primary transition-all"
                     required
                     maxlength="100"
                 >
             </div>
 
-            <!-- InformaÃ§Ãµes Atuais -->
+            <!-- Informações Atuais -->
             <?php if (!empty($config['chave_pix'])): ?>
             <div class="bg-admin-gray-800/50 border border-admin-gray-700 rounded-lg p-4">
                 <h3 class="text-lg font-semibold text-white mb-3">
                     <i class="fas fa-info-circle mr-2 text-admin-primary"></i>
-                    ConfiguraÃ§Ã£o Atual
+                    Configuração Atual
                 </h3>
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
@@ -199,7 +199,7 @@ require_once 'templates/header_admin.php';
                     </div>
                     <?php if (!empty($config['ultima_atualizacao'])): ?>
                     <div class="flex justify-between">
-                        <span class="text-admin-gray-400">Ãšltima atualizaÃ§Ã£o:</span>
+                        <span class="text-admin-gray-400">Ãšltima atualização:</span>
                         <span class="text-white"><?= date('d/m/Y H:i', strtotime($config['ultima_atualizacao'])) ?></span>
                     </div>
                     <?php endif; ?>
@@ -207,7 +207,7 @@ require_once 'templates/header_admin.php';
             </div>
             <?php endif; ?>
 
-            <!-- BotÃµes -->
+            <!-- Botões -->
             <div class="flex gap-4 pt-4">
                 <button 
                     type="submit" 
@@ -231,20 +231,20 @@ require_once 'templates/header_admin.php';
     <div class="bg-admin-warning/20 border border-admin-warning rounded-lg p-6">
         <h3 class="text-lg font-semibold text-admin-warning mb-3">
             <i class="fas fa-exclamation-triangle mr-2"></i>
-            InformaÃ§Ã£o Importante
+            Informação Importante
         </h3>
         <ul class="space-y-2 text-sm text-admin-gray-300">
             <li>
                 <i class="fas fa-check-circle mr-2 text-admin-success"></i>
-                A chave PIX configurada aqui serÃ¡ aplicada a <strong>todos os produtos</strong> do site.
+                A chave PIX configurada aqui será aplicada a <strong>todos os produtos</strong> do site.
             </li>
             <li>
                 <i class="fas fa-check-circle mr-2 text-admin-success"></i>
-                Ao alterar a chave PIX, todos os produtos automaticamente usarÃ£o a nova chave.
+                Ao alterar a chave PIX, todos os produtos automaticamente usarão a nova chave.
             </li>
             <li>
                 <i class="fas fa-check-circle mr-2 text-admin-success"></i>
-                Certifique-se de que a chave PIX estÃ¡ correta antes de salvar.
+                Certifique-se de que a chave PIX está correta antes de salvar.
             </li>
         </ul>
     </div>

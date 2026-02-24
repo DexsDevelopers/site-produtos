@@ -1,19 +1,19 @@
 <?php
-// admin/processa_banner_avancado.php - Processador AvanÃ§ado de Banners
+// admin/processa_banner_avancado.php - Processador Avançado de Banners
 require_once 'secure.php';
 
-// FunÃ§Ã£o para upload de imagem
+// Função para upload de imagem
 function uploadBannerImage($file, $banner_id = null) {
     $upload_dir = '../assets/uploads/';
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 5 * 1024 * 1024; // 5MB
     
     if (!in_array($file['type'], $allowed_types)) {
-        throw new Exception('Tipo de arquivo nÃ£o permitido. Use JPG, PNG, GIF ou WebP.');
+        throw new Exception('Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP.');
     }
     
     if ($file['size'] > $max_size) {
-        throw new Exception('Arquivo muito grande. MÃ¡ximo 5MB.');
+        throw new Exception('Arquivo muito grande. Máximo 5MB.');
     }
     
     $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -27,7 +27,7 @@ function uploadBannerImage($file, $banner_id = null) {
     return 'assets/uploads/' . $filename;
 }
 
-// --- LÃ“GICA PARA ADICIONAR NOVO BANNER ---
+// --- LÓGICA PARA ADICIONAR NOVO BANNER ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $titulo = trim($_POST['titulo'] ?? '');
     $subtitulo = trim($_POST['subtitulo'] ?? '');
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $nova_aba = isset($_POST['nova_aba']) ? 1 : 0;
     
     if (empty($_FILES['imagem']['name'])) {
-        $_SESSION['admin_message'] = "A imagem Ã© obrigatÃ³ria para novos banners.";
+        $_SESSION['admin_message'] = "A imagem é obrigatória para novos banners.";
         $_SESSION['admin_message_type'] = 'error';
     } else {
         try {
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     }
 }
 
-// --- LÃ“GICA PARA EDITAR BANNER ---
+// --- LÓGICA PARA EDITAR BANNER ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $banner_id = (int)$_POST['banner_id'];
     $titulo = trim($_POST['titulo'] ?? '');
@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     }
 }
 
-// --- LÃ“GICA PARA DELETAR BANNER ---
+// --- LÓGICA PARA DELETAR BANNER ---
 if (isset($_GET['deletar'])) {
     $id = (int)$_GET['deletar'];
     
@@ -133,7 +133,7 @@ if (isset($_GET['deletar'])) {
     }
 }
 
-// --- LÃ“GICA PARA ALTERAR STATUS ---
+// --- LÓGICA PARA ALTERAR STATUS ---
 if (isset($_GET['toggle_status'])) {
     $id = (int)$_GET['toggle_status'];
     
@@ -155,7 +155,7 @@ if (isset($_GET['toggle_status'])) {
     }
 }
 
-// --- LÃ“GICA PARA REORDENAR BANNERS ---
+// --- LÓGICA PARA REORDENAR BANNERS ---
 if (isset($_POST['reordenar'])) {
     $banners = $_POST['banners'] ?? [];
     
@@ -177,7 +177,7 @@ if (isset($_POST['reordenar'])) {
     }
 }
 
-// Redirecionar de volta para a pÃ¡gina de gerenciamento
+// Redirecionar de volta para a página de gerenciamento
 header("Location: gerenciar_banners.php");
 exit();
 ?>

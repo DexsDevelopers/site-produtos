@@ -32,15 +32,15 @@ catch (Exception $e) {
                 <div class="space-y-4">
                     <div>
                         <label
-                            class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">TÃ­tulo
+                            class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Título
                             (Opcional)</label>
-                        <input type="text" name="titulo" placeholder="Ex: Nova ColeÃ§Ã£o" class="w-full">
+                        <input type="text" name="titulo" placeholder="Ex: Nova Coleção" class="w-full">
                     </div>
                     <div>
                         <label
-                            class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">SubtÃ­tulo
+                            class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Subtítulo
                             (Opcional)</label>
-                        <input type="text" name="subtitulo" placeholder="Ex: Descontos de atÃ© 50%" class="w-full">
+                        <input type="text" name="subtitulo" placeholder="Ex: Descontos de até 50%" class="w-full">
                     </div>
                 </div>
 
@@ -58,7 +58,7 @@ catch (Exception $e) {
                             de Banner</label>
                         <select name="tipo" required class="w-full">
                             <option value="principal">Banner Principal (Hero)</option>
-                            <option value="secundario">Banner SecundÃ¡rio</option>
+                            <option value="secundario">Banner Secundário</option>
                         </select>
                     </div>
                 </div>
@@ -105,12 +105,12 @@ catch (Exception $e) {
                         <?= htmlspecialchars($banner['tipo'])?>
                     </span>
                     <h4 class="text-white font-bold truncate">
-                        <?= htmlspecialchars($banner['titulo'] ?? 'Sem TÃ­tulo')?>
+                        <?= htmlspecialchars($banner['titulo'] ?? 'Sem Título')?>
                     </h4>
                 </div>
             </div>
 
-            <!-- AÃ§Ãµes -->
+            <!-- Ações -->
             <div class="p-4 flex items-center justify-between border-t border-white/5 bg-admin-gray-800/30">
                 <div class="text-sm text-admin-gray-500 truncate max-w-[150px]">
                     <?= htmlspecialchars($banner['link'] ?? '#')?>

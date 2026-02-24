@@ -7,14 +7,14 @@ require_once 'templates/header_admin.php';
 echo "<div class='admin-card rounded-xl p-6 mb-6'>";
 echo "<h2 class='text-2xl font-bold text-white mb-4'>ðŸ” Debug do Dashboard</h2>";
 
-// Teste de conexÃ£o
-echo "<h3 class='text-lg font-semibold text-white mb-2'>1. Teste de ConexÃ£o</h3>";
+// Teste de conexão
+echo "<h3 class='text-lg font-semibold text-white mb-2'>1. Teste de Conexão</h3>";
 try {
     $teste = $pdo->query("SELECT 1 as teste");
     $resultado = $teste->fetch();
-    echo "<p class='text-green-400'>âœ… ConexÃ£o com banco: OK</p>";
+    echo "<p class='text-green-400'>âœ… Conexão com banco: OK</p>";
 } catch (Exception $e) {
-    echo "<p class='text-red-400'>âŒ Erro na conexÃ£o: " . $e->getMessage() . "</p>";
+    echo "<p class='text-red-400'>âŒ Erro na conexão: " . $e->getMessage() . "</p>";
 }
 
 // Teste de tabelas
@@ -31,13 +31,13 @@ foreach ($tabelas as $tabela) {
     }
 }
 
-// Teste de sessÃ£o
-echo "<h3 class='text-lg font-semibold text-white mb-2 mt-4'>3. Teste de SessÃ£o</h3>";
-echo "<p class='text-blue-400'>User ID: " . ($_SESSION['user_id'] ?? 'NÃ£o definido') . "</p>";
-echo "<p class='text-blue-400'>User Nome: " . ($_SESSION['user_nome'] ?? 'NÃ£o definido') . "</p>";
-echo "<p class='text-blue-400'>User Role: " . ($_SESSION['user_role'] ?? 'NÃ£o definido') . "</p>";
+// Teste de sessão
+echo "<h3 class='text-lg font-semibold text-white mb-2 mt-4'>3. Teste de Sessão</h3>";
+echo "<p class='text-blue-400'>User ID: " . ($_SESSION['user_id'] ?? 'Não definido') . "</p>";
+echo "<p class='text-blue-400'>User Nome: " . ($_SESSION['user_nome'] ?? 'Não definido') . "</p>";
+echo "<p class='text-blue-400'>User Role: " . ($_SESSION['user_role'] ?? 'Não definido') . "</p>";
 
-// Teste de queries especÃ­ficas
+// Teste de queries específicas
 echo "<h3 class='text-lg font-semibold text-white mb-2 mt-4'>4. Teste de Queries</h3>";
 
 try {
@@ -49,9 +49,9 @@ try {
 
 try {
     $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
-    echo "<p class='text-green-400'>âœ… Total usuÃ¡rios: $total_usuarios</p>";
+    echo "<p class='text-green-400'>âœ… Total usuários: $total_usuarios</p>";
 } catch (Exception $e) {
-    echo "<p class='text-red-400'>âŒ Erro usuÃ¡rios: " . $e->getMessage() . "</p>";
+    echo "<p class='text-red-400'>âŒ Erro usuários: " . $e->getMessage() . "</p>";
 }
 
 try {
@@ -75,7 +75,7 @@ echo "<div class='admin-card rounded-xl p-6'>";
 echo "<h3 class='text-lg font-semibold text-white mb-4'>5. Teste do Dashboard Real</h3>";
 
 try {
-    // Busca estatÃ­sticas detalhadas
+    // Busca estatísticas detalhadas
     $total_produtos = $pdo->query('SELECT COUNT(*) FROM produtos')->fetchColumn();
     $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
     $total_categorias = $pdo->query('SELECT COUNT(*) FROM categorias')->fetchColumn();
@@ -89,7 +89,7 @@ try {
     
     echo "<div class='bg-green-600 p-4 rounded-lg text-center'>";
     echo "<p class='text-white font-bold text-2xl'>$total_usuarios</p>";
-    echo "<p class='text-green-100'>UsuÃ¡rios</p>";
+    echo "<p class='text-green-100'>Usuários</p>";
     echo "</div>";
     
     echo "<div class='bg-yellow-600 p-4 rounded-lg text-center'>";

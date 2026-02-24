@@ -1,12 +1,12 @@
 <?php
-// admin/gerenciar_categorias_avancado.php - Gerenciamento AvanÃ§ado de Categorias
+// admin/gerenciar_categorias_avancado.php - Gerenciamento Avançado de Categorias
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
 // Busca todas as categorias ordenadas
 $categorias = $pdo->query('SELECT * FROM categorias ORDER BY ordem ASC, nome ASC')->fetchAll(PDO::FETCH_ASSOC);
 
-// EstatÃ­sticas
+// Estatísticas
 $total_categorias = count($categorias);
 $categorias_ativas = count(array_filter($categorias, fn($c) => $c['ativa']));
 $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque']));
@@ -27,7 +27,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
         </div>
     </div>
 
-    <!-- EstatÃ­sticas -->
+    <!-- Estatísticas -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="admin-card rounded-xl p-6">
             <div class="flex items-center">
@@ -91,7 +91,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                 </button>
                 <button onclick="toggleBulkActions()" class="btn-secondary">
                     <i class="fas fa-check-square mr-2"></i>
-                    AÃ§Ãµes em Lote
+                    Ações em Lote
                 </button>
             </div>
         </div>
@@ -107,7 +107,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                                     <i class="<?= $categoria['icone'] ?> text-white text-lg"></i>
                                 </div>
                                 
-                                <!-- InformaÃ§Ãµes -->
+                                <!-- Informações -->
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-3">
                                         <h3 class="text-lg font-semibold text-white"><?= htmlspecialchars($categoria['nome']) ?></h3>
@@ -148,7 +148,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
                                 </div>
                             </div>
                             
-                            <!-- AÃ§Ãµes -->
+                            <!-- Ações -->
                             <div class="flex items-center space-x-2">
                                 <a href="editar_categoria.php?id=<?= $categoria['id'] ?>" 
                                    class="p-2 text-admin-primary hover:bg-admin-primary/20 rounded-lg transition-colors"
@@ -187,7 +187,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
     </div>
 </div>
 
-<!-- Modal de ReordenaÃ§Ã£o -->
+<!-- Modal de Reordenação -->
 <div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeReorderOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full" onclick="event.stopPropagation()">
@@ -201,7 +201,7 @@ $categorias_destaque = count(array_filter($categorias, fn($c) => $c['destaque'])
             <p class="text-admin-gray-400 mb-6">Arraste e solte para reordenar as categorias</p>
             
             <div id="reorderList" class="space-y-2 max-h-96 overflow-y-auto">
-                <!-- Lista serÃ¡ preenchida via JavaScript -->
+                <!-- Lista será preenchida via JavaScript -->
             </div>
             
             <div class="flex justify-end gap-4 mt-6">
@@ -323,11 +323,11 @@ function saveReorder() {
 }
 
 function toggleBulkActions() {
-    // Implementar aÃ§Ãµes em lote
-    alert('Funcionalidade de aÃ§Ãµes em lote serÃ¡ implementada em breve!');
+    // Implementar ações em lote
+    alert('Funcionalidade de ações em lote será implementada em breve!');
 }
 
-// Tornar a lista arrastÃ¡vel
+// Tornar a lista arrastável
 document.addEventListener('DOMContentLoaded', function() {
     const reorderList = document.getElementById('reorderList');
     

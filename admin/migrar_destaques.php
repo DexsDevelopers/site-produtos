@@ -17,7 +17,7 @@ try {
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column name') !== false || strpos($e->getMessage(), 'already exists') !== false) {
             if ($is_direct_access)
-                echo "<p>Coluna 'destaque' jÃ¡ existe na tabela 'produtos'.</p>";
+                echo "<p>Coluna 'destaque' já existe na tabela 'produtos'.</p>";
         }
         else {
             if ($is_direct_access)
@@ -34,7 +34,7 @@ try {
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Duplicate column name') !== false || strpos($e->getMessage(), 'already exists') !== false) {
             if ($is_direct_access)
-                echo "<p>Coluna 'exibir_home' jÃ¡ existe na tabela 'categorias'.</p>";
+                echo "<p>Coluna 'exibir_home' já existe na tabela 'categorias'.</p>";
         }
         else {
             if ($is_direct_access)
@@ -43,12 +43,12 @@ try {
     }
 
     if ($is_direct_access) {
-        echo "<h2>MigraÃ§Ã£o finalizada!</h2>";
+        echo "<h2>Migração finalizada!</h2>";
         echo "<a href='gerenciar_produtos.php'>Voltar para Produtos</a>";
     }
 
 }
 catch (Exception $e) {
-    echo "<p style='color:red'>Erro crÃ­tico: " . $e->getMessage() . "</p>";
+    echo "<p style='color:red'>Erro crítico: " . $e->getMessage() . "</p>";
 }
 ?>

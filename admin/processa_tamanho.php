@@ -1,5 +1,5 @@
 <?php
-// admin/processa_tamanho.php â€” Processar aÃ§Ãµes de tamanhos
+// admin/processa_tamanho.php — Processar ações de tamanhos
 require_once 'secure.php';
 
 // --- CRIAR NOVO GRUPO ---
@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_grupo'])) {
     $tamanhos_str = trim($_POST['tamanhos']);
 
     if (empty($nome) || empty($tamanhos_str)) {
-        $_SESSION['admin_message'] = "Nome do grupo e tamanhos sÃ£o obrigatÃ³rios.";
+        $_SESSION['admin_message'] = "Nome do grupo e tamanhos são obrigatórios.";
         header('Location: gerenciar_tamanhos.php');
         exit;
     }
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adicionar_tamanhos'])
         $stmt = $pdo->prepare("INSERT INTO tamanhos (grupo_id, valor, ordem) VALUES (?, ?, ?)");
         $adicionados = 0;
         foreach ($tamanhos as $valor) {
-            // Verifica se jÃ¡ existe
+            // Verifica se já existe
             $check = $pdo->prepare("SELECT COUNT(*) FROM tamanhos WHERE grupo_id = ? AND valor = ?");
             $check->execute([$grupo_id, $valor]);
             if ($check->fetchColumn() == 0) {
@@ -100,11 +100,11 @@ if (isset($_GET['deletar_grupo'])) {
     $grupo_id = (int)$_GET['deletar_grupo'];
 
     try {
-        // Limpa referÃªncia nos produtos
+        // Limpa referência nos produtos
         $pdo->prepare("UPDATE produtos SET grupo_tamanho_id = NULL WHERE grupo_tamanho_id = ?")->execute([$grupo_id]);
         // Deleta grupo (cascade deleta os tamanhos)
         $pdo->prepare("DELETE FROM grupos_tamanho WHERE id = ?")->execute([$grupo_id]);
-        $_SESSION['admin_message'] = "Grupo excluÃ­do com sucesso!";
+        $_SESSION['admin_message'] = "Grupo excluído com sucesso!";
     }
     catch (PDOException $e) {
         $_SESSION['admin_message'] = "Erro ao excluir grupo: " . $e->getMessage();

@@ -1,5 +1,5 @@
 <?php
-// admin/editar_categoria.php - Editor AvanÃ§ado de Categorias
+// admin/editar_categoria.php - Editor Avançado de Categorias
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
@@ -13,12 +13,12 @@ if ($categoria_id > 0) {
         $categoria = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$categoria) {
-            $_SESSION['admin_message'] = "Categoria nÃ£o encontrada!";
+            $_SESSION['admin_message'] = "Categoria não encontrada!";
             header("Location: gerenciar_categorias.php");
             exit();
         }
 
-        // Busca categorias que podem ser pais (nÃ£o podem ser a prÃ³pria categoria)
+        // Busca categorias que podem ser pais (não podem ser a própria categoria)
         $stmt_pais = $pdo->prepare("SELECT id, nome FROM categorias WHERE id != ? AND parent_id IS NULL ORDER BY nome ASC");
         $stmt_pais->execute([$categoria_id]);
         $categorias_pais = $stmt_pais->fetchAll(PDO::FETCH_ASSOC);
@@ -53,15 +53,15 @@ if ($categoria_id > 0) {
         </a>
     </div>
 
-    <!-- FormulÃ¡rio -->
+    <!-- Formulário -->
     <div class="admin-card rounded-xl p-8">
         <form action="processa_categoria.php" method="POST" id="categoriaForm">
             <input type="hidden" name="categoria_id" value="<?= $categoria_id ?>">
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- InformaÃ§Ãµes BÃ¡sicas -->
+                <!-- Informações Básicas -->
                 <div class="space-y-6">
-                    <h3 class="text-xl font-semibold text-white mb-4">InformaÃ§Ãµes BÃ¡sicas</h3>
+                    <h3 class="text-xl font-semibold text-white mb-4">Informações Básicas</h3>
                     
                     <div>
                         <label for="nome" class="block text-sm font-medium text-admin-gray-300 mb-2">
@@ -73,8 +73,8 @@ if ($categoria_id > 0) {
                                value="<?= htmlspecialchars($categoria['nome'] ?? '') ?>"
                                required 
                                class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
-                               placeholder="Ex: EletrÃ´nicos, Roupas, Casa...">
-                        <p class="text-xs text-admin-gray-400 mt-1">Nome que aparecerÃ¡ na loja</p>
+                               placeholder="Ex: Eletrônicos, Roupas, Casa...">
+                        <p class="text-xs text-admin-gray-400 mt-1">Nome que aparecerá na loja</p>
                     </div>
 
                     <!-- Tipo de Categoria e Pai -->
@@ -106,24 +106,24 @@ if ($categoria_id > 0) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="text-xs text-admin-gray-400 mt-1">Este item serÃ¡ uma subcategoria da opÃ§Ã£o selecionada.</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Este item será uma subcategoria da opção selecionada.</p>
                     </div>
 
                     <div>
                         <label for="descricao" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                            DescriÃ§Ã£o
+                            Descrição
                         </label>
                         <textarea name="descricao" 
                                   id="descricao"
                                   rows="4"
                                   class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
                                   placeholder="Descreva esta categoria..."><?= htmlspecialchars($categoria['descricao'] ?? '') ?></textarea>
-                        <p class="text-xs text-admin-gray-400 mt-1">DescriÃ§Ã£o opcional da categoria</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Descrição opcional da categoria</p>
                     </div>
 
                     <div>
                         <label for="ordem" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                            Ordem de ExibiÃ§Ã£o
+                            Ordem de Exibição
                         </label>
                         <input type="number" 
                                name="ordem" 
@@ -132,13 +132,13 @@ if ($categoria_id > 0) {
                                min="0"
                                class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
                                placeholder="0">
-                        <p class="text-xs text-admin-gray-400 mt-1">NÃºmero menor = aparece primeiro</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Número menor = aparece primeiro</p>
                     </div>
                 </div>
 
-                <!-- ConfiguraÃ§Ãµes AvanÃ§adas -->
+                <!-- Configurações Avançadas -->
                 <div class="space-y-6">
-                    <h3 class="text-xl font-semibold text-white mb-4">ConfiguraÃ§Ãµes</h3>
+                    <h3 class="text-xl font-semibold text-white mb-4">Configurações</h3>
                     
                     <div>
                         <label for="icone" class="block text-sm font-medium text-admin-gray-300 mb-2">
@@ -157,7 +157,7 @@ if ($categoria_id > 0) {
                                 <i class="fas fa-palette"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-admin-gray-400 mt-1">Classe do Ã­cone FontAwesome</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Classe do ícone FontAwesome</p>
                     </div>
 
                     <div>
@@ -176,7 +176,7 @@ if ($categoria_id > 0) {
                                    class="flex-1 px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
                                    placeholder="#FF3B5C">
                         </div>
-                        <p class="text-xs text-admin-gray-400 mt-1">Cor que representarÃ¡ esta categoria</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Cor que representará esta categoria</p>
                     </div>
 
                     <div>
@@ -188,7 +188,7 @@ if ($categoria_id > 0) {
                                    class="w-5 h-5 text-admin-primary bg-admin-gray-800 border-admin-gray-600 rounded focus:ring-admin-primary focus:ring-2">
                             <span class="text-sm font-medium text-admin-gray-300">Categoria Ativa</span>
                         </label>
-                        <p class="text-xs text-admin-gray-400 mt-1">Categorias inativas nÃ£o aparecem na loja</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Categorias inativas não aparecem na loja</p>
                     </div>
 
                     <div>
@@ -200,7 +200,7 @@ if ($categoria_id > 0) {
                                    class="w-5 h-5 text-admin-primary bg-admin-gray-800 border-admin-gray-600 rounded focus:ring-admin-primary focus:ring-2">
                             <span class="text-sm font-medium text-admin-gray-300">Categoria em Destaque</span>
                         </label>
-                        <p class="text-xs text-admin-gray-400 mt-1">Aparece em posiÃ§Ã£o destacada na home</p>
+                        <p class="text-xs text-admin-gray-400 mt-1">Aparece em posição destacada na home</p>
                     </div>
                 </div>
             </div>
@@ -219,8 +219,8 @@ if ($categoria_id > 0) {
                                value="<?= htmlspecialchars($categoria['meta_title'] ?? '') ?>"
                                maxlength="60"
                                class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
-                               placeholder="TÃ­tulo para SEO">
-                        <p class="text-xs text-admin-gray-400 mt-1">MÃ¡ximo 60 caracteres</p>
+                               placeholder="Título para SEO">
+                        <p class="text-xs text-admin-gray-400 mt-1">Máximo 60 caracteres</p>
                     </div>
 
                     <div>
@@ -232,27 +232,27 @@ if ($categoria_id > 0) {
                                   rows="3"
                                   maxlength="160"
                                   class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
-                                  placeholder="DescriÃ§Ã£o para SEO"><?= htmlspecialchars($categoria['meta_description'] ?? '') ?></textarea>
-                        <p class="text-xs text-admin-gray-400 mt-1">MÃ¡ximo 160 caracteres</p>
+                                  placeholder="Descrição para SEO"><?= htmlspecialchars($categoria['meta_description'] ?? '') ?></textarea>
+                        <p class="text-xs text-admin-gray-400 mt-1">Máximo 160 caracteres</p>
                     </div>
                 </div>
             </div>
 
-            <!-- BotÃµes -->
+            <!-- Botões -->
             <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-admin-gray-700">
                 <a href="gerenciar_categorias.php" class="btn-secondary">
                     Cancelar
                 </a>
                 <button type="submit" name="<?= $categoria ? 'editar' : 'adicionar' ?>" class="btn-primary">
                     <i class="fas fa-save mr-2"></i>
-                    <?= $categoria ? 'Salvar AlteraÃ§Ãµes' : 'Criar Categoria' ?>
+                    <?= $categoria ? 'Salvar Alterações' : 'Criar Categoria' ?>
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal de SeleÃ§Ã£o de Ãcones -->
+<!-- Modal de Seleção de Ãcones -->
 <div id="iconModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeIconPickerOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
@@ -264,14 +264,14 @@ if ($categoria_id > 0) {
             </div>
             
             <div class="grid grid-cols-8 gap-2" id="iconGrid">
-                <!-- Ãcones serÃ£o carregados via JavaScript -->
+                <!-- Ãcones serão carregados via JavaScript -->
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Ãcones disponÃ­veis
+// Ãcones disponíveis
 const icons = [
     'fas fa-tag', 'fas fa-tags', 'fas fa-box', 'fas fa-shopping-bag',
     'fas fa-tshirt', 'fas fa-shoe-prints', 'fas fa-home', 'fas fa-car',
@@ -314,7 +314,7 @@ function closeIconPickerOnOverlay(event) {
     }
 }
 
-// Adicionar event listener para o botÃ£o X
+// Adicionar event listener para o botão X
 document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.getElementById('closeIconBtn');
     if (closeBtn) {
@@ -347,12 +347,12 @@ document.getElementById('cor_text').addEventListener('input', function() {
     document.getElementById('cor').value = this.value;
 });
 
-// ValidaÃ§Ã£o do formulÃ¡rio
+// Validação do formulário
 document.getElementById('categoriaForm').addEventListener('submit', function(e) {
     const nome = document.getElementById('nome').value.trim();
     if (!nome) {
         e.preventDefault();
-        alert('O nome da categoria Ã© obrigatÃ³rio!');
+        alert('O nome da categoria é obrigatório!');
         return;
     }
 });

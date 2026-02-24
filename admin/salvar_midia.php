@@ -3,10 +3,10 @@
 require_once 'secure.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['arquivo'])) {
-    $titulo = $_POST['titulo'] ?? 'Postagem sem tÃ­tulo';
+    $titulo = $_POST['titulo'] ?? 'Postagem sem título';
     $arquivos = $_FILES['arquivo'];
 
-    // Gera um ID Ãºnico para o grupo de mÃ­dias
+    // Gera um ID único para o grupo de mídias
     $grupo_id = uniqid('post_', true);
 
     $total_arquivos = count($arquivos['name']);

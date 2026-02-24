@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$id]);
 
                 $pdo->commit();
-                header("Location: pedidos.php?msg=" . urlencode("Pedido #$id excluÃ­do com sucesso!"));
+                header("Location: pedidos.php?msg=" . urlencode("Pedido #$id excluído com sucesso!"));
                 exit;
             }
             catch (Exception $e) {
@@ -49,13 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($ids);
 
                 $pdo->commit();
-                header("Location: pedidos.php?msg=" . urlencode(count($ids) . " pedidos excluÃ­dos com sucesso!"));
+                header("Location: pedidos.php?msg=" . urlencode(count($ids) . " pedidos excluídos com sucesso!"));
                 exit;
             }
             catch (Exception $e) {
                 if ($pdo->inTransaction())
                     $pdo->rollBack();
-                header("Location: pedidos.php?erro=" . urlencode("Erro na exclusÃ£o em massa: " . $e->getMessage()));
+                header("Location: pedidos.php?erro=" . urlencode("Erro na exclusão em massa: " . $e->getMessage()));
                 exit;
             }
         }

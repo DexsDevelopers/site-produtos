@@ -14,7 +14,7 @@ if (isset($_GET['id']) && isset($_GET['destaque'])) {
     catch (PDOException $e) {
         if (strpos($e->getMessage(), 'Unknown column \'destaque\'') !== false) {
             require_once 'migrar_destaques.php';
-            // Tenta novamente apÃ³s migrar
+            // Tenta novamente após migrar
             try {
                 $stmt = $pdo->prepare("UPDATE produtos SET destaque = ? WHERE id = ?");
                 $stmt->execute([$destaque, $id]);

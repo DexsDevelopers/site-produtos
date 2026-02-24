@@ -6,7 +6,7 @@ if (isset($_GET['id'])) {
     $produto_id = (int)$_GET['id'];
 
     try {
-        // Primeiro, pega o caminho da imagem para poder deletÃ¡-la do servidor
+        // Primeiro, pega o caminho da imagem para poder deletá-la do servidor
         $stmt = $pdo->prepare("SELECT imagem FROM produtos WHERE id = ?");
         $stmt->execute([$produto_id]);
         $produto = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -24,7 +24,7 @@ if (isset($_GET['id'])) {
 
             $_SESSION['admin_message'] = "Produto deletado com sucesso!";
         } else {
-            $_SESSION['admin_message'] = "Produto nÃ£o encontrado.";
+            $_SESSION['admin_message'] = "Produto não encontrado.";
         }
 
     } catch (PDOException $e) {

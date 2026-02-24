@@ -1,0 +1,1 @@
+(()=>{"use strict";document.addEventListener("DOMContentLoaded",()=>{console.log("🚀 MACARIO BRAZIL - Sistema Moderno Inicializado")})})();

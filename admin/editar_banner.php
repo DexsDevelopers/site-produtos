@@ -1,5 +1,5 @@
 <?php
-// admin/editar_banner.php - Editor AvanÃ§ado de Banners
+// admin/editar_banner.php - Editor Avançado de Banners
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
@@ -13,7 +13,7 @@ if ($banner_id > 0) {
         $banner = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$banner) {
-            $_SESSION['admin_message'] = "Banner nÃ£o encontrado!";
+            $_SESSION['admin_message'] = "Banner não encontrado!";
             header("Location: gerenciar_banners.php");
             exit();
         }
@@ -33,7 +33,7 @@ if ($banner_id > 0) {
                 <?= $banner ? 'Editar Banner' : 'Novo Banner' ?>
             </h1>
             <p class="text-admin-gray-400 mt-2">
-                <?= $banner ? 'Modifique os dados do banner' : 'Crie um novo banner para destacar produtos ou promoÃ§Ãµes' ?>
+                <?= $banner ? 'Modifique os dados do banner' : 'Crie um novo banner para destacar produtos ou promoções' ?>
             </p>
         </div>
         <a href="gerenciar_banners.php" class="btn-secondary">
@@ -43,45 +43,45 @@ if ($banner_id > 0) {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- FormulÃ¡rio -->
+        <!-- Formulário -->
         <div class="lg:col-span-2">
             <div class="admin-card rounded-xl p-8">
                 <form action="processa_banner.php" method="POST" enctype="multipart/form-data" id="bannerForm">
                     <input type="hidden" name="banner_id" value="<?= $banner_id ?>">
                     
-                    <!-- InformaÃ§Ãµes BÃ¡sicas -->
+                    <!-- Informações Básicas -->
                     <div class="space-y-6">
-                        <h3 class="text-xl font-semibold text-white mb-4">InformaÃ§Ãµes BÃ¡sicas</h3>
+                        <h3 class="text-xl font-semibold text-white mb-4">Informações Básicas</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="titulo" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                                    TÃ­tulo
+                                    Título
                                 </label>
                                 <input type="text" 
                                        name="titulo" 
                                        id="titulo"
                                        value="<?= htmlspecialchars($banner['titulo'] ?? '') ?>"
                                        class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
-                                       placeholder="TÃ­tulo do banner">
+                                       placeholder="Título do banner">
                             </div>
 
                             <div>
                                 <label for="subtitulo" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                                    SubtÃ­tulo
+                                    Subtítulo
                                 </label>
                                 <input type="text" 
                                        name="subtitulo" 
                                        id="subtitulo"
                                        value="<?= htmlspecialchars($banner['subtitulo'] ?? '') ?>"
                                        class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all"
-                                       placeholder="SubtÃ­tulo do banner">
+                                       placeholder="Subtítulo do banner">
                             </div>
                         </div>
 
                         <div>
                             <label for="link" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                                Link do BotÃ£o
+                                Link do Botão
                             </label>
                             <input type="url" 
                                    name="link" 
@@ -93,7 +93,7 @@ if ($banner_id > 0) {
 
                         <div>
                             <label for="texto_botao" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                                Texto do BotÃ£o
+                                Texto do Botão
                             </label>
                             <input type="text" 
                                    name="texto_botao" 
@@ -104,9 +104,9 @@ if ($banner_id > 0) {
                         </div>
                     </div>
 
-                    <!-- ConfiguraÃ§Ãµes -->
+                    <!-- Configurações -->
                     <div class="mt-8 pt-6 border-t border-admin-gray-700">
-                        <h3 class="text-xl font-semibold text-white mb-4">ConfiguraÃ§Ãµes</h3>
+                        <h3 class="text-xl font-semibold text-white mb-4">Configurações</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -119,14 +119,14 @@ if ($banner_id > 0) {
                                         class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all">
                                     <option value="principal" <?= ($banner['tipo'] ?? '') === 'principal' ? 'selected' : '' ?>>Principal (Grande)</option>
                                     <option value="categoria" <?= ($banner['tipo'] ?? '') === 'categoria' ? 'selected' : '' ?>>Categoria (Menor)</option>
-                                    <option value="promocao" <?= ($banner['tipo'] ?? '') === 'promocao' ? 'selected' : '' ?>>PromoÃ§Ã£o</option>
+                                    <option value="promocao" <?= ($banner['tipo'] ?? '') === 'promocao' ? 'selected' : '' ?>>Promoção</option>
                                     <option value="destaque" <?= ($banner['tipo'] ?? '') === 'destaque' ? 'selected' : '' ?>>Destaque</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label for="posicao" class="block text-sm font-medium text-admin-gray-300 mb-2">
-                                    PosiÃ§Ã£o
+                                    Posição
                                 </label>
                                 <input type="number" 
                                        name="posicao" 
@@ -189,14 +189,14 @@ if ($banner_id > 0) {
                         </div>
                     </div>
 
-                    <!-- BotÃµes -->
+                    <!-- Botões -->
                     <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-admin-gray-700">
                         <a href="gerenciar_banners.php" class="btn-secondary">
                             Cancelar
                         </a>
                         <button type="submit" name="<?= $banner ? 'editar' : 'adicionar' ?>" class="btn-primary">
                             <i class="fas fa-save mr-2"></i>
-                            <?= $banner ? 'Salvar AlteraÃ§Ãµes' : 'Criar Banner' ?>
+                            <?= $banner ? 'Salvar Alterações' : 'Criar Banner' ?>
                         </button>
                     </div>
                 </form>
@@ -211,7 +211,7 @@ if ($banner_id > 0) {
                 <div id="bannerPreview" class="bg-admin-gray-800 rounded-lg p-4 border border-admin-gray-600">
                     <div class="text-center text-admin-gray-400">
                         <i class="fas fa-image text-4xl mb-2"></i>
-                        <p>Preview aparecerÃ¡ aqui</p>
+                        <p>Preview aparecerá aqui</p>
                     </div>
                 </div>
 
@@ -226,7 +226,7 @@ if ($banner_id > 0) {
                             <li>â€¢ Banners principais: 1200x600px</li>
                             <li>â€¢ Banners categoria: 300x300px</li>
                             <li>â€¢ Use imagens de alta qualidade</li>
-                            <li>â€¢ Mantenha textos legÃ­veis</li>
+                            <li>â€¢ Mantenha textos legíveis</li>
                         </ul>
                     </div>
 
@@ -267,7 +267,7 @@ function updatePreview() {
     const tipos = {
         'principal': 'Principal',
         'categoria': 'Categoria',
-        'promocao': 'PromoÃ§Ã£o',
+        'promocao': 'Promoção',
         'destaque': 'Destaque'
     };
     tipoText.textContent = tipos[tipo] || 'Principal';
@@ -285,7 +285,7 @@ function updatePreview() {
         preview.innerHTML = `
             <div class="text-center text-admin-gray-400">
                 <i class="fas fa-image text-4xl mb-2"></i>
-                <p>Preview aparecerÃ¡ aqui</p>
+                <p>Preview aparecerá aqui</p>
             </div>
         `;
     }
@@ -313,14 +313,14 @@ document.getElementById('imagem').addEventListener('change', function(e) {
     }
 });
 
-// ValidaÃ§Ã£o do formulÃ¡rio
+// Validação do formulário
 document.getElementById('bannerForm').addEventListener('submit', function(e) {
     const tipo = document.getElementById('tipo').value;
     const imagem = document.getElementById('imagem').files[0];
     
     if (!<?= $banner ? 'false' : 'true' ?> && !imagem) {
         e.preventDefault();
-        alert('A imagem Ã© obrigatÃ³ria para novos banners!');
+        alert('A imagem é obrigatória para novos banners!');
         return;
     }
     

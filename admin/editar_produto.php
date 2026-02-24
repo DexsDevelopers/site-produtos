@@ -12,7 +12,7 @@ if ($produto_id > 0) {
         $produto = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) { die("Erro ao buscar produto: " . $e->getMessage()); }
 }
-if (!$produto) { $_SESSION['admin_message'] = "Produto nÃ£o encontrado."; header("Location: index.php"); exit(); }
+if (!$produto) { $_SESSION['admin_message'] = "Produto não encontrado."; header("Location: index.php"); exit(); }
 try {
     $stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
     $todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
@@ -61,7 +61,7 @@ foreach ($grupos_tamanho as $g) {
     $tamanhos_json[$g['id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Busca tamanhos jÃ¡ selecionados e seus estoques para este produto
+// Busca tamanhos já selecionados e seus estoques para este produto
 $tamanhos_estoque = [];
 try {
     $stmt = $pdo->prepare("SELECT tamanho_id, estoque FROM produto_tamanhos WHERE produto_id = ?");
@@ -78,11 +78,11 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
             <input type="hidden" name="id" value="<?= $produto['id'] ?>">
             <div class="space-y-6">
                 <div><label for="nome" class="block text-sm font-medium text-admin-gray-300 mb-2">Nome do Produto</label><input type="text" name="nome" value="<?= htmlspecialchars($produto['nome']) ?>" required class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
-                <div><label for="descricao_curta" class="block text-sm font-medium text-admin-gray-300 mb-2">DescriÃ§Ã£o Curta</label><input type="text" name="descricao_curta" maxlength="100" value="<?= htmlspecialchars($produto['descricao_curta']) ?>" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
-                <div><label for="descricao" class="block text-sm font-medium text-admin-gray-300 mb-2">DescriÃ§Ã£o Completa</label><textarea name="descricao" rows="5" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none resize-vertical"><?= htmlspecialchars($produto['descricao']) ?></textarea></div>
+                <div><label for="descricao_curta" class="block text-sm font-medium text-admin-gray-300 mb-2">Descrição Curta</label><input type="text" name="descricao_curta" maxlength="100" value="<?= htmlspecialchars($produto['descricao_curta']) ?>" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
+                <div><label for="descricao" class="block text-sm font-medium text-admin-gray-300 mb-2">Descrição Completa</label><textarea name="descricao" rows="5" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none resize-vertical"><?= htmlspecialchars($produto['descricao']) ?></textarea></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label for="preco" class="block text-sm font-medium text-admin-gray-300 mb-2">PreÃ§o</label><input type="text" name="preco" value="<?= htmlspecialchars($produto['preco']) ?>" required class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
-                    <div><label for="preco_antigo" class="block text-sm font-medium text-admin-gray-300 mb-2">PreÃ§o Antigo</label><input type="text" name="preco_antigo" value="<?= htmlspecialchars($produto['preco_antigo']) ?>" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
+                    <div><label for="preco" class="block text-sm font-medium text-admin-gray-300 mb-2">Preço</label><input type="text" name="preco" value="<?= htmlspecialchars($produto['preco']) ?>" required class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
+                    <div><label for="preco_antigo" class="block text-sm font-medium text-admin-gray-300 mb-2">Preço Antigo</label><input type="text" name="preco_antigo" value="<?= htmlspecialchars($produto['preco_antigo']) ?>" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-400 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none"></div>
                 </div>
                 <div>
                     <label for="categoria_id" class="block text-sm font-medium text-admin-gray-300 mb-2">Categoria</label>
@@ -90,7 +90,7 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                         <option value="">Selecione uma categoria</option>
                         <?php foreach ($categorias as $cat): ?>
                         <option value="<?= $cat['id'] ?>" <?= ($produto['categoria_id'] == $cat['id']) ? 'selected' : '' ?>>
-                            <?= isset($cat['is_sub']) ? 'â€” ' : '' ?><?= htmlspecialchars($cat['nome']) ?>
+                            <?= isset($cat['is_sub']) ? '— ' : '' ?><?= htmlspecialchars($cat['nome']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -112,14 +112,14 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                             <input type="radio" name="tipo" value="fisico" <?= $tipo_produto === 'fisico' ? 'checked' : '' ?> class="sr-only peer">
                             <div class="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/10 bg-white/5 peer-checked:border-white peer-checked:bg-white/10 transition-all">
                                 <i class="fas fa-tshirt text-xl text-green-400"></i>
-                                <span class="text-sm font-semibold text-white">FÃ­sico</span>
-                                <span class="text-[10px] text-admin-gray-500 text-center">Roupas, tÃªnis, acessÃ³rios</span>
+                                <span class="text-sm font-semibold text-white">Físico</span>
+                                <span class="text-[10px] text-admin-gray-500 text-center">Roupas, tênis, acessórios</span>
                             </div>
                         </label>
                     </div>
                 </div>
 
-                <!-- â•â•â• SELEÃ‡ÃƒO DE TAMANHOS â•â•â• -->
+                <!-- â•â•â• SELEÇÃƒO DE TAMANHOS â•â•â• -->
                 <div id="tamanhos-section" class="<?= $tipo_produto === 'fisico' ? '' : 'hidden' ?>">
                     <div class="p-5 rounded-xl border border-white/10 bg-white/[0.02] space-y-4">
                         <div class="flex items-center gap-2 mb-2">
@@ -182,7 +182,7 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                     <label for="destaque" class="text-sm font-medium text-admin-gray-300">Marcar como Destaque na Home</label>
                 </div>
             </div>
-            <button type="submit" name="editar" class="w-full mt-8 bg-admin-primary hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-lg transition-colors">Salvar AlteraÃ§Ãµes</button>
+            <button type="submit" name="editar" class="w-full mt-8 bg-admin-primary hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-lg transition-colors">Salvar Alterações</button>
         </form>
     </div>
 </div>
@@ -192,7 +192,7 @@ const tamanhosPorGrupo = <?= json_encode($tamanhos_json) ?>;
 const tamanhosEstoque = <?= json_encode($tamanhos_estoque) ?>;
 const tamanhosSelecionados = <?= json_encode($tamanhos_selecionados) ?>;
 
-// Toggle seÃ§Ã£o de tamanhos
+// Toggle seção de tamanhos
 document.querySelectorAll('input[name="tipo"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const section = document.getElementById('tamanhos-section');
@@ -246,7 +246,7 @@ if (grupoSelect) {
     grupoSelect.addEventListener('change', function() {
         renderTamanhos(this.value);
     });
-    // Renderizar tamanhos iniciais se grupo jÃ¡ estÃ¡ selecionado
+    // Renderizar tamanhos iniciais se grupo já está selecionado
     if (grupoSelect.value) {
         renderTamanhos(grupoSelect.value);
     }

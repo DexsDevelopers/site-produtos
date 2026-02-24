@@ -1,0 +1,50 @@
+// src/scss/main.scss
+
+// Variáveis e Configurações
+$brand-red: #FF3B5C;
+$brand-black: #000000;
+$brand-white: #ffffff;
+
+// Mixins e utilitários
+@mixin transition-standard {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+// Estilos extraídos do index.php
+.product-card-new {
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    @include transition-standard;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &:hover {
+        transform: translateY(-6px);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.03);
+    }
+
+    .card-img {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        background: #0a0a0a;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+    }
+
+    &:hover .card-img img {
+        transform: scale(1.08);
+    }
+}
+
+// Outros estilos do index.php...
+// (Vou migrar o restante gradualmente)

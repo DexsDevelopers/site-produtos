@@ -6,8 +6,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pedido_id']) && isset(
     $pedido_id = (int)$_POST['pedido_id'];
     $novo_status = trim($_POST['status']);
 
-    // Lista de status permitidos para seguranÃ§a
-    $status_permitidos = ['Processando', 'Enviado', 'ConcluÃ­do', 'Cancelado'];
+    // Lista de status permitidos para segurança
+    $status_permitidos = ['Processando', 'Enviado', 'Concluído', 'Cancelado'];
 
     if (in_array($novo_status, $status_permitidos)) {
         try {
@@ -18,10 +18,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pedido_id']) && isset(
             $_SESSION['admin_message'] = "Erro ao atualizar o status do pedido.";
         }
     } else {
-        $_SESSION['admin_message'] = "Status invÃ¡lido selecionado.";
+        $_SESSION['admin_message'] = "Status inválido selecionado.";
     }
 
-    // Redireciona de volta para a pÃ¡gina de detalhes do pedido
+    // Redireciona de volta para a página de detalhes do pedido
     header("Location: pedido_detalhes_admin.php?id=" . $pedido_id);
     exit();
 }

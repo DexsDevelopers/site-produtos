@@ -1,5 +1,5 @@
 ﻿<?php
-// produto.php â€” MACARIO BRAZIL â€” PÃ¡gina de Produto
+// produto.php — MACARIO BRAZIL — Página de Produto
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -7,7 +7,7 @@ ini_set('log_errors', 1);
 session_start();
 require_once 'config.php';
 
-// --- RASTREAMENTO AUTOMÃTICO DE AFILIAÃ‡ÃƒO ---
+// --- RASTREAMENTO AUTOMÃTICO DE AFILIAÇÃƒO ---
 if (isset($_GET['ref'])) {
     require_once 'includes/affiliate_system.php';
     $affiliateSystem = new AffiliateSystem($pdo);
@@ -54,7 +54,7 @@ try {
         $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
     }
 
-    // Buscar tamanhos disponÃ­veis para produto fÃ­sico
+    // Buscar tamanhos disponíveis para produto físico
     $produto_tamanhos = [];
     if ($produto_selecionado && ($produto_selecionado['tipo'] ?? 'digital') === 'fisico') {
         try {
@@ -69,7 +69,7 @@ try {
             $produto_tamanhos = $stmt_tam->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (Exception $e) {
-        // Tabela pode nÃ£o existir
+        // Tabela pode não existir
         }
     }
 }
@@ -88,7 +88,7 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// MÃ©todos de pagamento
+// Métodos de pagamento
 $metodos_pagamento = [];
 try {
     if (isset($fileStorage) && is_object($fileStorage)) {
@@ -116,7 +116,7 @@ try {
     }
 }
 catch (Exception $e) {
-    error_log("Erro mÃ©todos pagamento: " . $e->getMessage());
+    error_log("Erro métodos pagamento: " . $e->getMessage());
 }
 
 require_once 'templates/header.php';
@@ -600,7 +600,7 @@ endif; ?>
     endforeach; ?>
             <?php
 else: ?>
-            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliaÃ§Ã£o ainda. Seja o
+            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliação ainda. Seja o
                 primeiro a avaliar!</p>
             <?php
 endif; ?>
@@ -687,7 +687,7 @@ endif; ?>
                 }
             })
             .catch(() => {
-                alert('Erro de conexÃ£o.');
+                alert('Erro de conexão.');
                 btn.innerHTML = original;
                 btn.disabled = false;
             });

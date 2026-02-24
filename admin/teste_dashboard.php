@@ -14,12 +14,12 @@ echo "<body class='bg-gray-900 text-white p-8'>";
 
 echo "<h1 class='text-3xl font-bold mb-6'>ðŸ” Teste do Dashboard</h1>";
 
-// Teste 1: SessÃ£o
+// Teste 1: Sessão
 echo "<div class='bg-gray-800 p-4 rounded-lg mb-4'>";
-echo "<h2 class='text-xl font-semibold mb-2'>1. Teste de SessÃ£o</h2>";
-echo "<p>User ID: " . ($_SESSION['user_id'] ?? 'NÃ£o definido') . "</p>";
-echo "<p>User Nome: " . ($_SESSION['user_nome'] ?? 'NÃ£o definido') . "</p>";
-echo "<p>User Role: " . ($_SESSION['user_role'] ?? 'NÃ£o definido') . "</p>";
+echo "<h2 class='text-xl font-semibold mb-2'>1. Teste de Sessão</h2>";
+echo "<p>User ID: " . ($_SESSION['user_id'] ?? 'Não definido') . "</p>";
+echo "<p>User Nome: " . ($_SESSION['user_nome'] ?? 'Não definido') . "</p>";
+echo "<p>User Role: " . ($_SESSION['user_role'] ?? 'Não definido') . "</p>";
 echo "</div>";
 
 // Teste 2: Config
@@ -28,25 +28,25 @@ echo "<h2 class='text-xl font-semibold mb-2'>2. Teste de Config</h2>";
 try {
     require_once '../config.php';
     echo "<p class='text-green-400'>âœ… Config carregado com sucesso</p>";
-    echo "<p>PDO disponÃ­vel: " . (isset($pdo) ? 'Sim' : 'NÃ£o') . "</p>";
+    echo "<p>PDO disponível: " . (isset($pdo) ? 'Sim' : 'Não') . "</p>";
 } catch (Exception $e) {
     echo "<p class='text-red-400'>âŒ Erro no config: " . $e->getMessage() . "</p>";
 }
 echo "</div>";
 
-// Teste 3: ConexÃ£o com banco
+// Teste 3: Conexão com banco
 echo "<div class='bg-gray-800 p-4 rounded-lg mb-4'>";
-echo "<h2 class='text-xl font-semibold mb-2'>3. Teste de ConexÃ£o</h2>";
+echo "<h2 class='text-xl font-semibold mb-2'>3. Teste de Conexão</h2>";
 try {
     if (isset($pdo)) {
         $teste = $pdo->query("SELECT 1 as teste");
         $resultado = $teste->fetch();
-        echo "<p class='text-green-400'>âœ… ConexÃ£o com banco: OK</p>";
+        echo "<p class='text-green-400'>âœ… Conexão com banco: OK</p>";
     } else {
-        echo "<p class='text-red-400'>âŒ PDO nÃ£o disponÃ­vel</p>";
+        echo "<p class='text-red-400'>âŒ PDO não disponível</p>";
     }
 } catch (Exception $e) {
-    echo "<p class='text-red-400'>âŒ Erro na conexÃ£o: " . $e->getMessage() . "</p>";
+    echo "<p class='text-red-400'>âŒ Erro na conexão: " . $e->getMessage() . "</p>";
 }
 echo "</div>";
 
@@ -59,7 +59,7 @@ try {
         echo "<p class='text-green-400'>âœ… Total produtos: $total_produtos</p>";
         
         $total_usuarios = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
-        echo "<p class='text-green-400'>âœ… Total usuÃ¡rios: $total_usuarios</p>";
+        echo "<p class='text-green-400'>âœ… Total usuários: $total_usuarios</p>";
         
         $produtos = $pdo->query('SELECT * FROM produtos ORDER BY id DESC LIMIT 3')->fetchAll(PDO::FETCH_ASSOC);
         echo "<p class='text-green-400'>âœ… Produtos recentes: " . count($produtos) . " encontrados</p>";
@@ -72,7 +72,7 @@ try {
             echo "</ul>";
         }
     } else {
-        echo "<p class='text-red-400'>âŒ PDO nÃ£o disponÃ­vel para queries</p>";
+        echo "<p class='text-red-400'>âŒ PDO não disponível para queries</p>";
     }
 } catch (Exception $e) {
     echo "<p class='text-red-400'>âŒ Erro nas queries: " . $e->getMessage() . "</p>";

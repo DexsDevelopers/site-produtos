@@ -1,12 +1,12 @@
 <?php
-// admin/gerenciar_banners_avancado.php - Gerenciamento AvanÃ§ado de Banners
+// admin/gerenciar_banners_avancado.php - Gerenciamento Avançado de Banners
 require_once 'secure.php';
 require_once 'templates/header_admin.php';
 
 // Busca todos os banners ordenados
 $banners = $pdo->query('SELECT * FROM banners ORDER BY posicao ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC);
 
-// EstatÃ­sticas
+// Estatísticas
 $total_banners = count($banners);
 $banners_ativos = count(array_filter($banners, fn($b) => $b['ativo']));
 $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
@@ -27,7 +27,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
         </div>
     </div>
 
-    <!-- EstatÃ­sticas -->
+    <!-- Estatísticas -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="admin-card rounded-xl p-6">
             <div class="flex items-center">
@@ -101,7 +101,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
                     <option value="">Todos os tipos</option>
                     <option value="principal">Principal</option>
                     <option value="categoria">Categoria</option>
-                    <option value="promocao">PromoÃ§Ã£o</option>
+                    <option value="promocao">Promoção</option>
                     <option value="destaque">Destaque</option>
                 </select>
             </div>
@@ -117,7 +117,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
             
             <div class="flex-1">
                 <label for="buscaBanner" class="block text-sm font-medium text-admin-gray-300 mb-2">Buscar</label>
-                <input type="text" id="buscaBanner" placeholder="Buscar por tÃ­tulo..." class="w-full px-4 py-2 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white">
+                <input type="text" id="buscaBanner" placeholder="Buscar por título..." class="w-full px-4 py-2 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white">
             </div>
         </div>
     </div>
@@ -133,7 +133,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
                 </button>
                 <button onclick="toggleBulkActions()" class="btn-secondary">
                     <i class="fas fa-check-square mr-2"></i>
-                    AÃ§Ãµes em Lote
+                    Ações em Lote
                 </button>
             </div>
         </div>
@@ -148,7 +148,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
                                  alt="<?= htmlspecialchars($banner['titulo']) ?>" 
                                  class="w-full h-full object-cover">
                             
-                            <!-- Overlay com informaÃ§Ãµes -->
+                            <!-- Overlay com informações -->
                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity">
                                 <div class="absolute bottom-4 left-4 right-4 text-white">
                                     <?php if ($banner['titulo']): ?>
@@ -174,7 +174,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
                             </div>
                         </div>
                         
-                        <!-- InformaÃ§Ãµes -->
+                        <!-- Informações -->
                         <div class="p-4">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="px-2 py-1 bg-admin-primary/20 text-admin-primary text-xs rounded-full">
@@ -200,7 +200,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
                                 </p>
                             </div>
                             
-                            <!-- AÃ§Ãµes -->
+                            <!-- Ações -->
                             <div class="flex items-center justify-between mt-4 pt-3 border-t border-admin-gray-700">
                                 <div class="flex space-x-2">
                                     <a href="editar_banner.php?id=<?= $banner['id'] ?>" 
@@ -248,7 +248,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
     </div>
 </div>
 
-<!-- Modal de ReordenaÃ§Ã£o -->
+<!-- Modal de Reordenação -->
 <div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeReorderOnOverlay(event)">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-admin-gray-800 rounded-xl p-6 max-w-4xl w-full" onclick="event.stopPropagation()">
@@ -262,7 +262,7 @@ $banners_por_tipo = array_count_values(array_column($banners, 'tipo'));
             <p class="text-admin-gray-400 mb-6">Arraste e solte para reordenar os banners</p>
             
             <div id="reorderList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                <!-- Lista serÃ¡ preenchida via JavaScript -->
+                <!-- Lista será preenchida via JavaScript -->
             </div>
             
             <div class="flex justify-end gap-4 mt-6">
@@ -411,8 +411,8 @@ function saveReorder() {
 }
 
 function toggleBulkActions() {
-    // Implementar aÃ§Ãµes em lote
-    alert('Funcionalidade de aÃ§Ãµes em lote serÃ¡ implementada em breve!');
+    // Implementar ações em lote
+    alert('Funcionalidade de ações em lote será implementada em breve!');
 }
 </script>
 
