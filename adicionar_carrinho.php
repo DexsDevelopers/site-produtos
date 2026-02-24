@@ -70,6 +70,11 @@ try {
         $total_itens += $item['quantidade'];
     }
 
+    // Salva para Carrinho Abandonado
+    if (function_exists('salvarCarrinho')) {
+        salvarCarrinho($pdo);
+    }
+
     echo json_encode([
         'success' => true,
         'message' => 'Produto adicionado ao carrinho!',

@@ -116,6 +116,14 @@ try {
             $item['preco']
         ]);
     }
+
+    // Remove do sistema de carrinhos abandonados (Conversão)
+    if (isset($user_id)) {
+        $sessao_id = session_id();
+        $stmt_del = $pdo->prepare("DELETE FROM carrinhos_abandonados WHERE sessao_id = ? OR (usuario_id = ? AND usuario_id IS NOT NULL)");
+        $stmt_del->execute([$sessao_id, $user_id]);
+    }
+
     $pdo->commit();
 
 // O carrinho será limpo na página de obrigado após o retorno do pagamento
