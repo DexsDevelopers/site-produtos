@@ -76,9 +76,10 @@ function salvarCarrinho($pdo) {
 
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS site_visitas (id INT AUTO_INCREMENT PRIMARY KEY, ip_address VARCHAR(45), data_visita DATE, hora_visita TIME, pagina_visitada VARCHAR(255), user_agent TEXT, dispositivo VARCHAR(50))");
+    $migracoes = [
         "CREATE TABLE IF NOT EXISTS configuracoes (id INT AUTO_INCREMENT PRIMARY KEY, chave VARCHAR(50) UNIQUE, valor TEXT, data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
         "INSERT IGNORE INTO configuracoes (chave, valor) VALUES ('pix_status', 'on'), ('infinite_status', 'on')",
-        "ALTER TABLE pedidos ADD COLUMN whatsapp VARCHAR(20)", 
+        "ALTER TABLE pedidos ADD COLUMN whatsapp VARCHAR(20)",
         "ALTER TABLE pedidos ADD COLUMN endereco VARCHAR(255)", "ALTER TABLE pedidos ADD COLUMN numero VARCHAR(20)",
         "ALTER TABLE pedidos ADD COLUMN complemento VARCHAR(100)", "ALTER TABLE pedidos ADD COLUMN bairro VARCHAR(100)",
         "ALTER TABLE pedidos ADD COLUMN cidade VARCHAR(100)", "ALTER TABLE pedidos ADD COLUMN estado VARCHAR(2)",
