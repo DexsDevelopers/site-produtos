@@ -1,5 +1,5 @@
-﻿<?php
-// admin/gerenciar_produtos.php - Listagem de Produtos Premium com Edição em Massa
+<?php
+// admin/gerenciar_produtos.php - v2.3
 require_once "secure.php";
 $page_title = "Meus Produtos";
 
@@ -91,12 +91,12 @@ require_once "templates/header_admin.php";
     <div class="admin-card p-4 bg-admin-gray-800/40 border border-white/5 rounded-2xl flex flex-col lg:flex-row gap-4">
         <form method="GET" class="flex-1 relative" id="filter-form">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-admin-gray-500"></i>
-            <input type="text" name='search' value="<?= htmlspecialchars($search) ?>" 
+            <input type="text" name='search' value="<?= html_entity_decode('<?= htmlspecialchars($search) ?>') ?>" 
                 placeholder="Buscar por nome ou ID..." 
                 class="w-full bg-admin-gray-900 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:border-white/30 focus:outline-none transition-all">
             
-            <input type="hidden" name="categoria_id" value="<?= htmlspecialchars($categoria_id) ?>">
-            <input type="hidden" name="ordem" value="<?= htmlspecialchars($ordem) ?>">
+            <input type="hidden" name="categoria_id" value="<?= html_entity_decode('<?= htmlspecialchars($categoria_id) ?>') ?>">
+            <input type="hidden" name="ordem" value="<?= html_entity_decode('<?= htmlspecialchars($ordem) ?>') ?>">
         </form>
 
         <div class="flex flex-wrap gap-2">
@@ -196,7 +196,7 @@ require_once "templates/header_admin.php";
                                         class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all">
                                         <i class="fas fa-edit text-xs"></i>
                                     </a>
-                                    <a href="deletar_produto.php?id=<?= $produto["id"]?>" onclick="return confirm("Excluir este produto?")"
+                                    <a href="deletar_produto.php?id=<?= $produto["id"]?>" onclick="return confirm('Excluir este produto?')"
                                         class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all">
                                         <i class="fas fa-trash text-xs"></i>
                                     </a>
@@ -286,119 +286,117 @@ function atualizarParametroUrl(param, value) {
     return url.pathname + url.search;
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const searchInput = document.querySelector("input[name='search']");
-    const filterForm = document.getElementById("filter-form");
-    const selectAll = document.getElementById("select-all");
-    const checkboxes = document.querySelectorAll(".product-checkbox");
-    const bulkBar = document.getElementById("bulk-bar");
-    const bulkCount = document.getElementById("bulk-count");
-    const bulkActionSelect = document.getElementById("bulk_action_select");
-    const bulkExtraFields = document.getElementById("bulk_extra_fields");
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const filterForm = document.getElementById('filter-form');
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    const bulkBar = document.getElementById('bulk-bar');
+    const bulkCount = document.getElementById('bulk-count');
+    const bulkActionSelect = document.getElementById('bulk_action_select');
+    const bulkExtraFields = document.getElementById('bulk_extra_fields');
 
-    // Debounce na busca
     let timeout = null;
-    searchInput.addEventListener("input", function() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => filterForm.submit(), 600);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                if (filterForm) filterForm.submit();
+            }, 600);
+        });
 
-    if (searchInput.value) {
-        searchInput.focus();
-        const val = searchInput.value; searchInput.value = ""; searchInput.value = val;
+        if (searchInput.value) {
+            searchInput.focus();
+            const val = searchInput.value; searchInput.value = ''; searchInput.value = val;
+        }
     }
 
-    // Seleção em lote
     function updateBulkBar() {
-        const checked = document.querySelectorAll(".product-checkbox:checked");
-        if (checked.length > 0) {
-            bulkBar.classList.remove("translate-y-32", "opacity-0");
-            bulkCount.innerText = `${checked.length} SELECIONADOS`;
+        if (!bulkBar || !bulkCount) return;
+        const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
+        if (checkedCount > 0) {
+            bulkBar.classList.remove('translate-y-32', 'opacity-0');
+            bulkCount.innerText = checkedCount + ' SELECIONADOS';
         } else {
-            bulkBar.classList.add("translate-y-32", "opacity-0");
+            bulkBar.classList.add('translate-y-32', 'opacity-0');
         }
     }
 
-    selectAll.addEventListener("change", function() {
-        checkboxes.forEach(cb => cb.checked = this.checked);
-        updateBulkBar();
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(function(cb) { cb.checked = selectAll.checked; });
+            updateBulkBar();
+        });
+    }
+
+    checkboxes.forEach(function(cb) {
+        cb.addEventListener('change', updateBulkBar);
     });
 
-    checkboxes.forEach(cb => {
-        cb.addEventListener("change", updateBulkBar);
-    });
+    if (bulkActionSelect) {
+        bulkActionSelect.addEventListener('change', function() {
+            if (!bulkExtraFields) return;
+            bulkExtraFields.innerHTML = '';
+            const action = this.value;
 
-    // Campos extras para ações
-    bulkActionSelect.addEventListener("change", function() {
-        bulkExtraFields.innerHTML = "";
-        const action = this.value;
-
-        if (action === "change_category") {
-            const select = document.createElement("select");
-            select.name = "bulk_category_id";
-            select.required = true;
-            select.className = "bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 cursor-pointer";
-            select.innerHTML = "<option value="">Escolha...</option>";
-            <?php foreach($categorias as $cat): ?>
-            select.innerHTML += "<option value="<?= $cat["id"] ?>"><?= htmlspecialchars($cat["nome"]) ?></option>";
-            <?php endforeach; ?>
-            bulkExtraFields.appendChild(select);
-        } else if (action === "adjust_price") {
-            const input = document.createElement("input");
-            input.type = "number";
-            input.name = "bulk_price_adjustment";
-            input.placeholder = "Ex: 10 ou -15";
-            input.required = true;
-            input.className = "bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-24";
-            bulkExtraFields.appendChild(input);
-            const span = document.createElement("span");
-            span.innerText = "%";
-            span.className = "ml-1 font-bold text-xs";
-            bulkExtraFields.appendChild(span);
-        } else if (action === "adjust_price_fixed") {
-            const input = document.createElement("input");
-            input.type = "number";
-            input.step = "0.01";
-            input.name = "bulk_price_adjustment_fixed";
-            input.placeholder = "Ex: 50.00 ou -20.00";
-            input.required = true;
-            input.className = "bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-32";
-            bulkExtraFields.appendChild(input);
-            const span = document.createElement("span");
-            span.innerText = "R$";
-            span.className = "ml-1 font-bold text-xs";
-            bulkExtraFields.prepend(span);
-        } else if (action === "set_price_fixed") {
-            const input = document.createElement("input");
-            input.type = "number";
-            input.step = "0.01";
-            input.name = "bulk_price_set_fixed";
-            input.placeholder = "Ex: 299.90";
-            input.required = true;
-            input.className = "bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-32";
-            bulkExtraFields.appendChild(input);
-            const span = document.createElement("span");
-            span.innerText = "R$";
-            span.className = "ml-1 font-bold text-xs";
-            bulkExtraFields.prepend(span);
-        }
-    });
+            if (action === 'change_category') {
+                const select = document.createElement('select');
+                select.name = 'bulk_category_id';
+                select.required = true;
+                select.className = 'bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 cursor-pointer';
+                let o = '<option value="">Escolha...</option>';
+                <?php foreach($categorias as $cat): ?>
+                o += '<option value="<?= $cat["id"] ?>"><?= htmlspecialchars($cat["nome"]) ?></option>';
+                <?php endforeach; ?>
+                select.innerHTML = o;
+                bulkExtraFields.appendChild(select);
+            } else if (action === 'adjust_price' || action === 'adjust_price_fixed' || action === 'set_price_fixed') {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = 'any';
+                input.required = true;
+                input.className = 'bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 w-32';
+                
+                if (action === 'adjust_price') {
+                    input.name = 'bulk_price_adjustment';
+                    input.placeholder = 'Ex: 10 ou -15';
+                    bulkExtraFields.appendChild(input);
+                    const span = document.createElement('span');
+                    span.innerText = '%';
+                    span.className = 'ml-1 font-bold text-xs';
+                    bulkExtraFields.appendChild(span);
+                } else {
+                    input.name = action === 'adjust_price_fixed' ? 'bulk_price_adjustment_fixed' : 'bulk_price_set_fixed';
+                    input.placeholder = action === 'adjust_price_fixed' ? 'Ex: 50.00' : 'Ex: 299.90';
+                    const span = document.createElement('span');
+                    span.innerText = 'R$';
+                    span.className = 'mr-1 font-bold text-xs';
+                    bulkExtraFields.appendChild(span);
+                    bulkExtraFields.appendChild(input);
+                }
+            }
+        });
+    }
 
     window.cancelSelection = function() {
-        checkboxes.forEach(cb => cb.checked = false);
-        selectAll.checked = false;
+        checkboxes.forEach(function(cb) { cb.checked = false; });
+        if (selectAll) selectAll.checked = false;
         updateBulkBar();
     };
 
-    document.getElementById("bulk-form").onsubmit = function(e) {
-        if (!bulkActionSelect.value) {
-            alert("Selecione uma ação para executar.");
-            return false;
-        }
-        if (bulkActionSelect.value === "delete" && !confirm("ATENÇÃO: Deseja realmente excluir todos os produtos selecionados? Esta ação é irreversível.")) {
-            return false;
-        }
-    };
+    const bulkForm = document.getElementById('bulk-form');
+    if (bulkForm) {
+        bulkForm.onsubmit = function(e) {
+            if (!bulkActionSelect || !bulkActionSelect.value) {
+                alert('Selecione uma ação para executar.');
+                return false;
+            }
+            if (bulkActionSelect.value === 'delete') {
+                return confirm('ATENÇÃO: Deseja realmente excluir todos os produtos selecionados? Esta ação é irreversível.');
+            }
+            return true;
+        };
+    }
 });
 </script>
 
