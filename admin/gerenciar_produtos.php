@@ -7,6 +7,10 @@ error_reporting(E_ALL);
 require_once "secure.php";
 $page_title = "Meus Produtos";
 
+// admin/gerenciar_produtos.php - v2.5 (Fix: PHP 5.x compat & No BOM)
+require_once "secure.php";
+$page_title = "Meus Produtos";
+
 // Filtros
 $search = isset($_GET["search"]) ? $_GET["search"] : "";
 $categoria_id = isset($_GET["categoria_id"]) ? $_GET["categoria_id"] : "";
@@ -65,7 +69,7 @@ try {
     $total_produtos = count($produtos);
     $total_destaques = 0;
     foreach ($produtos as $p) {
-        if ($p["destaque"] == 1)
+        if (isset($p["destaque"]) && $p["destaque"] == 1)
             $total_destaques++;
     }
 }
