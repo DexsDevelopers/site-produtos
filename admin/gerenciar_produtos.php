@@ -91,7 +91,7 @@ require_once "templates/header_admin.php";
     <div class="admin-card p-4 bg-admin-gray-800/40 border border-white/5 rounded-2xl flex flex-col lg:flex-row gap-4">
         <form method="GET" class="flex-1 relative" id="filter-form">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-admin-gray-500"></i>
-            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
+            <input type="text" name='search' value="<?= htmlspecialchars($search) ?>" 
                 placeholder="Buscar por nome ou ID..." 
                 class="w-full bg-admin-gray-900 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:border-white/30 focus:outline-none transition-all">
             
@@ -100,7 +100,7 @@ require_once "templates/header_admin.php";
         </form>
 
         <div class="flex flex-wrap gap-2">
-            <select onchange="window.location.href = atualizarParametroUrl(&quot;categoria_id&quot;, this.value)"
+            <select onchange="window.location.href = atualizarParametroUrl('categoria_id', this.value)"
                 class="bg-admin-gray-900 border border-white/10 rounded-xl py-3 px-4 text-xs text-white focus:border-white/30 focus:outline-none cursor-pointer">
                 <option value="">Todas Categorias</option>
                 <?php foreach ($categorias as $cat): ?>
@@ -110,7 +110,7 @@ require_once "templates/header_admin.php";
                 <?php endforeach; ?>
             </select>
 
-            <select onchange="window.location.href = atualizarParametroUrl(&quot;ordem&quot;, this.value)"
+            <select onchange="window.location.href = atualizarParametroUrl('ordem', this.value)"
                 class="bg-admin-gray-900 border border-white/10 rounded-xl py-3 px-4 text-xs text-white focus:border-white/30 focus:outline-none cursor-pointer">
                 <option value="recente" <?= $ordem == "recente" ? "selected" : "" ?>>Mais Recentes</option>
                 <option value="antigo" <?= $ordem == "antigo" ? "selected" : "" ?>>Mais Antigos</option>
@@ -196,7 +196,7 @@ require_once "templates/header_admin.php";
                                         class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all">
                                         <i class="fas fa-edit text-xs"></i>
                                     </a>
-                                    <a href="deletar_produto.php?id=<?= $produto["id"]?>" onclick="return confirm(&quot;Excluir este produto?&quot;)"
+                                    <a href="deletar_produto.php?id=<?= $produto["id"]?>" onclick="return confirm("Excluir este produto?")"
                                         class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all">
                                         <i class="fas fa-trash text-xs"></i>
                                     </a>
@@ -287,7 +287,7 @@ function atualizarParametroUrl(param, value) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const searchInput = document.querySelector("input[name=&quot;search&quot;]");
+    const searchInput = document.querySelector("input[name='search']");
     const filterForm = document.getElementById("filter-form");
     const selectAll = document.getElementById("select-all");
     const checkboxes = document.querySelectorAll(".product-checkbox");
@@ -338,9 +338,9 @@ document.addEventListener("DOMContentLoaded", function() {
             select.name = "bulk_category_id";
             select.required = true;
             select.className = "bg-black/5 border-0 rounded-lg text-xs font-bold focus:ring-0 px-3 py-2 cursor-pointer";
-            select.innerHTML = "<option value=&quot;&quot;>Escolha...</option>";
+            select.innerHTML = "<option value="">Escolha...</option>";
             <?php foreach($categorias as $cat): ?>
-            select.innerHTML += "<option value=&quot;<?= $cat["id"] ?>&quot;><?= htmlspecialchars($cat["nome"]) ?></option>";
+            select.innerHTML += "<option value="<?= $cat["id"] ?>"><?= htmlspecialchars($cat["nome"]) ?></option>";
             <?php endforeach; ?>
             bulkExtraFields.appendChild(select);
         } else if (action === "adjust_price") {
