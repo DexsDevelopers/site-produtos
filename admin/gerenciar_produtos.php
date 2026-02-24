@@ -3,11 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// admin/gerenciar_produtos.php - v2.5 (Fix: PHP 5.x compat & No BOM)
-require_once "secure.php";
-$page_title = "Meus Produtos";
-
-// admin/gerenciar_produtos.php - v2.5 (Fix: PHP 5.x compat & No BOM)
+// admin/gerenciar_produtos.php - v2.5 (MySQL PRO)
 require_once "secure.php";
 $page_title = "Meus Produtos";
 
