@@ -1,5 +1,5 @@
-<?php
-// produto.php — MACARIO BRAZIL — Página de Produto
+﻿<?php
+// produto.php â€” MACARIO BRAZIL â€” PÃ¡gina de Produto
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -7,7 +7,7 @@ ini_set('log_errors', 1);
 session_start();
 require_once 'config.php';
 
-// --- RASTREAMENTO AUTOMÁTICO DE AFILIAÇÃO ---
+// --- RASTREAMENTO AUTOMÃTICO DE AFILIAÃ‡ÃƒO ---
 if (isset($_GET['ref'])) {
     require_once 'includes/affiliate_system.php';
     $affiliateSystem = new AffiliateSystem($pdo);
@@ -54,7 +54,7 @@ try {
         $media_notas = ($total_avaliacoes > 0) ? round($soma_notas / $total_avaliacoes, 1) : 0;
     }
 
-    // Buscar tamanhos disponíveis para produto físico
+    // Buscar tamanhos disponÃ­veis para produto fÃ­sico
     $produto_tamanhos = [];
     if ($produto_selecionado && ($produto_selecionado['tipo'] ?? 'digital') === 'fisico') {
         try {
@@ -69,7 +69,7 @@ try {
             $produto_tamanhos = $stmt_tam->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (Exception $e) {
-        // Tabela pode não existir
+        // Tabela pode nÃ£o existir
         }
     }
 }
@@ -88,7 +88,7 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// Métodos de pagamento
+// MÃ©todos de pagamento
 $metodos_pagamento = [];
 try {
     if (isset($fileStorage) && is_object($fileStorage)) {
@@ -97,8 +97,8 @@ try {
         $infinite_status = $config['infinite_status'] ?? 'off';
         if ($infinite_status === 'on' && !empty($infinite_tag)) {
             $metodos_pagamento['infinitepay'] = [
-                'url' => 'checkout_infinitepay.php',
-                'btn_text' => 'Pagar com Cartão / PIX',
+                'url' => 'buy_now.php',
+                'btn_text' => 'Pagar com CartÃ£o / PIX',
                 'sub_text' => 'Via InfinitePay',
                 'icon' => 'fas fa-credit-card'
             ];
@@ -107,16 +107,16 @@ try {
         $pix_status = $config['pix_status'] ?? 'off';
         if ($pix_status === 'on' && !empty($chave_pix)) {
             $metodos_pagamento['pix'] = [
-                'url' => 'checkout_pix.php',
+                'url' => 'buy_now.php',
                 'btn_text' => 'Pagar com PIX',
-                'sub_text' => 'Transferência Direta',
+                'sub_text' => 'TransferÃªncia Direta',
                 'icon' => 'fas fa-qrcode'
             ];
         }
     }
 }
 catch (Exception $e) {
-    error_log("Erro métodos pagamento: " . $e->getMessage());
+    error_log("Erro mÃ©todos pagamento: " . $e->getMessage());
 }
 
 require_once 'templates/header.php';
@@ -402,9 +402,9 @@ require_once 'templates/header.php';
 
 <!-- Breadcrumb -->
 <nav class="breadcrumb">
-    <a href="index.php">Início</a>
+    <a href="index.php">InÃ­cio</a>
     <i class="fas fa-chevron-right"></i>
-    <a href="busca.php?todos=1">Catálogo</a>
+    <a href="busca.php?todos=1">CatÃ¡logo</a>
     <i class="fas fa-chevron-right"></i>
     <span style="color: var(--text-primary);">
         <?= htmlspecialchars($produto_selecionado['nome'])?>
@@ -432,7 +432,7 @@ endif; ?>
             <div class="product-features-row">
                 <div class="product-feature-item">
                     <i class="fas fa-truck"></i>
-                    <span>Frete Grátis</span>
+                    <span>Frete GrÃ¡tis</span>
                 </div>
                 <div class="product-feature-item">
                     <i class="fas fa-shield-alt"></i>
@@ -440,7 +440,7 @@ endif; ?>
                 </div>
                 <div class="product-feature-item">
                     <i class="fas fa-bolt"></i>
-                    <span>Entrega Rápida</span>
+                    <span>Entrega RÃ¡pida</span>
                 </div>
             </div>
         </div>
@@ -460,7 +460,7 @@ endif; ?>
 endfor; ?>
                 </div>
                 <span class="rating-count">(
-                    <?= $total_avaliacoes?> avaliações)
+                    <?= $total_avaliacoes?> avaliaÃ§Ãµes)
                 </span>
             </div>
 
@@ -548,7 +548,7 @@ endif; ?>
                     <i class="fas fa-headset"></i> Suporte 24/7
                 </span>
                 <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);">
-                    <i class="fas fa-sync-alt"></i> Trocas Grátis
+                    <i class="fas fa-sync-alt"></i> Trocas GrÃ¡tis
                 </span>
             </div>
         </div>
@@ -557,8 +557,8 @@ endif; ?>
     <!-- Tabs: Description & Reviews -->
     <div style="max-width:1200px;margin:48px auto 0;padding:0 24px;">
         <div class="product-tabs">
-            <button class="product-tab-btn active" onclick="switchTab('desc', this)">Descrição</button>
-            <button class="product-tab-btn" onclick="switchTab('reviews', this)">Avaliações (
+            <button class="product-tab-btn active" onclick="switchTab('desc', this)">DescriÃ§Ã£o</button>
+            <button class="product-tab-btn" onclick="switchTab('reviews', this)">AvaliaÃ§Ãµes (
                 <?= $total_avaliacoes?>)
             </button>
         </div>
@@ -600,7 +600,7 @@ endif; ?>
     endforeach; ?>
             <?php
 else: ?>
-            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliação ainda. Seja o
+            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliaÃ§Ã£o ainda. Seja o
                 primeiro a avaliar!</p>
             <?php
 endif; ?>
@@ -651,7 +651,7 @@ endif; ?>
             selector.offsetHeight; // trigger reflow
             selector.style.animation = 'shake 0.5s ease';
             // Highlight
-            document.getElementById('selected-size-label').textContent = '⚠️ Selecione um tamanho';
+            document.getElementById('selected-size-label').textContent = 'âš ï¸ Selecione um tamanho';
             document.getElementById('selected-size-label').style.color = '#f87171';
             setTimeout(() => {
                 document.getElementById('selected-size-label').style.color = '';
@@ -676,7 +676,7 @@ endif; ?>
             .then(data => {
                 if (data.success) {
                     btn.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
-                    if (typeof showToast === 'function') showToast('Produto adicionado ao carrinho!', '🛒');
+                    if (typeof showToast === 'function') showToast('Produto adicionado ao carrinho!', 'ðŸ›’');
                     const badge = document.getElementById('cart-count');
                     if (badge) badge.textContent = data.cart_count || (parseInt(badge.textContent || 0) + 1);
                     setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 2000);
@@ -687,7 +687,7 @@ endif; ?>
                 }
             })
             .catch(() => {
-                alert('Erro de conexão.');
+                alert('Erro de conexÃ£o.');
                 btn.innerHTML = original;
                 btn.disabled = false;
             });
