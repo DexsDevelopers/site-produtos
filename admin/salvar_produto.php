@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $frete_gratis = isset($_POST['frete_gratis']) ? 1 : 0;
     $tipo = ($_POST['tipo'] ?? 'digital') === 'fisico' ? 'fisico' : 'digital';
     $grupo_tamanho_id = !empty($_POST['grupo_tamanho_id']) ? (int)$_POST['grupo_tamanho_id'] : null;
     $tamanhos_selecionados = $_POST['tamanhos_selecionados'] ?? [];
@@ -36,8 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     if (move_uploaded_file($_FILES['imagem']['tmp_name'], $target_file)) {
         $imagem_path = "assets/uploads/" . $new_filename;
         try {
-            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id, destaque, tipo, grupo_tamanho_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id, $destaque, $tipo, $grupo_tamanho_id]);
+            $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, descricao, preco, preco_antigo, imagem, categoria_id, destaque, tipo, grupo_tamanho_id, frete_gratis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nome, $descricao_curta, $descricao, $preco, $preco_antigo, $imagem_path, $categoria_id, $destaque, $tipo, $grupo_tamanho_id, $frete_gratis]);
             $novo_produto_id = $pdo->lastInsertId();
 
             // Salvar tamanhos selecionados
@@ -91,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $preco_antigo = !empty(trim($_POST['preco_antigo'])) ? trim($_POST['preco_antigo']) : null;
     $categoria_id = (int)$_POST['categoria_id'];
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $frete_gratis = isset($_POST['frete_gratis']) ? 1 : 0;
     $tipo = ($_POST['tipo'] ?? 'digital') === 'fisico' ? 'fisico' : 'digital';
     $grupo_tamanho_id = !empty($_POST['grupo_tamanho_id']) ? (int)$_POST['grupo_tamanho_id'] : null;
     $tamanhos_selecionados = $_POST['tamanhos_selecionados'] ?? [];
@@ -127,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     }
 
     try {
-        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id, destaque = :destaque, tipo = :tipo, grupo_tamanho_id = :grupo_tam WHERE id = :id";
+        $sql = "UPDATE produtos SET nome = :nome, descricao_curta = :desc_curta, descricao = :desc, preco = :preco, preco_antigo = :preco_antigo, imagem = :img, categoria_id = :cat_id, destaque = :destaque, frete_gratis = :frete, tipo = :tipo, grupo_tamanho_id = :grupo_tam WHERE id = :id";
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindParam(':nome', $nome);
@@ -138,6 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         $stmt->bindParam(':img', $imagem_path);
         $stmt->bindParam(':cat_id', $categoria_id, PDO::PARAM_INT);
         $stmt->bindParam(':destaque', $destaque, PDO::PARAM_INT);
+        $stmt->bindParam(':frete', $frete_gratis, PDO::PARAM_INT);
         $stmt->bindParam(':tipo', $tipo);
         $stmt->bindParam(':grupo_tam', $grupo_tamanho_id, PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
