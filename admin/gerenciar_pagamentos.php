@@ -1,3 +1,4 @@
+<?php
 // admin/gerenciar_pagamentos.php - Gerenciar Métodos de Pagamento
 $page_title = 'Gerenciar Pagamentos';
 require_once 'secure.php';
