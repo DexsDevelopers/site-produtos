@@ -1,68 +1,49 @@
-<?php
 // admin/gerenciar_pagamentos.php - Gerenciar Métodos de Pagamento
 $page_title = 'Gerenciar Pagamentos';
 require_once 'secure.php';
-require_once '../includes/file_storage.php';
 
-$fileStorage = new FileStorage();
-$config = $fileStorage->getConfig();
+// Busca configurações atuais no Banco de Dados
+try {
+    $stmt = $pdo->query("SELECT chave, valor FROM configuracoes");
+    $config = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (Exception $e) {
+    $config = [];
+}
 
 // Processa formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
-    if ($action === 'pix') {
-        $chave_pix = trim($_POST['chave_pix'] ?? '');
-        $nome_pix = trim($_POST['nome_pix'] ?? '');
-        $cidade_pix = trim($_POST['cidade_pix'] ?? '');
-        $pix_status = $_POST['pix_status'] ?? 'off';
-        
-        // Validações
-        $erros_pix = [];
-        
-        if ($pix_status === 'on') {
-            if (empty($chave_pix)) $erros_pix[] = 'A chave PIX é obrigatória quando o método está ativo.';
-            if (empty($nome_pix)) $erros_pix[] = 'O nome do recebedor é obrigatório quando o método está ativo.';
-            if (empty($cidade_pix)) $erros_pix[] = 'A cidade é obrigatória quando o método está ativo.';
-        }
-        
-        if (empty($erros_pix)) {
-            $resultado = $fileStorage->salvarConfig([
-                'chave_pix' => $chave_pix,
-                'nome_pix' => $nome_pix,
-                'cidade_pix' => $cidade_pix,
-                'pix_status' => $pix_status
-            ]);
+    try {
+        if ($action === 'pix') {
+            $chave_pix = trim($_POST['chave_pix'] ?? '');
+            $nome_pix = trim($_POST['nome_pix'] ?? '');
+            $cidade_pix = trim($_POST['cidade_pix'] ?? '');
+            $pix_status = $_POST['pix_status'] ?? 'off';
             
-            if ($resultado) {
-                $_SESSION['success_message'] = 'Configurações de PIX atualizadas!';
-                header('Location: gerenciar_pagamentos.php');
-                exit();
-            }
-        }
-    } elseif ($action === 'infinitepay') {
-        $infinite_tag = trim($_POST['infinite_tag'] ?? '');
-        $infinite_status = $_POST['infinite_status'] ?? 'off';
-        // Remove @ ou $ se o usuário colocar
-        $infinite_tag = str_replace(['@', '$'], '', $infinite_tag);
-        
-        $erros_infinite = [];
-        if ($infinite_status === 'on' && empty($infinite_tag)) {
-            $erros_infinite[] = 'A InfiniteTag é obrigatória quando o método está ativo.';
-        }
-        
-        if (empty($erros_infinite)) {
-            $resultado = $fileStorage->salvarConfig([
-                'infinite_tag' => $infinite_tag,
-                'infinite_status' => $infinite_status
-            ]);
+            $stmt = $pdo->prepare("INSERT INTO configuracoes (chave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)");
+            $stmt->execute(['chave_pix', $chave_pix]);
+            $stmt->execute(['nome_pix', $nome_pix]);
+            $stmt->execute(['cidade_pix', $cidade_pix]);
+            $stmt->execute(['pix_status', $pix_status]);
             
-            if ($resultado) {
-                $_SESSION['success_message'] = 'Configurações de InfinitePay atualizadas!';
-                header('Location: gerenciar_pagamentos.php');
-                exit();
-            }
+            $_SESSION['success_message'] = 'Configurações de PIX atualizadas!';
+        } elseif ($action === 'infinitepay') {
+            $infinite_tag = trim($_POST['infinite_tag'] ?? '');
+            $infinite_status = $_POST['infinite_status'] ?? 'off';
+            $infinite_tag = str_replace(['@', '$'], '', $infinite_tag);
+            
+            $stmt = $pdo->prepare("INSERT INTO configuracoes (chave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)");
+            $stmt->execute(['infinite_tag', $infinite_tag]);
+            $stmt->execute(['infinite_status', $infinite_status]);
+            
+            $_SESSION['success_message'] = 'Configurações de InfinitePay atualizadas!';
         }
+        
+        header('Location: gerenciar_pagamentos.php');
+        exit();
+    } catch (Exception $e) {
+        $error_message = "Erro ao salvar: " . $e->getMessage();
     }
 }
 
