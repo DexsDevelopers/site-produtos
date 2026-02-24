@@ -13,8 +13,13 @@ $categoria_id = isset($_GET["categoria_id"]) ? $_GET["categoria_id"] : "";
 $ordem = isset($_GET["ordem"]) ? $_GET["ordem"] : "recente";
 
 // Busca categorias para o filtro e edição em massa
-$stmt_cat = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC");
-$categorias = $stmt_cat ? $stmt_cat->fetchAll(PDO::FETCH_ASSOC) : array();
+try {
+    $stmt_cat = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC");
+    $categorias = $stmt_cat ? $stmt_cat->fetchAll(PDO::FETCH_ASSOC) : array();
+}
+catch (Exception $e) {
+    $categorias = array();
+}
 
 // Monta SQL com filtros
 $sql = "SELECT p.*, c.nome as categoria_nome 
