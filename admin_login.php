@@ -1,6 +1,8 @@
 <?php
 // admin_login.php - Login Admin Premium
-session_start();
+if (!isset($_SESSION)) {
+    session_start();
+}
 require_once 'config.php';
 
 // MANUTENÇÃO: Cria tabela de sessões se não existir
@@ -22,7 +24,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     try {
         $token_hash = hash('sha256', $_COOKIE['remember_token']);
         $stmt = $pdo->prepare("SELECT u.id, u.nome, u.role FROM user_sessions s JOIN usuarios u ON s.user_id = u.id WHERE s.token_hash = ? AND s.expires_at > NOW()");
-        $stmt->execute([$token_hash]);
+        $stmt->execute(array($token_hash));
         $user_cookie = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user_cookie && $user_cookie['role'] === 'admin') {
@@ -45,8 +47,8 @@ if (isset($_SESSION['user_id'])) {
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $senha = $_POST['senha'] ?? '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $senha = isset($_POST['senha']) ? $_POST['senha'] : '';
 
     if (empty($email) || empty($senha)) {
         $erro = "Preencha todos os campos.";
@@ -54,24 +56,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     else {
         try {
             $stmt = $pdo->prepare("SELECT id, nome, email, senha, role FROM usuarios WHERE email = ?");
-            $stmt->execute([$email]);
+            $stmt->execute(array($email));
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($usuario && password_verify($senha, $usuario['senha'])) {
                 if ($usuario['role'] === 'admin') {
-                    session_regenerate_id(true);
+                    if (function_exists('session_regenerate_id')) {
+                        session_regenerate_id(true);
+                    }
                     $_SESSION['user_id'] = $usuario['id'];
                     $_SESSION['user_nome'] = $usuario['nome'];
 
                     // LEMBRAR DE MIM
                     if (isset($_POST['remember'])) {
                         try {
-                            $token = bin2hex(random_bytes(32));
+                            $token = bin2hex(openssl_random_pseudo_bytes(16));
+                            if (!$token)
+                                $token = md5(uniqid(rand(), true));
                             $token_hash = hash('sha256', $token);
                             $expires = date('Y-m-d H:i:s', time() + (86400 * 30)); // 30 dias
 
                             $stmt = $pdo->prepare("INSERT INTO user_sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)");
-                            $stmt->execute([$usuario['id'], $token_hash, $expires]);
+                            $stmt->execute(array($usuario['id'], $token_hash, $expires));
 
                             // Cookie seguro (apenas HTTPS se disponível)
                             $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
@@ -100,14 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login — MACARIO BRAZIL</title>
-    <!-- CSS Customizado (Macario Design System) -->
-    <link rel="stylesheet" href="assets/css/admin_macario.css?v=<?= time()?>">
-    <!-- Icons -->
+    <link rel="stylesheet" href="assets/css/admin_macario.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         body {
@@ -137,7 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -200,19 +202,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-card">
         <div class="text-center mb-8">
-            <div
-                style="width: 50px; height: 50px; background: #fff; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <div style="width: 50px; height: 50px; background: #fff; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                 <i class="fas fa-shield-alt text-2xl" style="color: #000;"></i>
             </div>
-            <h1 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 5px;">Admin Login
-            </h1>
-            <p style="color: #666; font-size: 0.9rem;">Acesso restrito ao painel</p>
+            <h1 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 5px; text-align: center;">Admin Login</h1>
+            <p style="color: #666; font-size: 0.9rem; text-align: center;">Acesso restrito ao painel</p>
         </div>
 
         <?php if ($erro): ?>
-        <div
-            style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem;">
-            <?= htmlspecialchars($erro)?>
+        <div style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem;">
+            <?php echo htmlspecialchars($erro); ?>
         </div>
         <?php
 endif; ?>
@@ -229,11 +228,8 @@ endif; ?>
             </div>
 
             <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
-                <input type="checkbox" name="remember" id="remember"
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
-                <label for="remember"
-                    style="margin: 0; cursor: pointer; color: #ccc; font-size: 0.9rem; text-transform: none; letter-spacing: normal;">Lembrar
-                    de mim</label>
+                <input type="checkbox" name="remember" id="remember" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="remember" style="margin: 0; cursor: pointer; color: #ccc; font-size: 0.9rem; text-transform: none; letter-spacing: normal;">Lembrar de mim</label>
             </div>
 
             <button type="submit" class="btn-submit">
@@ -248,5 +244,4 @@ endif; ?>
         </div>
     </div>
 </body>
-
 </html>
