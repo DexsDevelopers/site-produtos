@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/pedido_detalhes_admin.php
 require_once 'secure.php';
 $page_title = 'Detalhes do Pedido';
@@ -58,152 +58,79 @@ $lista_itens = $itens->fetchAll(PDO::FETCH_ASSOC);
         <a href="pedidos.php" class="text-admin-gray-400 hover:text-white transition-colors">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
-        <h1 class="text-2xl font-bold text-white">Pedido #
-            <?= $pedido['id']?>
-        </h1>
-        <span class="bg-admin-primary/20 text-white px-3 py-1 rounded-full text-sm">
-            <?= $pedido['status']?>
-        </span>
+        <h1 class="text-2xl font-bold text-white">Pedido #<?= $pedido['id']?></h1>
+        <span class="bg-admin-primary/20 text-white px-3 py-1 rounded-full text-sm"><?= $pedido['status']?></span>
     </div>
 
     <?php if (isset($msg)): ?>
-    <div class="p-4 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg">
-        <?= $msg?>
-    </div>
-    <?php
-endif; ?>
+    <div class="p-4 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg"><?= $msg?></div>
+    <?php endif; ?>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Detalhes do Pedido -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Produtos -->
             <div class="admin-card p-6">
                 <h3 class="text-lg font-semibold text-white mb-4">Itens do Pedido</h3>
                 <div class="space-y-4">
-                    <?php foreach ($lista_itens as $item):
-    $img_src = !empty($item['imagem']) ? "../" . $item['imagem'] : "https://placehold.co/100x100?text=Removido";
-?>
+                    <?php foreach ($lista_itens as $item): 
+                        $img_src = !empty($item['imagem']) ? "../" . $item['imagem'] : "https://placehold.co/100x100?text=Removido";
+                    ?>
                     <div class="flex gap-4 items-center p-3 bg-white/5 rounded-lg">
                         <img src="<?= $img_src?>" class="w-16 h-16 object-cover rounded bg-admin-gray-800">
                         <div class="flex-1">
-                            <div class="text-white font-medium">
-                                <?= $item['nome_produto']?>
-                            </div>
-                            <?php if (!empty($item['valor_tamanho'])): ?>
-                            <div class="text-[10px] uppercase font-bold text-admin-primary/70 tracking-tight">
-                                TAMANHO:
-                                <?= htmlspecialchars($item['valor_tamanho'])?>
-                            </div>
-                            <?php
-    endif; ?>
-                            <div class="text-sm text-admin-gray-400">
-                                <?= $item['quantidade']?>x
-                                <?= number_format($item['preco_unitario'], 2, ',', '.')?>
-                            </div>
+                            <div class="text-white font-medium"><?= $item['nome_produto']?></div>
+                            <div class="text-sm text-admin-gray-400"><?= $item['quantidade']?>x <?= formatarPreco($item['preco_unitario'])?></div>
                         </div>
-                        <div class="text-white font-bold">
-                            R$
-                            <?= number_format($item['quantidade'] * $item['preco_unitario'], 2, ',', '.')?>
-                        </div>
+                        <div class="text-white font-bold"><?= formatarPreco($item['quantidade'] * $item['preco_unitario'])?></div>
                     </div>
-                    <?php
-endforeach; ?>
+                    <?php endforeach; ?>
                 </div>
                 <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
                     <span class="text-admin-gray-400">Total do Pedido</span>
-                    <span class="text-2xl font-bold text-white">R$
-                        <?= number_format($pedido['valor_total'], 2, ',', '.')?>
-                    </span>
+                    <span class="text-2xl font-bold text-white"><?= formatarPreco($pedido['valor_total'])?></span>
                 </div>
             </div>
 
-            <!-- Dados de Entrega e Rastreio -->
             <div class="admin-card p-6">
                 <h3 class="text-lg font-semibold text-white mb-4">Entrega e Rastreio</h3>
-
                 <form method="POST" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Transportadora</label>
-                            <input type="text" name="transportadora"
-                                value="<?= htmlspecialchars($pedido['transportadora'] ?? '')?>"
-                                placeholder="Ex: Correios"
-                                class="w-full bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Código
-                                de Rastreio</label>
-                            <input type="text" name="codigo_rastreio"
-                                value="<?= htmlspecialchars($pedido['codigo_rastreio'] ?? '')?>"
-                                placeholder="Ex: AB123456789BR"
-                                class="w-full bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white uppercase">
-                        </div>
+                        <input type="text" name="transportadora" value="<?= htmlspecialchars($pedido['transportadora'] ?? '')?>" placeholder="Transportadora" class="bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white">
+                        <input type="text" name="codigo_rastreio" value="<?= htmlspecialchars($pedido['codigo_rastreio'] ?? '')?>" placeholder="Código de Rastreio" class="bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white">
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">URL
-                            de Rastreamento</label>
-                        <input type="text" name="url_rastreio"
-                            value="<?= htmlspecialchars($pedido['url_rastreio'] ?? '')?>" placeholder="https://..."
-                            class="w-full bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white">
-                    </div>
-
-                    <button type="submit" name="atualizar_rastreio"
-                        class="w-full bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition-colors">
-                        Salvar Informações de Envio
-                    </button>
+                    <input type="text" name="url_rastreio" value="<?= htmlspecialchars($pedido['url_rastreio'] ?? '')?>" placeholder="URL de Rastreamento" class="w-full bg-admin-gray-900 border border-admin-gray-700 rounded p-2 text-white">
+                    <button type="submit" name="atualizar_rastreio" class="w-full bg-white text-black font-bold py-3 rounded">Salvar Rastreio</button>
                 </form>
             </div>
         </div>
 
-        <!-- Sidebar Cliente -->
         <div class="space-y-6">
             <div class="admin-card p-6">
                 <h3 class="text-lg font-semibold text-white mb-4">Cliente</h3>
-                <div class="flex items-center gap-3 mb-4">
-                    <div
-                        class="w-10 h-10 rounded-full bg-admin-gray-700 flex items-center justify-center text-white font-bold">
-                        <?= strtoupper(substr($pedido['nome'] ?? '?', 0, 1))?>
-                    </div>
-                    <div>
-                        <div class="text-white font-medium">
-                            <?= htmlspecialchars($pedido['nome'] ?? 'Usuário Removido')?>
-                        </div>
-                        <div class="text-xs text-admin-gray-400">Desde
-                            <?= date('Y')?>
-                        </div>
-                    </div>
+                <div class="text-white font-medium"><?= htmlspecialchars($pedido['nome'] ?? 'Desconhecido')?></div>
+                <div class="text-sm text-admin-gray-400"><?= htmlspecialchars($pedido['email'] ?? '')?></div>
+                <?php if (!empty($pedido['whatsapp'])): ?>
+                <div class="mt-4">
+                    <a href="https://wa.me/<?= preg_replace('/\D/', '', $pedido['whatsapp']) ?>" target="_blank" class="text-green-400 font-bold">
+                        <i class="fab fa-whatsapp"></i> <?= htmlspecialchars($pedido['whatsapp']) ?>
+                    </a>
                 </div>
-                <div class="space-y-2 text-sm text-admin-gray-300">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-envelope w-5 opacity-50"></i>
-                        <?= htmlspecialchars($pedido['email'] ?? 'E-mail não disponível')?>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
 
             <div class="admin-card p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Atualizar Status</h3>
-                <form method="POST" class="space-y-3">
-                    <select name="status"
-                        class="w-full bg-admin-gray-900 text-white border border-admin-gray-700 rounded p-2">
-                        <option value="pendente" <?= $pedido['status'] == 'pendente' ? 'selected' : '' ?>>Pendente</option>
-                        <option value="pago" <?= $pedido['status'] == 'pago' ? 'selected' : '' ?>>Pago</option>
-                        <option value="enviado" <?= $pedido['status'] == 'enviado' ? 'selected' : '' ?>>Enviado</option>
-                        <option value="entregue" <?= $pedido['status'] == 'entregue' ? 'selected' : '' ?>>Entregue</option>
-                        <option value="cancelado" <?= $pedido['status'] == 'cancelado' ? 'selected' : '' ?>>Cancelado
-                        </option>
-                    </select>
-                    <button type="submit" name="mudar_status"
-                        class="w-full border border-white/20 text-white py-2 rounded hover:bg-white/10 transition-colors">
-                        Atualizar Status
-                    </button>
-                </form>
+                <h3 class="text-lg font-semibold text-white mb-4">Endereço</h3>
+                <?php if (!empty($pedido['endereco'])): ?>
+                <div class="text-sm text-admin-gray-300">
+                    <p><?= htmlspecialchars($pedido['endereco'])?>, <?= htmlspecialchars($pedido['numero'])?></p>
+                    <p><?= htmlspecialchars($pedido['bairro'])?></p>
+                    <p><?= htmlspecialchars($pedido['cidade'])?> - <?= htmlspecialchars($pedido['estado'])?></p>
+                    <p>CEP: <?= htmlspecialchars($pedido['cep'])?></p>
+                </div>
+                <?php else: ?>
+                <p class="text-sm text-admin-gray-500 italic">Endereço não informado.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
-
 <?php require_once 'templates/footer_admin.php'; ?>
