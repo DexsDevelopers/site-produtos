@@ -46,13 +46,24 @@ if (isset($_SESSION['user_id'])) {
                         Informações de Entrega
                     </h2>
 
+                    <style>
+                        #checkout-form input {
+                            background-color: #111 !important;
+                            color: #fff !important;
+                            border: 1px solid #333 !important;
+                        }
+                        #checkout-form input::placeholder {
+                            color: #666 !important;
+                        }
+                    </style>
+
                     <form id="checkout-form" method="POST" action="checkout_pix.php" class="space-y-4">
                         <!-- Contato -->
                         <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">WhatsApp / Telefone</label>
                                 <input type="text" name="whatsapp" id="whatsapp" required value="<?= htmlspecialchars($user_data['whatsapp'] ?? '') ?>" placeholder="(00) 00000-0000"
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                             </div>
                         </div>
 
@@ -62,7 +73,7 @@ if (isset($_SESSION['user_id'])) {
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">CEP</label>
                                 <div class="relative">
                                     <input type="text" name="cep" id="cep" required maxlength="9" value="<?= htmlspecialchars($user_data['cep'] ?? '') ?>" placeholder="00000-000"
-                                        class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                        class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                                     <div id="cep-loading" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
                                         <i class="fas fa-spinner fa-spin text-brand-red"></i>
                                     </div>
@@ -71,26 +82,26 @@ if (isset($_SESSION['user_id'])) {
                             <div class="md:col-span-1">
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Estado</label>
                                 <input type="text" name="estado" id="estado" required maxlength="2" value="<?= htmlspecialchars($user_data['estado'] ?? '') ?>" placeholder="UF"
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all text-center">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red text-center">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Endereço</label>
                             <input type="text" name="endereco" id="endereco" required value="<?= htmlspecialchars($user_data['endereco'] ?? '') ?>" placeholder="Nome da rua/avenida"
-                                class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Número</label>
                                 <input type="text" name="numero" id="numero" required value="<?= htmlspecialchars($user_data['numero'] ?? '') ?>" placeholder="123"
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Complemento (Opcional)</label>
                                 <input type="text" name="complemento" id="complemento" value="<?= htmlspecialchars($user_data['complemento'] ?? '') ?>" placeholder="Apto, Bloco, etc."
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                             </div>
                         </div>
 
@@ -98,12 +109,12 @@ if (isset($_SESSION['user_id'])) {
                             <div>
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Bairro</label>
                                 <input type="text" name="bairro" id="bairro" required value="<?= htmlspecialchars($user_data['bairro'] ?? '') ?>" placeholder="Bairro"
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Cidade</label>
                                 <input type="text" name="cidade" id="cidade" required value="<?= htmlspecialchars($user_data['cidade'] ?? '') ?>" placeholder="Cidade"
-                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
                             </div>
                         </div>
 
