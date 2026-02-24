@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/templates/header_admin.php - Header V2 (Macario Brazil Design System)
 require_once dirname(__DIR__) . '/../config.php';
 ?>
@@ -128,19 +128,31 @@ require_once dirname(__DIR__) . '/../config.php';
                 </a>
 
                 <a href="gerenciar_banners.php"
-                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_banners.php' ? 'active text-white bg-white/5' : ''?>">
                     <i class="fas fa-image w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span class="font-medium">Banners</span>
                 </a>
 
                 <a href="pedidos.php"
-                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'pedidos.php' ? 'active text-white bg-white/5' : ''?>">
                     <i class="fas fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span class="font-medium">Pedidos</span>
                 </a>
 
+                <a href="usuarios.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'usuarios.php' ? 'active text-white bg-white/5' : ''?>">
+                    <i class="fas fa-users w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Clientes</span>
+                </a>
+
+                <a href="carrinhos_abandonados.php"
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'carrinhos_abandonados.php' ? 'active text-white bg-white/5' : ''?>">
+                    <i class="fas fa-cart-arrow-down w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Carrinho Abandonado</span>
+                </a>
+
                 <a href="gerenciar_cupons.php"
-                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group">
+                    class="flex items-center gap-3 text-admin-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition-all group <?= basename($_SERVER['PHP_SELF']) == 'gerenciar_cupons.php' ? 'active text-white bg-white/5' : ''?>">
                     <i class="fas fa-ticket-alt w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span class="font-medium">Cupons</span>
                 </a>
