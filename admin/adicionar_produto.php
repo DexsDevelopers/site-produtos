@@ -3,8 +3,12 @@
 require_once 'secure.php';
 $page_title = 'Adicionar Produto';
 require_once 'templates/header_admin.php';
-$stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
-$todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
+    $todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $todas_categorias = [];
+}
 
 // Organiza em hierarquia
 $categorias = [];

@@ -13,8 +13,12 @@ if ($produto_id > 0) {
     } catch (PDOException $e) { die("Erro ao buscar produto: " . $e->getMessage()); }
 }
 if (!$produto) { $_SESSION['admin_message'] = "Produto nÃ£o encontrado."; header("Location: index.php"); exit(); }
-$stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
-$todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $stmt_categorias = $pdo->query('SELECT * FROM categorias ORDER BY parent_id ASC, ordem ASC');
+    $todas_categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $todas_categorias = [];
+}
 
 // Organiza em hierarquia
 $categorias = [];
