@@ -74,6 +74,16 @@ foreach ($carrinho_itens as $item) {
     ];
 }
 
+// Captura dados do formulário de endereço
+$whatsapp = $_POST['whatsapp'] ?? '';
+$cep = $_POST['cep'] ?? '';
+$endereco = $_POST['endereco'] ?? '';
+$numero = $_POST['numero'] ?? '';
+$complemento = $_POST['complemento'] ?? '';
+$bairro = $_POST['bairro'] ?? '';
+$cidade = $_POST['cidade'] ?? '';
+$estado = $_POST['estado'] ?? '';
+
 // Cria o pedido no banco de dados como "Pendente"
 try {
     $user_id = $_SESSION['user_id'] ?? 0;
@@ -84,9 +94,15 @@ try {
     }
 
     $pdo->beginTransaction();
-    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status) VALUES (?, ?, 'Aguardando Pagamento')");
-    $stmt->execute([$user_id, $valor_total]);
+
+    // Salva dados no pedido
+    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status, whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES (?, ?, 'Aguardando Pagamento', ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$user_id, $valor_total, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado]);
     $pedido_id = $pdo->lastInsertId();
+
+    // Atualiza dados no perfil do usuário para compras futuras
+    $stmt_user = $pdo->prepare("UPDATE usuarios SET whatsapp = ?, cep = ?, endereco = ?, numero = ?, complemento = ?, bairro = ?, cidade = ?, estado = ? WHERE id = ?");
+    $stmt_user->execute([$whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
 
     $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, tamanho_id, valor_tamanho, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($carrinho_itens as $item) {
@@ -101,6 +117,8 @@ try {
         ]);
     }
     $pdo->commit();
+
+// O carrinho será limpo na página de obrigado após o retorno do pagamento
 }
 catch (Exception $e) {
     if ($pdo->inTransaction())
