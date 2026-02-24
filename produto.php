@@ -98,7 +98,7 @@ try {
         if ($infinite_status === 'on' && !empty($infinite_tag)) {
             $metodos_pagamento['infinitepay'] = [
                 'url' => 'buy_now.php',
-                'btn_text' => 'Pagar com CartÃ£o / PIX',
+                'btn_text' => 'Pagar com Cartão / PIX',
                 'sub_text' => 'Via InfinitePay',
                 'icon' => 'fas fa-credit-card'
             ];
@@ -109,7 +109,7 @@ try {
             $metodos_pagamento['pix'] = [
                 'url' => 'buy_now.php',
                 'btn_text' => 'Pagar com PIX',
-                'sub_text' => 'TransferÃªncia Direta',
+                'sub_text' => 'Transferência Direta',
                 'icon' => 'fas fa-qrcode'
             ];
         }
