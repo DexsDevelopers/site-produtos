@@ -402,9 +402,9 @@ require_once 'templates/header.php';
 
 <!-- Breadcrumb -->
 <nav class="breadcrumb">
-    <a href="index.php">InÃ­cio</a>
+    <a href="index.php">Início</a>
     <i class="fas fa-chevron-right"></i>
-    <a href="busca.php?todos=1">CatÃ¡logo</a>
+    <a href="busca.php?todos=1">Catálogo</a>
     <i class="fas fa-chevron-right"></i>
     <span style="color: var(--text-primary);">
         <?= htmlspecialchars($produto_selecionado['nome'])?>
@@ -432,7 +432,7 @@ endif; ?>
             <div class="product-features-row">
                 <div class="product-feature-item">
                     <i class="fas fa-truck"></i>
-                    <span>Frete GrÃ¡tis</span>
+                    <span>Frete Grátis</span>
                 </div>
                 <div class="product-feature-item">
                     <i class="fas fa-shield-alt"></i>
@@ -440,7 +440,7 @@ endif; ?>
                 </div>
                 <div class="product-feature-item">
                     <i class="fas fa-bolt"></i>
-                    <span>Entrega RÃ¡pida</span>
+                    <span>Entrega Rápida</span>
                 </div>
             </div>
         </div>
@@ -460,7 +460,7 @@ endif; ?>
 endfor; ?>
                 </div>
                 <span class="rating-count">(
-                    <?= $total_avaliacoes?> avaliaÃ§Ãµes)
+                    <?= $total_avaliacoes?> avaliações)
                 </span>
             </div>
 
@@ -548,7 +548,7 @@ endif; ?>
                     <i class="fas fa-headset"></i> Suporte 24/7
                 </span>
                 <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);">
-                    <i class="fas fa-sync-alt"></i> Trocas GrÃ¡tis
+                    <i class="fas fa-sync-alt"></i> Trocas Grátis
                 </span>
             </div>
         </div>
@@ -557,8 +557,8 @@ endif; ?>
     <!-- Tabs: Description & Reviews -->
     <div style="max-width:1200px;margin:48px auto 0;padding:0 24px;">
         <div class="product-tabs">
-            <button class="product-tab-btn active" onclick="switchTab('desc', this)">DescriÃ§Ã£o</button>
-            <button class="product-tab-btn" onclick="switchTab('reviews', this)">AvaliaÃ§Ãµes (
+            <button class="product-tab-btn active" onclick="switchTab('desc', this)">Descrição</button>
+            <button class="product-tab-btn" onclick="switchTab('reviews', this)">Avaliações (
                 <?= $total_avaliacoes?>)
             </button>
         </div>
@@ -676,7 +676,7 @@ endif; ?>
             .then(data => {
                 if (data.success) {
                     btn.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
-                    if (typeof showToast === 'function') showToast('Produto adicionado ao carrinho!', 'ðŸ›’');
+                    if (typeof showToast === 'function') showToast('Produto adicionado ao carrinho!', '🛒');
                     const badge = document.getElementById('cart-count');
                     if (badge) badge.textContent = data.cart_count || (parseInt(badge.textContent || 0) + 1);
                     setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 2000);
