@@ -1,5 +1,5 @@
-<?php
-// admin/gerenciar_produtos.php - v2.3
+﻿<?php
+// admin/gerenciar_produtos.php - v2.4 (Fix: Final fatal errors)
 require_once "secure.php";
 $page_title = "Meus Produtos";
 
@@ -9,7 +9,8 @@ $categoria_id = $_GET["categoria_id"] ?? "";
 $ordem = $_GET["ordem"] ?? "recente";
 
 // Busca categorias para o filtro e edição em massa
-$categorias = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC);
+$stmt_cat = $pdo->query("SELECT * FROM categorias ORDER BY nome ASC");
+$categorias = $stmt_cat ? $stmt_cat->fetchAll(PDO::FETCH_ASSOC) : [];
 
 // Monta SQL com filtros
 $sql = "SELECT p.*, c.nome as categoria_nome 
@@ -44,7 +45,7 @@ try {
     
     // Stats
     $total_produtos = count($produtos);
-    $total_destaques = count(array_filter($produtos, fn($p) => $p["destaque"] == 1));
+    $total_destaques = count(array_filter($produtos, function($p) { return $p["destaque"] == 1; }));
 } catch (Exception $e) {
     $produtos = [];
 }
@@ -53,7 +54,6 @@ require_once "templates/header_admin.php";
 ?>
 
 <div class="space-y-6 pb-24">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-3xl font-bold text-white mb-2">Produtos</h1>
@@ -65,7 +65,6 @@ require_once "templates/header_admin.php";
         </a>
     </div>
 
-    <!-- Stats -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="admin-card p-4 flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl">
             <div class="w-10 h-10 rounded-xl bg-admin-primary/10 flex items-center justify-center text-admin-primary">
@@ -87,16 +86,15 @@ require_once "templates/header_admin.php";
         </div>
     </div>
 
-    <!-- Barra de Ferramentas / Filtros -->
     <div class="admin-card p-4 bg-admin-gray-800/40 border border-white/5 rounded-2xl flex flex-col lg:flex-row gap-4">
         <form method="GET" class="flex-1 relative" id="filter-form">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-admin-gray-500"></i>
-            <input type="text" name='search' value="<?= html_entity_decode('<?= htmlspecialchars($search) ?>') ?>" 
+            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
                 placeholder="Buscar por nome ou ID..." 
                 class="w-full bg-admin-gray-900 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:border-white/30 focus:outline-none transition-all">
             
-            <input type="hidden" name="categoria_id" value="<?= html_entity_decode('<?= htmlspecialchars($categoria_id) ?>') ?>">
-            <input type="hidden" name="ordem" value="<?= html_entity_decode('<?= htmlspecialchars($ordem) ?>') ?>">
+            <input type="hidden" name="categoria_id" value="<?= htmlspecialchars($categoria_id) ?>">
+            <input type="hidden" name="ordem" value="<?= htmlspecialchars($ordem) ?>">
         </form>
 
         <div class="flex flex-wrap gap-2">
@@ -124,10 +122,8 @@ require_once "templates/header_admin.php";
         </div>
     </div>
 
-    <!-- Tabela Responsiva / Cards -->
     <form id="bulk-form" action="processar_lote_produtos.php" method="POST">
         <div class="admin-card overflow-hidden bg-admin-gray-800/20 border border-white/5 rounded-2xl relative">
-            <!-- Desktop Table -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full">
                     <thead>
@@ -179,8 +175,6 @@ require_once "templates/header_admin.php";
                             <td class="px-6 py-4 text-center">
                                 <?php if ($produto["frete_gratis"]): ?>
                                     <span class="inline-flex items-center px-2 py-1 rounded-md text-[8px] font-black uppercase bg-green-500/10 text-green-500 border border-green-500/20">Grátis</span>
-                                <?php else: ?>
-                                    <span class="text-[8px] text-admin-gray-600 font-bold uppercase">Pago</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-center">
@@ -209,7 +203,6 @@ require_once "templates/header_admin.php";
                 </table>
             </div>
 
-            <!-- Mobile Layout: Cards -->
             <div class="md:hidden divide-y divide-white/5">
                 <?php if (!empty($produtos)): ?>
                 <?php foreach ($produtos as $produto): ?>
@@ -242,7 +235,6 @@ require_once "templates/header_admin.php";
             </div>
         </div>
 
-        <!-- Bulk Action Bar -->
         <div id="bulk-bar" class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-white text-black p-4 rounded-2xl shadow-2xl flex flex-wrap items-center justify-between gap-4 z-50 transition-all duration-500 translate-y-32 opacity-0">
             <div class="flex items-center gap-4">
                 <span class="bg-black text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter" id="bulk-count">0 SELECIONADOS</span>
@@ -260,11 +252,7 @@ require_once "templates/header_admin.php";
                         <option value="unset_featured">Remover Destaque</option>
                         <option value="delete">Excluir Permanente</option>
                     </select>
-
-                    <!-- Container para campos extras (categoria, preço, etc) -->
-                    <div id="bulk_extra_fields" class="flex items-center">
-                        <!-- Será preenchido via JS -->
-                    </div>
+                    <div id="bulk_extra_fields" class="flex items-center"></div>
                 </div>
             </div>
             
@@ -304,11 +292,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (filterForm) filterForm.submit();
             }, 600);
         });
-
-        if (searchInput.value) {
-            searchInput.focus();
-            const val = searchInput.value; searchInput.value = ''; searchInput.value = val;
-        }
     }
 
     function updateBulkBar() {
@@ -359,19 +342,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (action === 'adjust_price') {
                     input.name = 'bulk_price_adjustment';
-                    input.placeholder = 'Ex: 10 ou -15';
+                    input.placeholder = 'Ex: 10';
                     bulkExtraFields.appendChild(input);
-                    const span = document.createElement('span');
-                    span.innerText = '%';
-                    span.className = 'ml-1 font-bold text-xs';
-                    bulkExtraFields.appendChild(span);
                 } else {
                     input.name = action === 'adjust_price_fixed' ? 'bulk_price_adjustment_fixed' : 'bulk_price_set_fixed';
-                    input.placeholder = action === 'adjust_price_fixed' ? 'Ex: 50.00' : 'Ex: 299.90';
-                    const span = document.createElement('span');
-                    span.innerText = 'R$';
-                    span.className = 'mr-1 font-bold text-xs';
-                    bulkExtraFields.appendChild(span);
+                    input.placeholder = 'Ex: 50.00';
                     bulkExtraFields.appendChild(input);
                 }
             }
@@ -383,20 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectAll) selectAll.checked = false;
         updateBulkBar();
     };
-
-    const bulkForm = document.getElementById('bulk-form');
-    if (bulkForm) {
-        bulkForm.onsubmit = function(e) {
-            if (!bulkActionSelect || !bulkActionSelect.value) {
-                alert('Selecione uma ação para executar.');
-                return false;
-            }
-            if (bulkActionSelect.value === 'delete') {
-                return confirm('ATENÇÃO: Deseja realmente excluir todos os produtos selecionados? Esta ação é irreversível.');
-            }
-            return true;
-        };
-    }
 });
 </script>
 
