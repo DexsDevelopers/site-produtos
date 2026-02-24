@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // carrinho.php — MACARIO BRAZIL
 session_start();
 require_once 'config.php';
@@ -28,6 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'clear':
             $_SESSION['carrinho'] = [];
             break;
+    }
+
+    // Sincroniza Carrinho Abandonado
+    if (function_exists('salvarCarrinho')) {
+        salvarCarrinho($pdo);
     }
 
     if ($action === 'update' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
@@ -64,8 +69,7 @@ foreach ($carrinho_itens as $item) {
         <a href="index.php" class="btn-primary"
             style="display: inline-block; padding: 12px 32px; text-decoration: none;">Explorar Catálogo</a>
     </div>
-    <?php
-else: ?>
+    <?php else: ?>
     <div style="display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start;">
 
         <!-- Lista de Itens -->
@@ -79,14 +83,12 @@ else: ?>
                     <?php if (!empty($item['imagem']) && file_exists($item['imagem'])): ?>
                     <img src="<?= htmlspecialchars($item['imagem'])?>" alt="<?= htmlspecialchars($item['nome'])?>"
                         style="width: 100%; height: 100%; object-fit: cover;">
-                    <?php
-        else: ?>
+                    <?php else: ?>
                     <div
                         style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: 2rem;">
                         <i class="fas fa-image"></i>
                     </div>
-                    <?php
-        endif; ?>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Info -->
@@ -127,8 +129,7 @@ else: ?>
                     </button>
                 </form>
             </div>
-            <?php
-    endforeach; ?>
+            <?php endforeach; ?>
 
             <!-- Limpar Carrinho -->
             <form method="POST" onsubmit="return confirm('Limpar todo o carrinho?');" style="align-self: flex-start;">
@@ -200,8 +201,7 @@ else: ?>
             }
         </style>
     </div>
-    <?php
-endif; ?>
+    <?php endif; ?>
 </div>
 
 <?php require_once 'templates/footer.php'; ?>
