@@ -1,5 +1,5 @@
-<?php
-// checkout.php - Página de Checkout com seleção de produtos
+﻿<?php
+// checkout.php - Checkout Completo com Endereço e Pagamento
 session_start();
 require_once 'config.php';
 require_once 'templates/header.php';
@@ -23,6 +23,14 @@ foreach ($carrinho_itens as $item) {
 $config = $fileStorage->getConfig();
 $infinite_status = $config['infinite_status'] ?? 'off';
 $pix_status = $config['pix_status'] ?? 'off';
+
+// Busca dados do usuário para pre-preencher o checkout
+$user_data = [];
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("SELECT whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado FROM usuarios WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user_data = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+}
 ?>
 
 <div class="w-full max-w-7xl mx-auto py-24 px-4">
@@ -30,124 +38,193 @@ $pix_status = $config['pix_status'] ?? 'off';
         <h1 class="text-3xl md:text-4xl font-black text-white mb-8">Finalizar Compra</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Lista de Produtos -->
+            <!-- Formulário de Endereço e Contato -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-white mb-4">Seus Produtos</h2>
+                <div class="bg-brand-black border border-brand-gray-light rounded-2xl p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-truck text-brand-red"></i>
+                        Informações de Entrega
+                    </h2>
 
-                <?php foreach ($carrinho_itens as $item): ?>
-                <div class="bg-brand-black border border-brand-gray-light rounded-xl p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <img src="<?= htmlspecialchars($item['imagem'])?>" alt="<?= htmlspecialchars($item['nome'])?>"
-                            class="w-20 h-20 object-cover rounded-lg">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-white">
-                                <?= htmlspecialchars($item['nome'])?>
-                            </h3>
-                            <?php if (!empty($item['tamanho_valor'])): ?>
-                            <p class="text-brand-gray-text text-sm mb-1">Tamanho: <span
-                                    class="text-white font-semibold">
-                                    <?= htmlspecialchars($item['tamanho_valor'])?>
-                                </span></p>
-                            <?php
-    endif; ?>
-                            <p class="text-brand-red text-xl font-bold">
-                                <?= formatarPreco($item['preco'])?>
-                            </p>
-                            <p class="text-brand-gray-text">Quantidade:
-                                <?= $item['quantidade']?>
-                            </p>
+                    <form id="checkout-form" method="POST" action="checkout_pix.php" class="space-y-4">
+                        <!-- Contato -->
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">WhatsApp / Telefone</label>
+                                <input type="text" name="whatsapp" id="whatsapp" required value="<?= htmlspecialchars($user_data['whatsapp'] ?? '') ?>" placeholder="(00) 00000-0000"
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <!-- Botão Comprar - Redireciona para checkout InfinitePay -->
-                        <?php if ($infinite_status === 'on'): ?>
-                        <a href="checkout_infinitepay.php"
-                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
-                            <i class="fas fa-credit-card"></i>
-                            Pagar com Cartão / PIX
-                        </a>
-                        <?php
-    endif; ?>
+                        <!-- CEP e Endereço -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">CEP</label>
+                                <div class="relative">
+                                    <input type="text" name="cep" id="cep" required maxlength="9" value="<?= htmlspecialchars($user_data['cep'] ?? '') ?>" placeholder="00000-000"
+                                        class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                                    <div id="cep-loading" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
+                                        <i class="fas fa-spinner fa-spin text-brand-red"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Estado</label>
+                                <input type="text" name="estado" id="estado" required maxlength="2" value="<?= htmlspecialchars($user_data['estado'] ?? '') ?>" placeholder="UF"
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all text-center">
+                            </div>
+                        </div>
 
-                        <!-- Botão PIX Manual -->
-                        <?php if ($pix_status === 'on'): ?>
-                        <a href="checkout_pix.php"
-                            class="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-lg transition-colors text-center flex items-center justify-center gap-2">
-                            <i class="fas fa-qrcode"></i>
-                            PIX Manual
-                        </a>
-                        <?php
-    endif; ?>
+                        <div>
+                            <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Endereço</label>
+                            <input type="text" name="endereco" id="endereco" required value="<?= htmlspecialchars($user_data['endereco'] ?? '') ?>" placeholder="Nome da rua/avenida"
+                                class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                        </div>
 
-                        <?php if ($infinite_status !== 'on' && $pix_status !== 'on'): ?>
-                        <p class="text-yellow-500 text-sm col-span-2 text-center">Nenhum método de pagamento disponível.
-                        </p>
-                        <?php
-    endif; ?>
-                    </div>
-                    <div class="mt-2">
-                        <a href="produto.php?id=<?= $item['id']?>"
-                            class="block w-full bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 px-4 rounded-lg transition-colors text-center">
-                            Ver Detalhes
-                        </a>
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Número</label>
+                                <input type="text" name="numero" id="numero" required value="<?= htmlspecialchars($user_data['numero'] ?? '') ?>" placeholder="123"
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Complemento (Opcional)</label>
+                                <input type="text" name="complemento" id="complemento" value="<?= htmlspecialchars($user_data['complemento'] ?? '') ?>" placeholder="Apto, Bloco, etc."
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Bairro</label>
+                                <input type="text" name="bairro" id="bairro" required value="<?= htmlspecialchars($user_data['bairro'] ?? '') ?>" placeholder="Bairro"
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Cidade</label>
+                                <input type="text" name="cidade" id="cidade" required value="<?= htmlspecialchars($user_data['cidade'] ?? '') ?>" placeholder="Cidade"
+                                    class="w-full bg-brand-gray/20 border border-brand-gray-light rounded-xl p-4 text-white focus:border-brand-red transition-all">
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="metodo_pagamento" id="metodo_pagamento" value="pix">
+
+                        <div class="pt-6">
+                            <h3 class="text-xl font-bold text-white mb-4">Escolha o Metodo de Pagamento</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <?php if ($pix_status === 'on'): ?>
+                                <button type="button" onclick="submeterCheckout('pix')"
+                                    class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-brand-red/30 bg-brand-red/5 hover:bg-brand-red/10 hover:border-brand-red transition-all group">
+                                    <i class="fas fa-qrcode text-3xl text-brand-red"></i>
+                                    <span class="font-bold text-white">PIX MANUAL</span>
+                                    <span class="text-xs text-brand-gray-text">Envio de comprovante</span>
+                                </button>
+                                <?php endif; ?>
+
+                                <?php if ($infinite_status === 'on'): ?>
+                                <button type="button" onclick="submeterCheckout('infinitepay')"
+                                    class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500 transition-all group">
+                                    <i class="fas fa-credit-card text-3xl text-green-500"></i>
+                                    <span class="font-bold text-white">CARTÃO / PIX</span>
+                                    <span class="text-xs text-brand-gray-text">Aprovação imediata</span>
+                                </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <?php
-endforeach; ?>
+
+                <script>
+                document.getElementById('cep').addEventListener('input', e => {
+                    let v = e.target.value.replace(/\D/g, "");
+                    if (v.length > 5) v = v.slice(0, 5) + "-" + v.slice(5, 8);
+                    e.target.value = v;
+                    if (v.length === 9) buscarCEP(v);
+                });
+
+                document.getElementById('whatsapp').addEventListener('input', e => {
+                    let v = e.target.value.replace(/\D/g, "");
+                    if (v.length > 11) v = v.slice(0, 11);
+                    if (v.length > 10) {
+                        v = "(" + v.slice(0, 2) + ") " + v.slice(2, 7) + "-" + v.slice(7);
+                    } else if (v.length > 2) {
+                        v = "(" + v.slice(0, 2) + ") " + v.slice(2);
+                    }
+                    e.target.value = v;
+                });
+
+                async function buscarCEP(cep) {
+                    const cleanCep = cep.replace(/\D/g, "");
+                    const loader = document.getElementById("cep-loading");
+                    loader.classList.remove("hidden");
+                    try {
+                        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+                        const data = await response.json();
+                        if (!data.erro) {
+                            document.getElementById("endereco").value = data.logradouro;
+                            document.getElementById("bairro").value = data.bairro;
+                            document.getElementById("cidade").value = data.localidade;
+                            document.getElementById("estado").value = data.uf;
+                            document.getElementById("numero").focus();
+                        }
+                    } catch (e) {
+                    } finally {
+                        loader.classList.add("hidden");
+                    }
+                }
+
+                function submeterCheckout(metodo) {
+                    const form = document.getElementById("checkout-form");
+                    const metodoInput = document.getElementById("metodo_pagamento");
+                    if (!form.reportValidity()) return;
+                    metodoInput.value = metodo;
+                    form.action = (metodo === "infinitepay") ? "checkout_infinitepay.php" : "checkout_pix.php";
+                    form.submit();
+                }
+                </script>
             </div>
 
             <!-- Resumo do Pedido -->
             <div class="lg:col-span-1">
                 <div class="bg-brand-gray/30 rounded-xl p-6 sticky top-24">
-                    <h3 class="text-xl font-bold text-white mb-6">Resumo do Pedido</h3>
-
-                    <div class="space-y-4">
-                        <div class="flex justify-between">
-                            <span class="text-brand-gray-text">Itens (
-                                <?= $total_itens?>)
-                            </span>
-                            <span class="text-white">
-                                <?= formatarPreco($total_preco)?>
-                            </span>
-                        </div>
-
-                        <div class="flex justify-between">
-                            <span class="text-brand-gray-text">Frete</span>
-                            <span class="text-green-400">Grátis</span>
-                        </div>
-
-                        <div class="border-t border-brand-gray-light pt-4">
-                            <div class="flex justify-between text-xl font-bold">
-                                <span class="text-white">Total</span>
-                                <span class="text-brand-red">
-                                    <?= formatarPreco($total_preco)?>
-                                </span>
+                    <h3 class="text-xl font-bold text-white mb-6 uppercase tracking-wider">Itens do Pedido</h3>
+                    
+                    <div class="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
+                        <?php foreach ($carrinho_itens as $item): ?>
+                        <div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+                            <img src="<?= htmlspecialchars($item['imagem'])?>" class="w-16 h-16 object-cover rounded-lg">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-white"><?= htmlspecialchars($item['nome'])?></p>
+                                <?php if (!empty($item['tamanho_valor'])): ?>
+                                <p class="text-[10px] text-brand-red uppercase font-black">TAM: <?= htmlspecialchars($item['tamanho_valor'])?></p>
+                                <?php endif; ?>
+                                <p class="text-xs text-brand-gray-text mt-1"><?= $item['quantidade']?>x <?= formatarPreco($item['preco'])?></p>
                             </div>
                         </div>
+                        <?php endforeach; ?>
                     </div>
 
-                    <div class="mt-6 space-y-4">
-                        <a href="carrinho.php"
-                            class="block w-full text-center bg-brand-gray-light hover:bg-brand-gray text-white font-bold py-3 rounded-lg transition-colors">
-                            Voltar ao Carrinho
-                        </a>
-
-                        <a href="index.php"
-                            class="block w-full text-center bg-brand-gray hover:bg-brand-gray-light text-white font-bold py-3 rounded-lg transition-colors">
-                            Continuar Comprando
-                        </a>
+                    <div class="space-y-4 border-t border-brand-gray-light pt-6">
+                        <div class="flex justify-between">
+                            <span class="text-brand-gray-text">Subtotal</span>
+                            <span class="text-white"><?= formatarPreco($total_preco)?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-brand-gray-text">Entrega</span>
+                            <span class="text-green-400 font-bold">GRÁTIS</span>
+                        </div>
+                        <div class="border-t border-brand-gray-light pt-4 flex justify-between items-center">
+                            <span class="text-white font-black text-lg">TOTAL</span>
+                            <span class="text-brand-red font-black text-2xl"><?= formatarPreco($total_preco)?></span>
+                        </div>
                     </div>
 
-                    <!-- Informações de Segurança -->
-                    <div class="mt-6 text-center">
-                        <div class="flex items-center justify-center gap-2 text-sm text-brand-gray-text">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Compra 100% Segura
+                    <div class="mt-8 flex flex-col gap-3">
+                        <a href="carrinho.php" class="w-full py-4 text-center bg-brand-gray/20 text-white rounded-xl font-bold hover:bg-brand-gray/40 transition-all">
+                            VOLTAR AO CARRINHO
+                        </a>
+                        <div class="flex items-center justify-center gap-2 text-[10px] text-brand-gray-text uppercase font-bold">
+                            <i class="fas fa-lock"></i> Ambiente 100% Seguro
                         </div>
                     </div>
                 </div>

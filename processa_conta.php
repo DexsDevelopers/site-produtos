@@ -11,10 +11,18 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// --- LÓGICA PARA ATUALIZAR O PERFIL (NOME E E-MAIL) ---
+// --- LÓGICA PARA ATUALIZAR O PERFIL (NOME, E-MAIL, WHATSAPP E ENDEREÇO) ---
 if (isset($_POST['atualizar_perfil'])) {
     $nome = trim($_POST['nome']);
     $email = trim($_POST['email']);
+    $whatsapp = trim($_POST['whatsapp']);
+    $cep = trim($_POST['cep']);
+    $endereco = trim($_POST['endereco']);
+    $numero = trim($_POST['numero']);
+    $complemento = trim($_POST['complemento']);
+    $bairro = trim($_POST['bairro']);
+    $cidade = trim($_POST['cidade']);
+    $estado = trim($_POST['estado']);
 
     // Validações
     if (empty($nome) || empty($email)) {
@@ -39,12 +47,14 @@ if (isset($_POST['atualizar_perfil'])) {
 
     // Se tudo estiver certo, atualiza no banco de dados
     try {
-        $stmt = $pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id = ?");
-        $stmt->execute([$nome, $email, $user_id]);
+        $stmt = $pdo->prepare("UPDATE usuarios SET nome = ?, email = ?, whatsapp = ?, cep = ?, endereco = ?, numero = ?, complemento = ?, bairro = ?, cidade = ?, estado = ? WHERE id = ?");
+        $stmt->execute([$nome, $email, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
         $_SESSION['user_nome'] = $nome;
-        $_SESSION['success_message'] = "Perfil atualizado com sucesso!";
-    } catch (PDOException $e) {
+        $_SESSION['success_message'] = "Perfil e endereço atualizados com sucesso!";
+    }
+    catch (PDOException $e) {
         $_SESSION['error_message'] = "Erro ao atualizar o perfil. Tente novamente.";
+        error_log("Erro update perfil: " . $e->getMessage());
     }
 }
 
@@ -80,7 +90,7 @@ if (isset($_POST['alterar_senha'])) {
 
         if ($usuario && password_verify($senha_atual, $usuario['senha'])) {
             // Senha atual está correta, prossegue para a atualização
-            
+
             // 3. Criptografa a nova senha
             $nova_senha_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
 
@@ -89,11 +99,13 @@ if (isset($_POST['alterar_senha'])) {
             $update_stmt->execute([$nova_senha_hash, $user_id]);
 
             $_SESSION['success_message'] = "Senha alterada com sucesso!";
-        } else {
+        }
+        else {
             // Senha atual incorreta
             $_SESSION['error_message'] = "A senha atual está incorreta.";
         }
-    } catch (PDOException $e) {
+    }
+    catch (PDOException $e) {
         $_SESSION['error_message'] = "Erro ao verificar a senha. Tente novamente.";
     }
 }
