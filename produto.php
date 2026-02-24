@@ -651,7 +651,7 @@ endif; ?>
             selector.offsetHeight; // trigger reflow
             selector.style.animation = 'shake 0.5s ease';
             // Highlight
-            document.getElementById('selected-size-label').textContent = 'âš ï¸ Selecione um tamanho';
+            document.getElementById('selected-size-label').textContent = '⚠️ Selecione um tamanho';
             document.getElementById('selected-size-label').style.color = '#f87171';
             setTimeout(() => {
                 document.getElementById('selected-size-label').style.color = '';
