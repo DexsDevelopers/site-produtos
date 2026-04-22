@@ -16,6 +16,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $destaque = isset($_POST['destaque']) ? 1 : 0;
     $meta_title = trim($_POST['meta_title'] ?? '');
     $meta_description = trim($_POST['meta_description'] ?? '');
+    $banner_categoria = null;
+    if (isset($_FILES['banner_categoria']) && $_FILES['banner_categoria']['error'] === 0) {
+        $target_dir = "../assets/uploads/";
+        $ext = pathinfo($_FILES['banner_categoria']['name'], PATHINFO_EXTENSION);
+        $fname = uniqid('cat_banner_', true) . '.' . $ext;
+        if (move_uploaded_file($_FILES['banner_categoria']['tmp_name'], $target_dir . $fname)) {
+            $banner_categoria = 'assets/uploads/' . $fname;
+        }
+    }
 
     if (!empty($nome)) {
         try {
@@ -28,8 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
 
             // Tenta inserir com todos os campos possíveis
             try {
-                $stmt = $pdo->prepare("INSERT INTO categorias (nome, parent_id, descricao, ordem, icone, cor, ativa, destaque, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description]);
+                $stmt = $pdo->prepare("INSERT INTO categorias (nome, parent_id, descricao, ordem, icone, cor, ativa, destaque, meta_title, meta_description, banner_categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $banner_categoria]);
             } catch (PDOException $e) {
                 // Se falhar, tenta apenas os campos básicos (compatibilidade com versões anteriores da tabela)
                 $stmt = $pdo->prepare("INSERT INTO categorias (nome, ordem, parent_id) VALUES (?, ?, ?)");
@@ -69,6 +78,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $destaque = isset($_POST['destaque']) ? 1 : 0;
     $meta_title = trim($_POST['meta_title'] ?? '');
     $meta_description = trim($_POST['meta_description'] ?? '');
+    $banner_categoria = null;
+    if (isset($_FILES['banner_categoria']) && $_FILES['banner_categoria']['error'] === 0) {
+        $target_dir = "../assets/uploads/";
+        $ext = pathinfo($_FILES['banner_categoria']['name'], PATHINFO_EXTENSION);
+        $fname = uniqid('cat_banner_', true) . '.' . $ext;
+        if (move_uploaded_file($_FILES['banner_categoria']['tmp_name'], $target_dir . $fname)) {
+            $banner_categoria = 'assets/uploads/' . $fname;
+        }
+    }
+    // Remover banner
+    if (isset($_POST['remover_banner'])) {
+        $banner_categoria = '';
+    }
     
     // Evita que uma categoria seja pai de si mesma
     if ($parent_id == $categoria_id) {
@@ -79,12 +101,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         try {
             // Tenta atualizar com todos os campos possíveis
             try {
-                $stmt = $pdo->prepare("
-                    UPDATE categorias 
-                    SET nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?
-                    WHERE id = ?
-                ");
-                $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $categoria_id]);
+                if ($banner_categoria !== null) {
+                    $stmt = $pdo->prepare("
+                        UPDATE categorias 
+                        SET nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?, banner_categoria = ?
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $banner_categoria, $categoria_id]);
+                } else {
+                    $stmt = $pdo->prepare("
+                        UPDATE categorias 
+                        SET nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $categoria_id]);
+                }
             } catch (PDOException $e) {
                 // Fallback para campos básicos
                 $stmt = $pdo->prepare("UPDATE categorias SET nome = ?, parent_id = ?, ordem = ? WHERE id = ?");

@@ -6,6 +6,11 @@ require_once 'templates/header_admin.php';
 $categoria_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $categoria = null;
 
+// Garante que a coluna banner_categoria existe
+try {
+    $pdo->exec("ALTER TABLE categorias ADD COLUMN IF NOT EXISTS banner_categoria VARCHAR(500) DEFAULT NULL");
+} catch (Exception $e) {}
+
 if ($categoria_id > 0) {
     try {
         $stmt = $pdo->prepare("SELECT * FROM categorias WHERE id = ?");
@@ -55,7 +60,7 @@ if ($categoria_id > 0) {
 
     <!-- Formulário -->
     <div class="admin-card rounded-xl p-8">
-        <form action="processa_categoria.php" method="POST" id="categoriaForm">
+        <form action="processa_categoria.php" method="POST" enctype="multipart/form-data" id="categoriaForm">
             <input type="hidden" name="categoria_id" value="<?= $categoria_id ?>">
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -203,6 +208,39 @@ if ($categoria_id > 0) {
                         <p class="text-xs text-admin-gray-400 mt-1">Aparece em posição destacada na home</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- Banner da Categoria -->
+            <div class="mt-8 pt-6 border-t border-admin-gray-700">
+                <h3 class="text-xl font-semibold text-white mb-4">Banner da Categoria</h3>
+                <p class="text-sm text-admin-gray-400 mb-4">Aparece no topo da página da categoria, acima dos produtos.</p>
+
+                <?php if (!empty($categoria['banner_categoria'])): ?>
+                <div class="mb-4">
+                    <p class="text-sm text-admin-gray-400 mb-2">Banner atual:</p>
+                    <img src="../<?= htmlspecialchars($categoria['banner_categoria']) ?>" alt="Banner" class="w-full max-h-48 object-cover rounded-lg">
+                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                        <input type="checkbox" name="remover_banner" value="1" class="w-4 h-4 bg-admin-gray-800 border-admin-gray-600 rounded">
+                        <span class="text-sm text-red-400">Remover banner atual</span>
+                    </label>
+                </div>
+                <?php endif; ?>
+
+                <input type="file" name="banner_categoria" accept="image/*" id="banner-cat-input" style="display:none;">
+                <label for="banner-cat-input" id="banner-cat-zone"
+                    style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;padding:32px;border:2px dashed rgba(255,255,255,0.2);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer;min-height:100px;transition:border-color 0.2s;">
+                    <i class="fas fa-cloud-upload-alt" id="banner-cat-icon" style="font-size:2rem;color:rgba(255,255,255,0.4);"></i>
+                    <span id="banner-cat-text" style="font-size:0.875rem;color:rgba(255,255,255,0.4);">Clique para enviar banner (opcional)</span>
+                </label>
+                <script>
+                    document.getElementById('banner-cat-input').addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            document.getElementById('banner-cat-text').textContent = '✓ ' + this.files[0].name;
+                            document.getElementById('banner-cat-icon').style.color = '#4ade80';
+                            document.getElementById('banner-cat-zone').style.borderColor = '#4ade80';
+                        }
+                    });
+                </script>
             </div>
 
             <!-- SEO -->

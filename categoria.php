@@ -63,13 +63,17 @@ require_once 'templates/header.php';
 
 <div class="container" style="padding-top: 40px; min-height: 80vh;">
 
-    <!-- Hero da Categoria -->
+    <!-- Banner da Categoria -->
+    <?php if (!empty($categoria['banner_categoria'])): ?>
+    <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
+        <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
+             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
+    </div>
+    <?php else: ?>
+    <!-- Hero da Categoria (fallback sem banner) -->
     <div
         style="text-align: center; margin-bottom: 60px; padding: 60px 0; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
-        <?php if (!empty($categoria['imagem_capa'])): ?>
-        <!-- Se tivesse imagem de capa, poderia ir aqui como background -->
-        <?php
-endif; ?>
         <span
             style="font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted);">Coleção</span>
         <h1 style="font-size: clamp(2.5rem, 6vw, 4rem); margin: 16px 0 0;">
@@ -80,6 +84,7 @@ endif; ?>
             <?= $total_produtos?> produtos exclusivos selecionados para você.
         </p>
     </div>
+    <?php endif; ?>
 
     <!-- Grid -->
     <?php if (!empty($produtos)): ?>
