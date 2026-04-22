@@ -58,31 +58,36 @@ catch (PDOException $e) {
 }
 
 $page_title = $categoria['nome'];
+$tem_desktop = !empty($categoria['banner_categoria']);
+$tem_mobile  = !empty($categoria['banner_categoria_mobile']);
 require_once 'templates/header.php';
 ?>
+
+<?php if ($tem_desktop || $tem_mobile): ?>
+<style>
+    #cat-banner-desk { display: block; }
+    #cat-banner-mob  { display: none;  }
+    @media (max-width: 767px) {
+        #cat-banner-desk { display: none  !important; }
+        #cat-banner-mob  { display: block !important; }
+    }
+</style>
+<?php endif; ?>
 
 <div class="container" style="padding-top: 40px; min-height: 80vh;">
 
     <!-- Banner da Categoria -->
-    <?php
-    $tem_desktop = !empty($categoria['banner_categoria']);
-    $tem_mobile  = !empty($categoria['banner_categoria_mobile']);
-    if ($tem_desktop || $tem_mobile):
-    ?>
-    <style>
-        @media (max-width: 767px) { .cat-banner-desktop { display: none !important; } }
-        @media (min-width: 768px) { .cat-banner-mobile  { display: none !important; } }
-    </style>
+    <?php if ($tem_desktop || $tem_mobile): ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
         <?php if ($tem_desktop): ?>
-        <div class="<?= $tem_mobile ? 'cat-banner-desktop' : '' ?>">
+        <div id="cat-banner-desk">
             <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
         </div>
         <?php endif; ?>
         <?php if ($tem_mobile): ?>
-        <div class="<?= $tem_desktop ? 'cat-banner-mobile' : '' ?>">
+        <div id="cat-banner-mob">
             <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
