@@ -5,6 +5,10 @@ $page_title = 'Banners';
 require_once 'templates/header_admin.php';
 
 try {
+    $pdo->exec("ALTER TABLE banners ADD COLUMN IF NOT EXISTS dispositivo ENUM('todos','desktop','mobile') NOT NULL DEFAULT 'todos'");
+} catch (Exception $e) {}
+
+try {
     $banners = $pdo->query('SELECT * FROM banners ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC);
 }
 catch (Exception $e) {
@@ -62,6 +66,15 @@ catch (Exception $e) {
                             <option value="secundario">Banner Secundário</option>
                         </select>
                     </div>
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Exibir em</label>
+                        <select name="dispositivo" class="w-full">
+                            <option value="todos">Todos os dispositivos</option>
+                            <option value="desktop">Apenas Desktop</option>
+                            <option value="mobile">Apenas Mobile</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Upload -->
@@ -111,10 +124,16 @@ catch (Exception $e) {
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                 <div class="absolute bottom-4 left-4 right-4">
-                    <span
-                        class="inline-block px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-[10px] uppercase tracking-wide text-white mb-2 border border-white/10">
-                        <?= htmlspecialchars($banner['tipo'])?>
-                    </span>
+                    <div class="flex gap-1 mb-2">
+                        <span class="inline-block px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-[10px] uppercase tracking-wide text-white border border-white/10">
+                            <?= htmlspecialchars($banner['tipo'])?>
+                        </span>
+                        <?php if (!empty($banner['dispositivo']) && $banner['dispositivo'] !== 'todos'): ?>
+                        <span class="inline-block px-2 py-1 bg-blue-500/20 backdrop-blur-md rounded-md text-[10px] uppercase tracking-wide text-blue-300 border border-blue-500/20">
+                            <?= $banner['dispositivo'] === 'desktop' ? '🖥 Desktop' : '📱 Mobile' ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
                     <h4 class="text-white font-bold truncate">
                         <?= htmlspecialchars($banner['titulo'] ?? 'Sem Título')?>
                     </h4>

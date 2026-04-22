@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
     $posicao = (int)($_POST['posicao'] ?? 0);
     $ativo = isset($_POST['ativo']) ? 1 : 0;
     $nova_aba = isset($_POST['nova_aba']) ? 1 : 0;
+    $dispositivo = in_array($_POST['dispositivo'] ?? '', ['todos','desktop','mobile']) ? $_POST['dispositivo'] : 'todos';
     
     if ($banner_id > 0) {
         try {
@@ -34,18 +35,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
                 // Atualizar com nova imagem
                 $stmt = $pdo->prepare("
                     UPDATE banners 
-                    SET titulo = ?, subtitulo = ?, link = ?, texto_botao = ?, tipo = ?, posicao = ?, ativo = ?, nova_aba = ?, imagem = ?, data_atualizacao = NOW()
+                    SET titulo = ?, subtitulo = ?, link = ?, texto_botao = ?, tipo = ?, posicao = ?, ativo = ?, nova_aba = ?, dispositivo = ?, imagem = ?, data_atualizacao = NOW()
                     WHERE id = ?
                 ");
-                $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $imagem_path, $banner_id]);
+                $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $dispositivo, $imagem_path, $banner_id]);
             } else {
                 // Atualizar sem nova imagem
                 $stmt = $pdo->prepare("
                     UPDATE banners 
-                    SET titulo = ?, subtitulo = ?, link = ?, texto_botao = ?, tipo = ?, posicao = ?, ativo = ?, nova_aba = ?, data_atualizacao = NOW()
+                    SET titulo = ?, subtitulo = ?, link = ?, texto_botao = ?, tipo = ?, posicao = ?, ativo = ?, nova_aba = ?, dispositivo = ?, data_atualizacao = NOW()
                     WHERE id = ?
                 ");
-                $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $banner_id]);
+                $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $dispositivo, $banner_id]);
             }
             
             $_SESSION['admin_message'] = "Banner atualizado com sucesso!";
@@ -70,6 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
     $posicao = (int)($_POST['posicao'] ?? 0);
     $ativo = isset($_POST['ativo']) ? 1 : 0;
     $nova_aba = isset($_POST['nova_aba']) ? 1 : 0;
+    $dispositivo = in_array($_POST['dispositivo'] ?? '', ['todos','desktop','mobile']) ? $_POST['dispositivo'] : 'todos';
     
     if (!isset($_FILES['imagem']) || $_FILES['imagem']['error'] !== 0) {
         $_SESSION['admin_message'] = "A imagem do banner é obrigatória.";
@@ -87,10 +89,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
         $imagem_path = "assets/uploads/" . $new_filename;
         try {
             $stmt = $pdo->prepare("
-                INSERT INTO banners (titulo, subtitulo, link, texto_botao, tipo, posicao, ativo, nova_aba, imagem, data_criacao) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                INSERT INTO banners (titulo, subtitulo, link, texto_botao, tipo, posicao, ativo, nova_aba, dispositivo, imagem, data_criacao) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             ");
-            $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $imagem_path]);
+            $stmt->execute([$titulo, $subtitulo, $link, $texto_botao, $tipo, $posicao, $ativo, $nova_aba, $dispositivo, $imagem_path]);
             $_SESSION['admin_message'] = "Banner adicionado com sucesso!";
             $_SESSION['admin_message_type'] = 'success';
         } catch (PDOException $e) {

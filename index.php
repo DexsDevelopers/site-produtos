@@ -367,8 +367,13 @@ require_once 'templates/header.php';
 <?php if (!empty($banners_principais)): ?>
 <section class="hero-banner-swiper swiper" id="hero-slider">
     <div class="swiper-wrapper">
-        <?php foreach ($banners_principais as $banner): ?>
-        <div class="swiper-slide">
+        <?php foreach ($banners_principais as $banner):
+            $disp = $banner['dispositivo'] ?? 'todos';
+            $slideClass = 'swiper-slide';
+            if ($disp === 'desktop') $slideClass .= ' hidden md:block';
+            elseif ($disp === 'mobile') $slideClass .= ' block md:hidden';
+        ?>
+        <div class="<?= $slideClass ?>">
             <?php if (!empty($banner['link'])): ?>
             <a href="<?= htmlspecialchars($banner['link']) ?>">
             <?php endif; ?>

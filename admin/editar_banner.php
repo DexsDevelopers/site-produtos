@@ -138,6 +138,18 @@ if ($banner_id > 0) {
                             </div>
                         </div>
 
+                        <div class="mt-6">
+                            <label for="dispositivo" class="block text-sm font-medium text-admin-gray-300 mb-2">
+                                Exibir em
+                            </label>
+                            <select name="dispositivo" id="dispositivo"
+                                    class="w-full px-4 py-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white focus:ring-2 focus:ring-admin-primary focus:border-transparent transition-all">
+                                <option value="todos" <?= ($banner['dispositivo'] ?? 'todos') === 'todos' ? 'selected' : '' ?>>Todos os dispositivos</option>
+                                <option value="desktop" <?= ($banner['dispositivo'] ?? '') === 'desktop' ? 'selected' : '' ?>>Apenas Desktop</option>
+                                <option value="mobile" <?= ($banner['dispositivo'] ?? '') === 'mobile' ? 'selected' : '' ?>>Apenas Mobile</option>
+                            </select>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
                                 <label class="flex items-center space-x-3">
