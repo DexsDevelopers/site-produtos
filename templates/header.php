@@ -127,6 +127,7 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
 
     <!-- Design System -->
     <link rel="stylesheet" href="assets/css/macario.css?v=3" />
+    <?php if (!empty($extra_head_css)) echo '<style>' . $extra_head_css . '</style>'; ?>
 </head>
 
 <body>

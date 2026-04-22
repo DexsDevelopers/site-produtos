@@ -60,19 +60,11 @@ catch (PDOException $e) {
 $page_title = $categoria['nome'];
 $tem_desktop = !empty($categoria['banner_categoria']);
 $tem_mobile  = !empty($categoria['banner_categoria_mobile']);
+if ($tem_desktop && $tem_mobile) {
+    $extra_head_css = '#cat-banner-desk{display:block}#cat-banner-mob{display:none}@media(max-width:767px){#cat-banner-desk{display:none!important}#cat-banner-mob{display:block!important}}';
+}
 require_once 'templates/header.php';
 ?>
-
-<?php if ($tem_desktop || $tem_mobile): ?>
-<style>
-    #cat-banner-desk { display: block; }
-    #cat-banner-mob  { display: none;  }
-    @media (max-width: 767px) {
-        #cat-banner-desk { display: none  !important; }
-        #cat-banner-mob  { display: block !important; }
-    }
-</style>
-<?php endif; ?>
 
 <div class="container" style="padding-top: 40px; min-height: 80vh;">
 
