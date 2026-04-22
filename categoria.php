@@ -71,16 +71,18 @@ require_once 'templates/header.php';
     ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
         <?php if ($tem_desktop): ?>
-        <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
-             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;"
-             class="<?= $tem_mobile ? 'hidden md:block' : '' ?>">
+        <div class="<?= $tem_mobile ? 'hidden md:block' : '' ?>">
+            <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
+                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+                 style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
+        </div>
         <?php endif; ?>
         <?php if ($tem_mobile): ?>
-        <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
-             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;"
-             class="<?= $tem_desktop ? 'block md:hidden' : '' ?>">
+        <div class="<?= $tem_desktop ? 'block md:hidden' : '' ?>">
+            <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
+                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+                 style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
+        </div>
         <?php endif; ?>
     </div>
     <?php else: ?>
