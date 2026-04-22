@@ -330,7 +330,7 @@ document.getElementById('bannerForm').addEventListener('submit', function(e) {
     const tipo = document.getElementById('tipo').value;
     const imagem = document.getElementById('imagem').files[0];
     
-    if (!<?= $banner ? 'false' : 'true' ?> && !imagem) {
+    if (!<?= $banner ? 'true' : 'false' ?> && !imagem) {
         e.preventDefault();
         alert('A imagem é obrigatória para novos banners!');
         return;
