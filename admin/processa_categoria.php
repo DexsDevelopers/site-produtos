@@ -25,6 +25,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
             $banner_categoria = 'assets/uploads/' . $fname;
         }
     }
+    $banner_categoria_mobile = null;
+    if (isset($_FILES['banner_categoria_mobile']) && $_FILES['banner_categoria_mobile']['error'] === 0) {
+        $target_dir = "../assets/uploads/";
+        $ext = pathinfo($_FILES['banner_categoria_mobile']['name'], PATHINFO_EXTENSION);
+        $fname = uniqid('cat_banner_mob_', true) . '.' . $ext;
+        if (move_uploaded_file($_FILES['banner_categoria_mobile']['tmp_name'], $target_dir . $fname)) {
+            $banner_categoria_mobile = 'assets/uploads/' . $fname;
+        }
+    }
 
     if (!empty($nome)) {
         try {
@@ -37,8 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['adicionar'])) {
 
             // Tenta inserir com todos os campos possíveis
             try {
-                $stmt = $pdo->prepare("INSERT INTO categorias (nome, parent_id, descricao, ordem, icone, cor, ativa, destaque, meta_title, meta_description, banner_categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $banner_categoria]);
+                $stmt = $pdo->prepare("INSERT INTO categorias (nome, parent_id, descricao, ordem, icone, cor, ativa, destaque, meta_title, meta_description, banner_categoria, banner_categoria_mobile) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $banner_categoria, $banner_categoria_mobile]);
             } catch (PDOException $e) {
                 // Se falhar, tenta apenas os campos básicos (compatibilidade com versões anteriores da tabela)
                 $stmt = $pdo->prepare("INSERT INTO categorias (nome, ordem, parent_id) VALUES (?, ?, ?)");
@@ -87,10 +96,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
             $banner_categoria = 'assets/uploads/' . $fname;
         }
     }
-    // Remover banner
-    if (isset($_POST['remover_banner'])) {
-        $banner_categoria = '';
+    if (isset($_POST['remover_banner'])) $banner_categoria = '';
+
+    $banner_categoria_mobile = null;
+    if (isset($_FILES['banner_categoria_mobile']) && $_FILES['banner_categoria_mobile']['error'] === 0) {
+        $target_dir = "../assets/uploads/";
+        $ext = pathinfo($_FILES['banner_categoria_mobile']['name'], PATHINFO_EXTENSION);
+        $fname = uniqid('cat_banner_mob_', true) . '.' . $ext;
+        if (move_uploaded_file($_FILES['banner_categoria_mobile']['tmp_name'], $target_dir . $fname)) {
+            $banner_categoria_mobile = 'assets/uploads/' . $fname;
+        }
     }
+    if (isset($_POST['remover_banner_mobile'])) $banner_categoria_mobile = '';
     
     // Evita que uma categoria seja pai de si mesma
     if ($parent_id == $categoria_id) {
@@ -101,21 +118,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         try {
             // Tenta atualizar com todos os campos possíveis
             try {
-                if ($banner_categoria !== null) {
-                    $stmt = $pdo->prepare("
-                        UPDATE categorias 
-                        SET nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?, banner_categoria = ?
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $banner_categoria, $categoria_id]);
-                } else {
-                    $stmt = $pdo->prepare("
-                        UPDATE categorias 
-                        SET nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description, $categoria_id]);
-                }
+                $base_fields = "nome = ?, parent_id = ?, descricao = ?, ordem = ?, icone = ?, cor = ?, ativa = ?, destaque = ?, meta_title = ?, meta_description = ?";
+                $base_vals  = [$nome, $parent_id, $descricao, $ordem, $icone, $cor, $ativa, $destaque, $meta_title, $meta_description];
+                $extra_sql  = '';
+                $extra_vals = [];
+                if ($banner_categoria !== null)        { $extra_sql .= ', banner_categoria = ?';        $extra_vals[] = $banner_categoria; }
+                if ($banner_categoria_mobile !== null) { $extra_sql .= ', banner_categoria_mobile = ?'; $extra_vals[] = $banner_categoria_mobile; }
+                $stmt = $pdo->prepare("UPDATE categorias SET $base_fields$extra_sql WHERE id = ?");
+                $stmt->execute(array_merge($base_vals, $extra_vals, [$categoria_id]));
             } catch (PDOException $e) {
                 // Fallback para campos básicos
                 $stmt = $pdo->prepare("UPDATE categorias SET nome = ?, parent_id = ?, ordem = ? WHERE id = ?");

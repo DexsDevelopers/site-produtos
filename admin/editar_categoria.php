@@ -6,9 +6,10 @@ require_once 'templates/header_admin.php';
 $categoria_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $categoria = null;
 
-// Garante que a coluna banner_categoria existe
+// Garante que as colunas de banner existem
 try {
     $pdo->exec("ALTER TABLE categorias ADD COLUMN IF NOT EXISTS banner_categoria VARCHAR(500) DEFAULT NULL");
+    $pdo->exec("ALTER TABLE categorias ADD COLUMN IF NOT EXISTS banner_categoria_mobile VARCHAR(500) DEFAULT NULL");
 } catch (Exception $e) {}
 
 if ($categoria_id > 0) {
@@ -213,32 +214,59 @@ if ($categoria_id > 0) {
             <!-- Banner da Categoria -->
             <div class="mt-8 pt-6 border-t border-admin-gray-700">
                 <h3 class="text-xl font-semibold text-white mb-4">Banner da Categoria</h3>
-                <p class="text-sm text-admin-gray-400 mb-4">Aparece no topo da página da categoria, acima dos produtos.</p>
+                <p class="text-sm text-admin-gray-400 mb-6">Aparece no topo da página da categoria, acima dos produtos.</p>
 
-                <?php if (!empty($categoria['banner_categoria'])): ?>
-                <div class="mb-4">
-                    <p class="text-sm text-admin-gray-400 mb-2">Banner atual:</p>
-                    <img src="../<?= htmlspecialchars($categoria['banner_categoria']) ?>" alt="Banner" class="w-full max-h-48 object-cover rounded-lg">
-                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
-                        <input type="checkbox" name="remover_banner" value="1" class="w-4 h-4 bg-admin-gray-800 border-admin-gray-600 rounded">
-                        <span class="text-sm text-red-400">Remover banner atual</span>
-                    </label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Desktop -->
+                    <div>
+                        <p class="text-sm font-semibold text-admin-gray-300 mb-3">🖥️ Banner Desktop <span class="text-admin-gray-500 font-normal">(recomendado: 1200x400px)</span></p>
+                        <?php if (!empty($categoria['banner_categoria'])): ?>
+                        <div class="mb-3">
+                            <img src="../<?= htmlspecialchars($categoria['banner_categoria']) ?>" alt="Banner Desktop" class="w-full max-h-32 object-cover rounded-lg">
+                            <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input type="checkbox" name="remover_banner" value="1" class="w-4 h-4 bg-admin-gray-800 border-admin-gray-600 rounded">
+                                <span class="text-xs text-red-400">Remover</span>
+                            </label>
+                        </div>
+                        <?php endif; ?>
+                        <input type="file" name="banner_categoria" accept="image/*" id="banner-cat-desk-input" style="display:none;">
+                        <label for="banner-cat-desk-input" id="banner-cat-desk-zone"
+                            style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;padding:24px;border:2px dashed rgba(255,255,255,0.2);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer;min-height:90px;transition:border-color 0.2s;">
+                            <i class="fas fa-desktop" id="banner-cat-desk-icon" style="font-size:1.5rem;color:rgba(255,255,255,0.4);"></i>
+                            <span id="banner-cat-desk-text" style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Clique para enviar (desktop)</span>
+                        </label>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div>
+                        <p class="text-sm font-semibold text-admin-gray-300 mb-3">📱 Banner Mobile <span class="text-admin-gray-500 font-normal">(recomendado: 600x400px)</span></p>
+                        <?php if (!empty($categoria['banner_categoria_mobile'])): ?>
+                        <div class="mb-3">
+                            <img src="../<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>" alt="Banner Mobile" class="w-full max-h-32 object-cover rounded-lg">
+                            <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input type="checkbox" name="remover_banner_mobile" value="1" class="w-4 h-4 bg-admin-gray-800 border-admin-gray-600 rounded">
+                                <span class="text-xs text-red-400">Remover</span>
+                            </label>
+                        </div>
+                        <?php endif; ?>
+                        <input type="file" name="banner_categoria_mobile" accept="image/*" id="banner-cat-mob-input" style="display:none;">
+                        <label for="banner-cat-mob-input" id="banner-cat-mob-zone"
+                            style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;padding:24px;border:2px dashed rgba(255,255,255,0.2);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer;min-height:90px;transition:border-color 0.2s;">
+                            <i class="fas fa-mobile-alt" id="banner-cat-mob-icon" style="font-size:1.5rem;color:rgba(255,255,255,0.4);"></i>
+                            <span id="banner-cat-mob-text" style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Clique para enviar (mobile)</span>
+                        </label>
+                    </div>
                 </div>
-                <?php endif; ?>
 
-                <input type="file" name="banner_categoria" accept="image/*" id="banner-cat-input" style="display:none;">
-                <label for="banner-cat-input" id="banner-cat-zone"
-                    style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;padding:32px;border:2px dashed rgba(255,255,255,0.2);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer;min-height:100px;transition:border-color 0.2s;">
-                    <i class="fas fa-cloud-upload-alt" id="banner-cat-icon" style="font-size:2rem;color:rgba(255,255,255,0.4);"></i>
-                    <span id="banner-cat-text" style="font-size:0.875rem;color:rgba(255,255,255,0.4);">Clique para enviar banner (opcional)</span>
-                </label>
                 <script>
-                    document.getElementById('banner-cat-input').addEventListener('change', function() {
-                        if (this.files && this.files[0]) {
-                            document.getElementById('banner-cat-text').textContent = '✓ ' + this.files[0].name;
-                            document.getElementById('banner-cat-icon').style.color = '#4ade80';
-                            document.getElementById('banner-cat-zone').style.borderColor = '#4ade80';
-                        }
+                    ['desk','mob'].forEach(function(t) {
+                        document.getElementById('banner-cat-'+t+'-input').addEventListener('change', function() {
+                            if (this.files && this.files[0]) {
+                                document.getElementById('banner-cat-'+t+'-text').textContent = '✓ ' + this.files[0].name;
+                                document.getElementById('banner-cat-'+t+'-icon').style.color = '#4ade80';
+                                document.getElementById('banner-cat-'+t+'-zone').style.borderColor = '#4ade80';
+                            }
+                        });
                     });
                 </script>
             </div>

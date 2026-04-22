@@ -64,11 +64,24 @@ require_once 'templates/header.php';
 <div class="container" style="padding-top: 40px; min-height: 80vh;">
 
     <!-- Banner da Categoria -->
-    <?php if (!empty($categoria['banner_categoria'])): ?>
+    <?php
+    $tem_desktop = !empty($categoria['banner_categoria']);
+    $tem_mobile  = !empty($categoria['banner_categoria_mobile']);
+    if ($tem_desktop || $tem_mobile):
+    ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
+        <?php if ($tem_desktop): ?>
         <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
              alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
+             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;"
+             class="<?= $tem_mobile ? 'hidden md:block' : '' ?>">
+        <?php endif; ?>
+        <?php if ($tem_mobile): ?>
+        <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
+             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;"
+             class="<?= $tem_desktop ? 'block md:hidden' : '' ?>">
+        <?php endif; ?>
     </div>
     <?php else: ?>
     <!-- Hero da Categoria (fallback sem banner) -->
