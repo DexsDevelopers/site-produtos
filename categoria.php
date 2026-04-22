@@ -69,16 +69,20 @@ require_once 'templates/header.php';
     $tem_mobile  = !empty($categoria['banner_categoria_mobile']);
     if ($tem_desktop || $tem_mobile):
     ?>
+    <style>
+        @media (max-width: 767px) { .cat-banner-desktop { display: none !important; } }
+        @media (min-width: 768px) { .cat-banner-mobile  { display: none !important; } }
+    </style>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
         <?php if ($tem_desktop): ?>
-        <div class="<?= $tem_mobile ? 'hidden md:block' : '' ?>">
+        <div class="<?= $tem_mobile ? 'cat-banner-desktop' : '' ?>">
             <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
         </div>
         <?php endif; ?>
         <?php if ($tem_mobile): ?>
-        <div class="<?= $tem_desktop ? 'block md:hidden' : '' ?>">
+        <div class="<?= $tem_desktop ? 'cat-banner-mobile' : '' ?>">
             <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
