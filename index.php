@@ -41,12 +41,26 @@ try {
         }
     }
 
+    // Fallback: se nenhuma categoria tem exibir_home = 1, carrega todas as categorias com produtos
+    if (empty($produtos_por_categoria)) {
+        $todas_cats = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($todas_cats as $categoria) {
+            $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = ? ORDER BY id DESC");
+            $stmt->execute([$categoria['id']]);
+            $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($produtos)) {
+                $categorias[] = $categoria;
+                $produtos_por_categoria[$categoria['id']] = $produtos;
+            }
+        }
+    }
+
     // Busca produtos marcados como destaque
     $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE destaque = 1 ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
 
-    // Se não houver nenhum marcado, respeitamos o controle manual e não mostramos nada automaticamente
-    if (!$destaques) {
-        $destaques = [];
+    // Fallback: se nenhum produto está marcado como destaque, mostra os 12 mais recentes
+    if (empty($destaques)) {
+        $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }
@@ -294,56 +308,105 @@ require_once 'templates/header.php';
         color: rgba(255, 255, 255, 0.15);
         font-size: 2rem;
     }
+
+    .hero-banner-swiper {
+        width: 100%;
+        background: #000;
+    }
+    .hero-banner-swiper .swiper-slide {
+        height: auto !important;
+        position: relative;
+        cursor: pointer;
+    }
+    .hero-banner-swiper .swiper-slide a {
+        display: block;
+        width: 100%;
+    }
+    .hero-banner-swiper .swiper-slide img {
+        width: 100%;
+        height: auto;
+        max-height: 600px;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+    .hero-banner-swiper .swiper-pagination-bullet {
+        background: rgba(255,255,255,0.5);
+        opacity: 1;
+        width: 8px;
+        height: 8px;
+    }
+    .hero-banner-swiper .swiper-pagination-bullet-active {
+        background: #fff;
+        width: 24px;
+        border-radius: 4px;
+    }
+    .hero-banner-swiper .swiper-button-next,
+    .hero-banner-swiper .swiper-button-prev {
+        color: #fff;
+        background: rgba(0,0,0,0.4);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        backdrop-filter: blur(4px);
+    }
+    .hero-banner-swiper .swiper-button-next::after,
+    .hero-banner-swiper .swiper-button-prev::after {
+        font-size: 16px;
+        font-weight: 700;
+    }
+    /* Fallback hero (sem banners) */
+    .hero-fallback {
+        background: linear-gradient(135deg, #000 0%, #111 40%, #0a0a0a 100%);
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
 </style>
 
-<!-- ══════════════════════════════════════════
-     HERO SECTION
-     ══════════════════════════════════════════ -->
-<section class="hero-gradient relative overflow-hidden" style="min-height: 85vh; display:flex; align-items:center;">
-    <div class="absolute inset-0 opacity-10"
-        style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%);">
+<?php if (!empty($banners_principais)): ?>
+<section class="hero-banner-swiper swiper" id="hero-slider">
+    <div class="swiper-wrapper">
+        <?php foreach ($banners_principais as $banner): ?>
+        <div class="swiper-slide">
+            <?php if (!empty($banner['link'])): ?>
+            <a href="<?= htmlspecialchars($banner['link']) ?>">
+            <?php endif; ?>
+                <img src="<?= htmlspecialchars($banner['imagem']) ?>"
+                     alt="<?= htmlspecialchars($banner['titulo'] ?? 'Banner') ?>"
+                     loading="eager" />
+            <?php if (!empty($banner['link'])): ?>
+            </a>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
     </div>
+    <?php if (count($banners_principais) > 1): ?>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+    <?php endif; ?>
+</section>
 
-    <div class="container mx-auto px-6 relative z-10" data-aos="fade-up" data-aos-duration="1000">
+<?php else: ?>
+<section class="hero-fallback">
+    <div class="container mx-auto px-6">
         <div class="max-w-2xl">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8"
-                data-aos="fade-up" data-aos-delay="200">
-                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                <span class="text-white/70 text-xs font-medium tracking-wider uppercase font-body">Nova Coleção
-                    Disponível</span>
-            </div>
-
-            <h1 class="font-display text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 glow-text"
-                data-aos="fade-up" data-aos-delay="300">
-                Estilo &<br>
-                <span class="text-white/80">Cultura</span>
+            <h1 class="font-display text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 glow-text">
+                Estilo &<br><span class="text-white/80">Cultura</span>
             </h1>
-
-            <p class="text-white/50 text-base md:text-lg font-body max-w-md mb-10 leading-relaxed" data-aos="fade-up"
-                data-aos-delay="400">
-                Roupas, tênis, eletrônicos e produtos digitais com qualidade premium. Levando o melhor até a sua casa.
+            <p class="text-white/50 text-base md:text-lg font-body max-w-md mb-10 leading-relaxed">
+                Roupas, tênis, eletrônicos e produtos digitais com qualidade premium.
             </p>
-
-            <div class="flex flex-wrap gap-4" data-aos="fade-up" data-aos-delay="500">
-                <a href="busca.php?todos=1"
-                    class="inline-flex items-center gap-3 bg-white text-black px-7 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-white/90 transition-all duration-300 hover:scale-105 font-body">
-                    <i class="fas fa-shopping-bag text-xs"></i>
-                    Ver Catálogo
-                </a>
-                <a href="#produtos"
-                    class="inline-flex items-center gap-3 border border-white/20 text-white px-7 py-3.5 rounded-full font-medium text-sm tracking-wide hover:bg-white/5 transition-all duration-300 font-body">
-                    Explorar
-                    <i class="fas fa-arrow-down text-xs"></i>
+            <div class="flex flex-wrap gap-4">
+                <a href="busca.php?todos=1" class="inline-flex items-center gap-3 bg-white text-black px-7 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-white/90 transition-all duration-300 font-body">
+                    <i class="fas fa-shopping-bag text-xs"></i> Ver Catálogo
                 </a>
             </div>
         </div>
     </div>
-
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-        <span class="text-white text-[10px] uppercase tracking-[3px] font-body">Scroll</span>
-        <div class="w-px h-8 bg-gradient-to-b from-white/50 to-transparent"></div>
-    </div>
 </section>
+<?php endif; ?>
 
 <!-- ══════════════════════════════════════════
      CATEGORY BAR
@@ -596,6 +659,29 @@ endif; ?>
             easing: 'ease-out-cubic',
             offset: 50
         });
+
+        // Init Hero Banner Slider
+        if (typeof Swiper !== 'undefined' && document.querySelector('#hero-slider')) {
+            new Swiper('#hero-slider', {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '#hero-slider .swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '#hero-slider .swiper-button-next',
+                    prevEl: '#hero-slider .swiper-button-prev',
+                },
+                effect: 'fade',
+                fadeEffect: { crossFade: true },
+            });
+        }
 
         // Init Swipers
         if (typeof Swiper !== 'undefined') {
