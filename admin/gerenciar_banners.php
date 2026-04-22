@@ -27,6 +27,7 @@ catch (Exception $e) {
         </h3>
 
         <form action="processa_banner.php" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="ativo" value="1">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Coluna 1 -->
                 <div class="space-y-4">

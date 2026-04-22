@@ -26,7 +26,7 @@ if (isset($_GET['ref'])) {
 
 // --- BUSCAR DADOS ---
 try {
-    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
     // Filtra apenas categorias que devem aparecer na home
     $categorias = $pdo->query("SELECT * FROM categorias WHERE exibir_home = 1 ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
