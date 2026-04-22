@@ -67,9 +67,9 @@ catch (Exception $e) {
                 <div class="md:col-span-2">
                     <label
                         class="block text-xs font-semibold text-admin-gray-400 uppercase tracking-wider mb-2">Imagem</label>
-                    <div class="relative group">
+                    <label for="banner-input" class="relative group" style="cursor:pointer;display:block;" id="banner-zone">
                         <input type="file" name="imagem" required
-                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="banner-input">
+                            style="display:none" id="banner-input">
                         <div
                             class="w-full p-8 border-2 border-dashed border-admin-gray-600 rounded-xl bg-admin-gray-800/50 flex flex-col items-center justify-center gap-2 group-hover:border-white transition-colors">
                             <i
@@ -81,6 +81,16 @@ catch (Exception $e) {
                 </div>
             </div>
 
+            <script>
+                document.getElementById('banner-input').addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        var zone = document.getElementById('banner-zone');
+                        zone.querySelector('span').textContent = '✓ ' + this.files[0].name;
+                        zone.querySelector('i').style.color = '#4ade80';
+                        zone.style.borderColor = '#4ade80';
+                    }
+                });
+            </script>
             <div class="mt-8 flex justify-end">
                 <button type="submit" name="adicionar"
                     class="btn btn-primary bg-white text-black hover:bg-gray-200 px-8">
