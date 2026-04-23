@@ -67,42 +67,21 @@ require_once 'templates/header.php';
 
     <!-- Banner da Categoria -->
     <?php if ($tem_desktop || $tem_mobile): ?>
+    <?php
+    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+    $is_mobile_ua = (bool) preg_match('/mobile|android|iphone|ipod|blackberry|windows phone|opera mini/i', $ua);
+    if ($tem_desktop && $tem_mobile) {
+        $banner_src = $is_mobile_ua ? $categoria['banner_categoria_mobile'] : $categoria['banner_categoria'];
+    } elseif ($tem_mobile) {
+        $banner_src = $categoria['banner_categoria_mobile'];
+    } else {
+        $banner_src = $categoria['banner_categoria'];
+    }
+    ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
-        <?php if ($tem_desktop): ?>
-        <div id="cat-banner-desk" <?= ($tem_mobile ? 'style="display:block"' : '') ?>>
-            <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
-                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-                 style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
-        </div>
-        <?php endif; ?>
-        <?php if ($tem_mobile): ?>
-        <div id="cat-banner-mob" <?= ($tem_desktop ? 'style="display:none"' : '') ?>>
-            <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
-                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-                 style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
-        </div>
-        <?php endif; ?>
-        <?php if ($tem_desktop && $tem_mobile): ?>
-        <script>
-        (function(){
-            var d = document.getElementById('cat-banner-desk');
-            var m = document.getElementById('cat-banner-mob');
-            if (window.innerWidth < 768) {
-                d.style.display = 'none';
-                m.style.display = 'block';
-            }
-            window.addEventListener('resize', function(){
-                if (window.innerWidth < 768) {
-                    d.style.display = 'none';
-                    m.style.display = 'block';
-                } else {
-                    d.style.display = 'block';
-                    m.style.display = 'none';
-                }
-            });
-        })();
-        </script>
-        <?php endif; ?>
+        <img src="<?= htmlspecialchars($banner_src) ?>"
+             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
     </div>
     <?php else: ?>
     <!-- Hero da Categoria (fallback sem banner) -->
