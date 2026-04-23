@@ -93,7 +93,7 @@
                 <a href="#" class="footer-social-link" aria-label="TikTok">
                     <i class="fab fa-tiktok"></i>
                 </a>
-                <a href="#" class="footer-social-link" aria-label="WhatsApp">
+                <a href="https://wa.me/5551996148568" target="_blank" class="footer-social-link" aria-label="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
                 <a href="#" class="footer-social-link" aria-label="YouTube">
@@ -103,6 +103,66 @@
         </div>
     </div>
 </footer>
+
+<!-- ── WhatsApp Float Button ── -->
+<a href="https://wa.me/5551996148568?text=Olá!%20Vim%20pelo%20site%20e%20gostaria%20de%20mais%20informações." target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Falar no WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="whatsapp-float-label">Fale Conosco</span>
+</a>
+<style>
+.whatsapp-float {
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #25d366;
+    color: #fff;
+    padding: 13px 18px 13px 14px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(37,211,102,.45);
+    transition: all .3s ease;
+    overflow: hidden;
+    max-width: 56px;
+}
+.whatsapp-float:hover {
+    max-width: 200px;
+    box-shadow: 0 6px 28px rgba(37,211,102,.6);
+    transform: translateY(-2px);
+}
+.whatsapp-float i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.whatsapp-float-label {
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity .2s ease .1s;
+    pointer-events: none;
+}
+.whatsapp-float:hover .whatsapp-float-label {
+    opacity: 1;
+}
+@keyframes waPulse {
+    0% { box-shadow: 0 4px 20px rgba(37,211,102,.45), 0 0 0 0 rgba(37,211,102,.4); }
+    70% { box-shadow: 0 4px 20px rgba(37,211,102,.45), 0 0 0 12px rgba(37,211,102,0); }
+    100% { box-shadow: 0 4px 20px rgba(37,211,102,.45), 0 0 0 0 rgba(37,211,102,0); }
+}
+.whatsapp-float {
+    animation: waPulse 2.5s ease-out infinite;
+}
+.whatsapp-float:hover {
+    animation: none;
+}
+</style>
 
 <!-- Toast Notification -->
 <div class="toast-notification" id="toast-notification">

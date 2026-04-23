@@ -23,7 +23,7 @@ require_once 'templates/header.php';
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Tutoriais de instalação</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Suporte técnico especializado</li>
                 </ul>
-                <a href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20produto%20digital"
+                <a href="https://wa.me/5551996148568?text=Preciso%20de%20ajuda%20com%20produto%20digital"
                     target="_blank"
                     class="block w-full text-center bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors">
                     Falar no WhatsApp
