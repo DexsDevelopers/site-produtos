@@ -71,16 +71,13 @@ require_once 'templates/header.php';
 <div class="container" style="padding-top: 40px; min-height: 80vh;">
 
     <!-- Banner da Categoria -->
-    <?php if ($tem_desktop || $tem_mobile): ?>
+    <?php if ($tem_desktop || $tem_mobile):
+        $banner_url = $tem_desktop ? $categoria['banner_categoria'] : $categoria['banner_categoria_mobile'];
+    ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
-        <picture>
-            <?php if ($tem_mobile): ?>
-            <source media="(max-width: 767px)" srcset="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>">
-            <?php endif; ?>
-            <img src="<?= htmlspecialchars($tem_desktop ? $categoria['banner_categoria'] : $categoria['banner_categoria_mobile']) ?>"
-                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-                 style="width:100%;height:auto;max-height:500px;object-fit:cover;display:block;">
-        </picture>
+        <img src="<?= htmlspecialchars($banner_url) ?>"
+             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+             style="width:100%;height:auto;max-height:500px;object-fit:cover;display:block;">
     </div>
     <?php else: ?>
     <!-- Hero da Categoria (fallback sem banner) -->
