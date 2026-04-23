@@ -88,34 +88,27 @@ $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
 $page_image = htmlspecialchars($produto_selecionado['imagem']);
 
-// Métodos de pagamento
+// Métodos de pagamento — lê do banco
 $metodos_pagamento = [];
 try {
-    if (isset($fileStorage) && is_object($fileStorage)) {
-        $config = $fileStorage->getConfig();
-        $infinite_tag = $config['infinite_tag'] ?? '';
-        $infinite_status = $config['infinite_status'] ?? 'off';
-        if ($infinite_status === 'on' && !empty($infinite_tag)) {
-            $metodos_pagamento['infinitepay'] = [
-                'url' => 'buy_now.php',
-                'btn_text' => 'Pagar com Cartão / PIX',
-                'sub_text' => 'Via InfinitePay',
-                'icon' => 'fas fa-credit-card'
-            ];
-        }
-        $chave_pix = $config['chave_pix'] ?? '';
-        $pix_status = $config['pix_status'] ?? 'off';
-        if ($pix_status === 'on' && !empty($chave_pix)) {
-            $metodos_pagamento['pix'] = [
-                'url' => 'buy_now.php',
-                'btn_text' => 'Pagar com PIX',
-                'sub_text' => 'Transferência Direta',
-                'icon' => 'fas fa-qrcode'
-            ];
-        }
+    $stmt_cfg = $pdo->query("SELECT chave, valor FROM configuracoes WHERE chave IN ('infinite_tag','infinite_status','pixghost_api_key','pix_status')");
+    $cfg = $stmt_cfg->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    if (($cfg['infinite_status'] ?? 'off') === 'on' && !empty($cfg['infinite_tag'] ?? '')) {
+        $metodos_pagamento['infinitepay'] = [
+            'url'      => 'checkout_infinitepay.php',
+            'btn_text' => 'Comprar Agora — Cartão / PIX',
+            'icon'     => 'fas fa-bolt'
+        ];
     }
-}
-catch (Exception $e) {
+    if (($cfg['pix_status'] ?? 'off') === 'on' && !empty($cfg['pixghost_api_key'] ?? '')) {
+        $metodos_pagamento['pix'] = [
+            'url'      => 'checkout_pix.php',
+            'btn_text' => 'Comprar Agora — PIX',
+            'icon'     => 'fas fa-qrcode'
+        ];
+    }
+} catch (Exception $e) {
     error_log("Erro métodos pagamento: " . $e->getMessage());
 }
 
