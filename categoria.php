@@ -60,9 +60,6 @@ catch (PDOException $e) {
 $page_title = $categoria['nome'];
 $tem_desktop = !empty($categoria['banner_categoria']);
 $tem_mobile  = !empty($categoria['banner_categoria_mobile']);
-if ($tem_desktop && $tem_mobile) {
-    $extra_head_css = '#cat-banner-desk{display:block}#cat-banner-mob{display:none}@media(max-width:767px){#cat-banner-desk{display:none!important}#cat-banner-mob{display:block!important}}';
-}
 require_once 'templates/header.php';
 ?>
 
@@ -72,18 +69,39 @@ require_once 'templates/header.php';
     <?php if ($tem_desktop || $tem_mobile): ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
         <?php if ($tem_desktop): ?>
-        <div id="cat-banner-desk">
+        <div id="cat-banner-desk" <?= ($tem_mobile ? 'style="display:block"' : '') ?>>
             <img src="<?= htmlspecialchars($categoria['banner_categoria']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
         </div>
         <?php endif; ?>
         <?php if ($tem_mobile): ?>
-        <div id="cat-banner-mob">
+        <div id="cat-banner-mob" <?= ($tem_desktop ? 'style="display:none"' : '') ?>>
             <img src="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>"
                  alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
                  style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
         </div>
+        <?php endif; ?>
+        <?php if ($tem_desktop && $tem_mobile): ?>
+        <script>
+        (function(){
+            var d = document.getElementById('cat-banner-desk');
+            var m = document.getElementById('cat-banner-mob');
+            if (window.innerWidth < 768) {
+                d.style.display = 'none';
+                m.style.display = 'block';
+            }
+            window.addEventListener('resize', function(){
+                if (window.innerWidth < 768) {
+                    d.style.display = 'none';
+                    m.style.display = 'block';
+                } else {
+                    d.style.display = 'block';
+                    m.style.display = 'none';
+                }
+            });
+        })();
+        </script>
         <?php endif; ?>
     </div>
     <?php else: ?>
