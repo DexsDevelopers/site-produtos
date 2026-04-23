@@ -91,4 +91,21 @@ try {
     ];
     foreach ($migracoes as $sql) { try { $pdo->exec($sql); } catch (Exception $e) {} }
 } catch (Exception $e) {}
+
+// ── Registrar visita (ignora páginas admin e bots) ──
+try {
+    $script = $_SERVER['SCRIPT_NAME'] ?? '';
+    $is_admin = strpos($script, '/admin/') !== false;
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $is_bot = preg_match('/bot|crawl|spider|slurp|mediapartners/i', $ua);
+    if (!$is_admin && !$is_bot) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if (strpos($ip, ',') !== false) $ip = trim(explode(',', $ip)[0]);
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $dispositivo = preg_match('/Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i', $ua) ? 'Mobile' : 'Desktop';
+        $pagina = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+        $stmt_v = $pdo->prepare("INSERT INTO site_visitas (ip_address, data_visita, hora_visita, pagina_visitada, user_agent, dispositivo) VALUES (?, CURDATE(), CURTIME(), ?, ?, ?)");
+        $stmt_v->execute([$ip, $pagina, $ua, $dispositivo]);
+    }
+} catch (Exception $e) {}
 ?>
