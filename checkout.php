@@ -133,7 +133,7 @@ if (isset($_SESSION['user_id'])) {
                             <h3 class="text-xl font-bold text-white mb-4">Escolha o Metodo de Pagamento</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <?php if ($pix_status === 'on'): ?>
-                                <button type="button" onclick="submeterCheckout('pix')"
+                                <button type="button" onclick="submeterCheckout('pix', this)"
                                     class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-brand-red/30 bg-brand-red/5 hover:bg-brand-red/10 hover:border-brand-red transition-all group">
                                     <i class="fas fa-qrcode text-3xl text-brand-red"></i>
                                     <span class="font-bold text-white">PIX</span>
@@ -142,7 +142,7 @@ if (isset($_SESSION['user_id'])) {
                                 <?php endif; ?>
 
                                 <?php if ($infinite_status === 'on'): ?>
-                                <button type="button" onclick="submeterCheckout('infinitepay')"
+                                <button type="button" onclick="submeterCheckout('infinitepay', this)"
                                     class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500 transition-all group">
                                     <i class="fas fa-credit-card text-3xl text-green-500"></i>
                                     <span class="font-bold text-white">CARTÃO</span>
@@ -193,10 +193,22 @@ if (isset($_SESSION['user_id'])) {
                     }
                 }
 
-                function submeterCheckout(metodo) {
+                function submeterCheckout(metodo, btn) {
                     const form = document.getElementById("checkout-form");
                     const metodoInput = document.getElementById("metodo_pagamento");
                     if (!form.reportValidity()) return;
+
+                    // Loading no botão clicado
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl"></i><span class="font-bold text-white">Processando...</span><span class="text-xs text-brand-gray-text">Aguarde</span>';
+                        btn.disabled = true;
+                        btn.style.opacity = '0.7';
+                    }
+                    // Desabilita todos os botões de pagamento
+                    document.querySelectorAll('[onclick*="submeterCheckout"]').forEach(b => {
+                        b.style.pointerEvents = 'none';
+                    });
+
                     metodoInput.value = metodo;
                     form.action = (metodo === "infinitepay") ? "checkout_infinitepay.php" : "checkout_pix.php";
                     form.submit();

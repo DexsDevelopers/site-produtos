@@ -511,9 +511,9 @@ endif; ?>
                 <?php foreach ($metodos_pagamento as $metodo): ?>
                 <a href="<?= $metodo['url']?>?produto_id=<?= $produto_selecionado['id']?>&quantidade=1"
                     class="product-action-btn product-action-primary checkout-link"
-                    <?= !empty($produto_tamanhos) ? 'onclick="return validateSize(this)"' : '' ?>>
+                    onclick="return handleCheckoutClick(this, event, <?= !empty($produto_tamanhos) ? 'true' : 'false' ?>)">
                     <i class="<?= $metodo['icon']?>"></i>
-                    <?= htmlspecialchars($metodo['btn_text'])?>
+                    <span class="btn-text"><?= htmlspecialchars($metodo['btn_text'])?></span>
                 </a>
                 <?php
     endforeach; ?>
@@ -633,6 +633,14 @@ endif; ?>
             url.searchParams.set('tamanho_id', sizeId);
             link.href = url.toString();
         });
+    }
+
+    function handleCheckoutClick(link, e, requiresSize) {
+        if (requiresSize && !validateSize(link)) return false;
+        link.style.pointerEvents = 'none';
+        link.style.opacity = '0.7';
+        link.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Processando...';
+        return true;
     }
 
     function validateSize(link) {
