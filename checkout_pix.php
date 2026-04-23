@@ -136,11 +136,15 @@ if (!empty($pixghost_key) && $pedido_id > 0) {
         $qr_image   = $result['qr_image'];
         $expires_in = $result['expires_in'] ?? 1200;
     } else {
-        $pix_error = $result['error'] ?? 'Erro ao gerar cobrança PIX.';
-        error_log("PixGhost error: " . ($raw ?? ''));
+        error_log("PixGhost error (pedido #$pedido_id): " . ($raw ?? ''));
+        // Fallback automático para InfinitePay
+        header('Location: checkout_infinitepay.php?pedido_id=' . $pedido_id);
+        exit();
     }
 } else {
-    $pix_error = empty($pixghost_key) ? 'API PixGhost não configurada. Configure em Pagamentos no painel admin.' : 'Erro interno.';
+    error_log("PixGhost sem API key, redirecionando pedido #$pedido_id para InfinitePay");
+    header('Location: checkout_infinitepay.php?pedido_id=' . $pedido_id);
+    exit();
 }
 
 require_once 'templates/header.php';

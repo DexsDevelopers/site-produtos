@@ -4,6 +4,49 @@ session_start();
 require_once 'config.php';
 require_once 'includes/file_storage.php';
 
+// Fallback: pedido já criado (PIX falhou), retoma com InfinitePay
+if (isset($_GET['pedido_id']) && (int)$_GET['pedido_id'] > 0) {
+    $pedido_id = (int)$_GET['pedido_id'];
+    $user_id   = $_SESSION['user_id'] ?? 0;
+
+    if ($user_id == 0) { header('Location: login.php?msg=faca_login'); exit(); }
+
+    $fileStorage  = new FileStorage();
+    $infinite_tag = $fileStorage->getInfiniteTag();
+    if (empty($infinite_tag)) { die('InfinitePay não configurado.'); }
+
+    $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?');
+    $stmt->execute([$pedido_id, $user_id]);
+    $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$pedido) { header('Location: carrinho.php'); exit(); }
+
+    $stmt_itens = $pdo->prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?');
+    $stmt_itens->execute([$pedido_id]);
+    $itens_db = $stmt_itens->fetchAll(PDO::FETCH_ASSOC);
+
+    $items = [];
+    foreach ($itens_db as $it) {
+        $nome = $it['nome_produto'] . (!empty($it['valor_tamanho']) ? ' - Tamanho: ' . $it['valor_tamanho'] : '');
+        $items[] = ['name' => $nome, 'description' => $nome, 'price' => (int)round($it['preco_unitario'] * 100), 'quantity' => (int)$it['quantidade']];
+    }
+
+    $data = [
+        'handle'       => $infinite_tag,
+        'order_nsu'    => 'ORD-' . $pedido_id . '-' . time(),
+        'items'        => $items,
+        'redirect_url' => (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/obrigado.php?pedido_id=' . $pedido_id
+    ];
+    $ctx = stream_context_create(['http' => ['header' => "Content-type: application/json\r\n", 'method' => 'POST', 'content' => json_encode($data), 'ignore_errors' => true]]);
+    $res = file_get_contents('https://api.infinitepay.io/invoices/public/checkout/links', false, $ctx);
+    $result = json_decode($res, true);
+
+    if (isset($result['url'])) {
+        header('Location: ' . $result['url']);
+        exit();
+    }
+    die('Erro InfinitePay: ' . ($result['message'] ?? 'Erro desconhecido'));
+}
+
 // Se recebeu produto_id via GET, adiciona ao carrinho primeiro
 if (isset($_GET['produto_id']) && !empty($_GET['produto_id'])) {
     $produto_id = (int)$_GET['produto_id'];
