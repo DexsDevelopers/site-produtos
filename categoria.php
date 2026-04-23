@@ -72,21 +72,15 @@ require_once 'templates/header.php';
 
     <!-- Banner da Categoria -->
     <?php if ($tem_desktop || $tem_mobile): ?>
-    <?php
-        $ua  = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $mob = preg_match('/Mobile|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i', $ua);
-        if ($tem_desktop && $tem_mobile) {
-            $b = $mob ? $categoria['banner_categoria_mobile'] : $categoria['banner_categoria'];
-        } elseif ($tem_mobile) {
-            $b = $categoria['banner_categoria_mobile'];
-        } else {
-            $b = $categoria['banner_categoria'];
-        }
-    ?>
     <div style="margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden;">
-        <img src="<?= htmlspecialchars($b) ?>"
-             alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
-             style="width:100%; height:auto; max-height:500px; object-fit:cover; display:block;">
+        <picture>
+            <?php if ($tem_mobile): ?>
+            <source media="(max-width: 767px)" srcset="<?= htmlspecialchars($categoria['banner_categoria_mobile']) ?>">
+            <?php endif; ?>
+            <img src="<?= htmlspecialchars($tem_desktop ? $categoria['banner_categoria'] : $categoria['banner_categoria_mobile']) ?>"
+                 alt="Banner <?= htmlspecialchars($categoria['nome']) ?>"
+                 style="width:100%;height:auto;max-height:500px;object-fit:cover;display:block;">
+        </picture>
     </div>
     <?php else: ?>
     <!-- Hero da Categoria (fallback sem banner) -->
