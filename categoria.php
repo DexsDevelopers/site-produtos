@@ -1,5 +1,7 @@
 <?php
-// categoria.php — MACARIO BRAZIL
+// categoria.php — MACARIO BRAZIL — v2678846
+if (function_exists('opcache_reset')) opcache_reset();
+if (function_exists('opcache_invalidate')) opcache_invalidate(__FILE__, true);
 session_start();
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
