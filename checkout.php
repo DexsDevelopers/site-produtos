@@ -2,9 +2,8 @@
 // checkout.php - Checkout Completo com Endereço e Pagamento
 session_start();
 require_once 'config.php';
-require_once 'templates/header.php';
 
-// Verifica se há itens no carrinho
+// Verifica se há itens no carrinho — ANTES de qualquer output
 if (empty($_SESSION['carrinho'])) {
     header('Location: carrinho.php');
     exit();
@@ -28,7 +27,6 @@ try {
     $pix_status = $configs_db['pix_status'] ?? 'off';
     $infinite_status = $configs_db['infinite_status'] ?? 'off';
 } catch (Exception $e) {
-    // Caso a tabela ainda não exista, mantemos por padrão ligado para não travar a venda
     $pix_status = 'on';
     $infinite_status = 'on';
 }
@@ -40,6 +38,8 @@ if (isset($_SESSION['user_id'])) {
     $stmt->execute([$_SESSION['user_id']]);
     $user_data = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 }
+
+require_once 'templates/header.php';
 ?>
 
 <div class="w-full max-w-7xl mx-auto py-24 px-4">
