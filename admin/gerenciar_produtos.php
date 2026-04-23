@@ -162,7 +162,7 @@ endforeach; ?>
                             <th class="px-6 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Preço</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Frete</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Destaque</th>
-                            <th class="px-6 py-4 text-right text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Ações</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest sticky right-0 bg-[#111]">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -213,14 +213,14 @@ endforeach; ?>
                                     <?php echo($produto["destaque"] ? "Ativo" : "Não"); ?>
                                 </a>
                             </td>
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right sticky right-0 bg-[#111]">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="editar_produto.php?id=<?php echo $produto["id"]; ?>"
-                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all">
+                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all" title="Editar">
                                         <i class="fas fa-edit text-xs"></i>
                                     </a>
                                     <a href="deletar_produto.php?id=<?php echo $produto["id"]; ?>" onclick="return confirm('Excluir este produto?')"
-                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all">
+                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all" title="Excluir">
                                         <i class="fas fa-trash text-xs"></i>
                                     </a>
                                 </div>
