@@ -11,8 +11,8 @@ if (isset($_GET['pedido_id']) && (int)$_GET['pedido_id'] > 0) {
 
     if ($user_id == 0) { header('Location: login.php?msg=faca_login'); exit(); }
 
-    $fileStorage  = new FileStorage();
-    $infinite_tag = $fileStorage->getInfiniteTag();
+    $stmt_tag = $pdo->query("SELECT valor FROM configuracoes WHERE chave = 'infinite_tag' LIMIT 1");
+    $infinite_tag = $stmt_tag ? $stmt_tag->fetchColumn() : '';
     if (empty($infinite_tag)) { die('InfinitePay não configurado.'); }
 
     $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?');
@@ -95,8 +95,8 @@ if (empty($_SESSION['carrinho'])) {
     exit();
 }
 
-$fileStorage = new FileStorage();
-$infinite_tag = $fileStorage->getInfiniteTag();
+$stmt_tag = $pdo->query("SELECT valor FROM configuracoes WHERE chave = 'infinite_tag' LIMIT 1");
+$infinite_tag = $stmt_tag ? $stmt_tag->fetchColumn() : '';
 
 if (empty($infinite_tag)) {
     die("InfinitePay não configurado. Por favor, configure a InfiniteTag no painel administrativo.");
