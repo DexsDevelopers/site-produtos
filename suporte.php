@@ -23,7 +23,7 @@ require_once 'templates/header.php';
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Tutoriais de instalação</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Suporte técnico especializado</li>
                 </ul>
-                <a href="https://wa.me/5551996148568?text=Preciso%20de%20ajuda%20com%20produto%20digital"
+                <a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20preciso%20de%20ajuda%20com%20um%20produto%20digital."
                     target="_blank"
                     class="block w-full text-center bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors">
                     Falar no WhatsApp
@@ -43,7 +43,7 @@ require_once 'templates/header.php';
                     <li><i class="fas fa-check text-blue-400 mr-2"></i> Política de troca facilitada</li>
                     <li><i class="fas fa-check text-blue-400 mr-2"></i> Seguro contra extravio</li>
                 </ul>
-                <a href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20entrega" target="_blank"
+                <a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20preciso%20de%20ajuda%20com%20uma%20entrega." target="_blank"
                     class="block w-full text-center bg-transparent border border-white text-white font-bold py-3 rounded-xl hover:bg-white hover:text-black transition-colors">
                     Suporte de Entregas
                 </a>

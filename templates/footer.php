@@ -93,7 +93,7 @@
                 <a href="#" class="footer-social-link" aria-label="TikTok">
                     <i class="fab fa-tiktok"></i>
                 </a>
-                <a href="https://wa.me/5551996148568" target="_blank" class="footer-social-link" aria-label="WhatsApp">
+                <a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" class="footer-social-link" aria-label="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
                 <a href="#" class="footer-social-link" aria-label="YouTube">
@@ -105,7 +105,7 @@
 </footer>
 
 <!-- ── WhatsApp Float Button ── -->
-<a href="https://wa.me/5551996148568?text=Olá!%20Vim%20pelo%20site%20e%20gostaria%20de%20mais%20informações." target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Falar no WhatsApp">
+<a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Falar no WhatsApp">
     <i class="fab fa-whatsapp"></i>
     <span class="whatsapp-float-label">Fale Conosco</span>
 </a>

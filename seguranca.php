@@ -223,7 +223,7 @@ require_once 'templates/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">WhatsApp</h3>
                 <p class="text-gray-300 mb-4">Chat direto pelo WhatsApp</p>
-                <a href="https://wa.me/5551996148568" target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
+                <a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20preciso%20de%20suporte." target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
                     Falar no WhatsApp
                 </a>
             </div>
@@ -464,7 +464,7 @@ require_once 'templates/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">WhatsApp</h3>
                 <p class="text-gray-300 mb-4">Chat direto pelo WhatsApp</p>
-                <a href="https://wa.me/5551996148568" target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
+                <a href="https://wa.me/5551996148568?text=Ol%C3%A1!%20Vim%20da%20loja%20MACARIO%20BRAZIL%20e%20preciso%20de%20suporte." target="_blank" class="text-red-400 hover:text-red-300 font-semibold">
                     Falar no WhatsApp
                 </a>
             </div>

@@ -83,7 +83,7 @@ if (isset($_GET['excluir'])) {
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
                                         <?php if (!empty($c['whatsapp'])): ?>
-                                            <a href="https://wa.me/<?= preg_replace('/\D/', '', $c['whatsapp']) ?>?text=Olá <?= urlencode($c['nome']) ?>, vimos que você deixou alguns itens no carrinho. Gostaria de ajuda para finalizar sua compra?" 
+                                            <a href="https://wa.me/<?= preg_replace('/\D/', '', $c['whatsapp']) ?>?text=Ol%C3%A1%20<?= urlencode($c['nome']) ?>%2C%20aqui%20%C3%A9%20a%20equipe%20da%20MACARIO%20BRAZIL!%20Vimos%20que%20voc%C3%AA%20deixou%20alguns%20itens%20no%20carrinho.%20Gostaria%20de%20ajuda%20para%20finalizar%20sua%20compra%3F" 
                                                target="_blank" class="p-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20" title="Recuperar via WhatsApp">
                                                 <i class="fab fa-whatsapp"></i>
                                             </a>

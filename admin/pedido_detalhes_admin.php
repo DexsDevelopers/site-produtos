@@ -110,7 +110,7 @@ $lista_itens = $itens->fetchAll(PDO::FETCH_ASSOC);
                 <div class="text-sm text-admin-gray-400"><?= htmlspecialchars($pedido['email'] ?? '')?></div>
                 <?php if (!empty($pedido['whatsapp'])): ?>
                 <div class="mt-4">
-                    <a href="https://wa.me/<?= preg_replace('/\D/', '', $pedido['whatsapp']) ?>" target="_blank" class="text-green-400 font-bold">
+                    <a href="https://wa.me/<?= preg_replace('/\D/', '', $pedido['whatsapp']) ?>?text=Ol%C3%A1!%20Aqui%20%C3%A9%20a%20equipe%20da%20MACARIO%20BRAZIL.%20Como%20posso%20ajudar%3F" target="_blank" class="text-green-400 font-bold">
                         <i class="fab fa-whatsapp"></i> <?= htmlspecialchars($pedido['whatsapp']) ?>
                     </a>
                 </div>

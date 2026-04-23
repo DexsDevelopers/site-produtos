@@ -68,7 +68,7 @@ try {
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-white"><?= htmlspecialchars($user['email']) ?></div>
                                     <?php if (!empty($user['whatsapp'])): ?>
-                                        <a href="https://wa.me/<?= preg_replace('/\D/', '', $user['whatsapp']) ?>" target="_blank" class="text-xs text-green-400 flex items-center gap-1">
+                                        <a href="https://wa.me/<?= preg_replace('/\D/', '', $user['whatsapp']) ?>?text=Ol%C3%A1!%20Aqui%20%C3%A9%20a%20equipe%20da%20MACARIO%20BRAZIL.%20Como%20posso%20ajudar%3F" target="_blank" class="text-xs text-green-400 flex items-center gap-1">
                                             <i class="fab fa-whatsapp"></i> <?= htmlspecialchars($user['whatsapp']) ?>
                                         </a>
                                     <?php endif; ?>
@@ -113,7 +113,7 @@ try {
                         </div>
                     </div>
                     <?php if (!empty($user['whatsapp'])): ?>
-                    <a href="https://wa.me/<?= preg_replace('/\D/', '', $user['whatsapp']) ?>" target="_blank" class="block text-center py-2 bg-green-500/10 text-green-400 rounded-lg text-sm font-bold">
+                    <a href="https://wa.me/<?= preg_replace('/\D/', '', $user['whatsapp']) ?>?text=Ol%C3%A1!%20Aqui%20%C3%A9%20a%20equipe%20da%20MACARIO%20BRAZIL.%20Como%20posso%20ajudar%3F" target="_blank" class="block text-center py-2 bg-green-500/10 text-green-400 rounded-lg text-sm font-bold">
                         <i class="fab fa-whatsapp mr-1"></i> WhatsApp
                     </a>
                     <?php endif; ?>
