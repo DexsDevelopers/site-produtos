@@ -102,8 +102,19 @@ try {
 } catch (Exception $e) {}
 
 // ── Fake reviews for social proof ──
-$fake_nomes = ['Ana Carolina S.','Pedro Henrique M.','Juliana Costa','Rafael Oliveira','Mariana Santos','Lucas Ferreira','Camila Rodrigues','Gabriel Almeida','Isabela Souza','Thiago Pereira','Larissa Lima','Matheus Cardoso','Fernanda Alves','Bruno Souza','Letícia Nunes'];
-$fake_cidades = ['São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Curitiba, PR','Porto Alegre, RS','Salvador, BA','Brasília, DF','Recife, PE','Fortaleza, CE','Florianópolis, SC'];
+$fake_nomes = [
+    'Ana Carolina S.','Pedro Henrique M.','Juliana Costa','Rafael Oliveira','Mariana Santos',
+    'Lucas Ferreira','Camila Rodrigues','Gabriel Almeida','Isabela Souza','Thiago Pereira',
+    'Larissa Lima','Matheus Cardoso','Fernanda Alves','Bruno Souza','Letícia Nunes',
+    'Diego Martins','Priscila Fonseca','Rodrigo Castelo','Natália Vieira','Felipe Ramos',
+    'Amanda Gomes','Henrique Barros','Tatiane Moura','Carlos Eduardo P.','Bianca Freitas',
+    'Vinícius Lopes','Jéssica Andrade','Eduardo Cunha','Samantha Borges','Leonardo Dias',
+];
+$fake_cidades = [
+    'São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Curitiba, PR','Porto Alegre, RS',
+    'Salvador, BA','Brasília, DF','Recife, PE','Fortaleza, CE','Florianópolis, SC',
+    'Goiânia, GO','Manaus, AM','Natal, RN','Maceió, AL','Vitória, ES',
+];
 $fake_textos = [
     'Produto incrível! Superou todas as minhas expectativas. Qualidade excelente e chegou bem antes do prazo.',
     'Amei demais! Material de primeira qualidade, acabamento impecável. Já indiquei para todos os amigos.',
@@ -120,29 +131,43 @@ $fake_textos = [
     'Simplesmente perfeito! Não tenho nenhuma reclamação. Chegou no prazo e produto top demais.',
     'Valeu cada centavo! Muito bem embalado, produto lindo e de qualidade. Vou comprar mais vezes.',
     'Comprei de presente e a pessoa amou! A qualidade é visível, parece produto de loja de grife.',
+    'Já fiz várias compras aqui e todas foram ótimas. Loja séria, produto sempre no prazo e perfeito.',
+    'Não esperava tanta qualidade por esse preço. Ficou ainda melhor do que parecia nas fotos.',
+    'Primeira compra e já virei fã! Chegou bem embalado, produto impecável. Nota máxima!',
+    'Produto top! Comprei pra mim e comprei mais um de presente. Qualidade que surpreende.',
+    'Entrega mais rápida do que prometido, produto com acabamento incrível. Superou tudo!',
+    'Nunca fui muito de comprar online mas esse produto me conquistou. Qualidade real, sem enganação.',
+    'Perfeito em todos os sentidos. Embalagem caprichada, produto original e entrega pontual.',
+    'Usei e adorei desde o primeiro dia. Acabamento de qualidade, parece produto de boutique.',
+    'Chegou antes do prazo com nota fiscal e tudo certinho. Produto de qualidade real. Recomendo!',
+    'Comprei depois de ver muitos comentários positivos e não me decepcionei. Produto excelente!',
+    'Loja confiável e produto que supera as expectativas. Já recomendei para toda a família.',
+    'Produto com acabamento impecável, entrega super rápida. 10/10 em tudo, sem dúvidas!',
+    'Qualidade que se sente na hora que abre a embalagem. Produto premium por um preço justo.',
+    'Recebeu elogios de todo mundo que viu. Qualidade visível, loja que entrega o que promete.',
+    'Fiquei chocada com a qualidade! Muito melhor do que eu imaginava. Com certeza vou comprar mais.',
 ];
-$fake_notas_pool = [5,5,5,5,4,5,5,5,4,5,5,4,5,5,5];
-$seed = $produto_id * 7 + 13;
-$fake_count = 8 + ($seed % 7);
+$fake_notas_pool = [5,5,5,5,4,5,5,5,4,5,5,4,5,5,5,5,4,5,5,5];
+
+// Strong per-product hash to guarantee unique review sets
+function _fhash($a, $b) { return abs(($a * 2654435761 ^ $b * 40503) & 0x7FFFFFFF); }
+
+$fake_count = 8 + (_fhash($produto_id, 0) % 6); // 8 to 13 reviews
 $fake_reviews = [];
 for ($i = 0; $i < $fake_count; $i++) {
-    $idx    = ($seed + $i * 3)  % count($fake_nomes);
-    $tidx   = ($seed + $i * 5)  % count($fake_textos);
-    $nidx   = ($seed + $i * 2)  % count($fake_notas_pool);
-    $days   = 2 + (($seed + $i * 11) % 88);
     $fake_reviews[] = [
-        'nome'      => $fake_nomes[$idx],
-        'cidade'    => $fake_cidades[($seed + $i * 4) % count($fake_cidades)],
-        'nota'      => $fake_notas_pool[$nidx],
-        'texto'     => $fake_textos[$tidx],
-        'data'      => date('d/m/Y', strtotime("-{$days} days")),
+        'nome'   => $fake_nomes[_fhash($produto_id * 31, $i * 7)   % count($fake_nomes)],
+        'cidade' => $fake_cidades[_fhash($produto_id * 53, $i * 11) % count($fake_cidades)],
+        'nota'   => $fake_notas_pool[_fhash($produto_id * 17, $i * 3) % count($fake_notas_pool)],
+        'texto'  => $fake_textos[_fhash($produto_id * 97, $i * 13)  % count($fake_textos)],
+        'data'   => date('d/m/Y', strtotime('-' . (2 + _fhash($produto_id * 43, $i * 19) % 88) . ' days')),
     ];
 }
-$fake_rating = [4.7,4.8,4.9,5.0,4.8,4.9,5.0,4.7,4.8,4.9][$produto_id % 10];
-$fake_total  = 47 + (($produto_id * 17 + 23) % 453);
+$fake_rating = [4.7,4.8,4.9,5.0,4.8,4.9,5.0,4.7,4.8,4.9,4.6,4.9,4.8,5.0,4.7][$produto_id % 15];
+$fake_total  = 47 + ((_fhash($produto_id, 99)) % 453);
 $display_total = $fake_total + $total_avaliacoes;
-$pct5 = min(89, 70 + ($produto_id % 20));
-$pct4 = min(19, 10 + ($produto_id % 10));
+$pct5 = 70 + (_fhash($produto_id, 1) % 20);
+$pct4 = 10 + (_fhash($produto_id, 2) % 10);
 $pct3 = max(2, 100 - $pct5 - $pct4 - 3);
 $pct2 = 2; $pct1 = 1;
 
