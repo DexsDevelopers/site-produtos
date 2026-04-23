@@ -361,6 +361,9 @@ require_once 'templates/header.php';
         font-size: 16px;
         font-weight: 700;
     }
+    /* Banners por dispositivo */
+    @media (max-width: 767px)  { .banner-desktop-only { display: none !important; } }
+    @media (min-width: 768px)  { .banner-mobile-only  { display: none !important; } }
     /* Fallback hero (sem banners) */
     .hero-fallback {
         background: linear-gradient(135deg, #000 0%, #111 40%, #0a0a0a 100%);
@@ -375,18 +378,17 @@ require_once 'templates/header.php';
     <div class="swiper-wrapper">
         <?php foreach ($banners_principais as $banner):
             $disp = $banner['dispositivo'] ?? 'todos';
-            $slideClass = 'swiper-slide';
-            if ($disp === 'desktop') $slideClass .= ' hidden md:block';
-            elseif ($disp === 'mobile') $slideClass .= ' block md:hidden';
+            $extraClass = '';
+            if ($disp === 'desktop') $extraClass = ' banner-desktop-only';
+            elseif ($disp === 'mobile') $extraClass = ' banner-mobile-only';
         ?>
-        <div class="<?= $slideClass ?>">
+        <div class="swiper-slide<?= $extraClass ?>">
             <?php if (!empty($banner['link'])): ?>
             <a href="<?= htmlspecialchars($banner['link']) ?>">
             <?php endif; ?>
-                <img src="/<?= ltrim(htmlspecialchars($banner['imagem']), '/') ?>"
+                <img src="<?= htmlspecialchars($banner['imagem']) ?>"
                      alt="<?= htmlspecialchars($banner['titulo'] ?? 'Banner') ?>"
-                     loading="eager"
-                     onerror="this.closest('.swiper-slide').style.display='none'" />
+                     loading="eager" />
             <?php if (!empty($banner['link'])): ?>
             </a>
             <?php endif; ?>
