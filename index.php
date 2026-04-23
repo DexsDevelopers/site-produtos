@@ -26,7 +26,12 @@ if (isset($_GET['ref'])) {
 
 // --- BUSCAR DADOS ---
 try {
-    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+    $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY posicao ASC, id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fallback: se não há banners 'principal', mostra qualquer banner ativo
+    if (empty($banners_principais)) {
+        $banners_principais = $pdo->query("SELECT * FROM banners WHERE ativo = 1 ORDER BY posicao ASC, id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     // Filtra apenas categorias que devem aparecer na home
     $categorias = $pdo->query("SELECT * FROM categorias WHERE exibir_home = 1 ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -312,6 +317,7 @@ require_once 'templates/header.php';
     .hero-banner-swiper {
         width: 100%;
         background: #000;
+        min-height: 320px;
     }
     .hero-banner-swiper .swiper-slide {
         height: auto !important;
@@ -377,9 +383,10 @@ require_once 'templates/header.php';
             <?php if (!empty($banner['link'])): ?>
             <a href="<?= htmlspecialchars($banner['link']) ?>">
             <?php endif; ?>
-                <img src="<?= htmlspecialchars($banner['imagem']) ?>"
+                <img src="/<?= ltrim(htmlspecialchars($banner['imagem']), '/') ?>"
                      alt="<?= htmlspecialchars($banner['titulo'] ?? 'Banner') ?>"
-                     loading="eager" />
+                     loading="eager"
+                     onerror="this.closest('.swiper-slide').style.display='none'" />
             <?php if (!empty($banner['link'])): ?>
             </a>
             <?php endif; ?>
