@@ -625,17 +625,13 @@ endif; ?>
             <!-- Action Buttons -->
             <div style="display:flex;flex-direction:column;gap:12px;">
                 <?php if (!empty($metodos_pagamento)): ?>
-                <?php foreach ($metodos_pagamento as $metodo): ?>
-                <a href="<?= $metodo['url']?>?produto_id=<?= $produto_selecionado['id']?>&quantidade=1"
+                <a href="checkout_produto.php?produto_id=<?= $produto_selecionado['id']?>&quantidade=1"
                     class="product-action-btn product-action-primary checkout-link"
                     onclick="return handleCheckoutClick(this, event, <?= !empty($produto_tamanhos) ? 'true' : 'false' ?>)">
-                    <i class="<?= $metodo['icon']?>"></i>
-                    <span class="btn-text"><?= htmlspecialchars($metodo['btn_text'])?></span>
+                    <i class="fas fa-lock"></i>
+                    <span class="btn-text">Comprar Agora</span>
                 </a>
-                <?php
-    endforeach; ?>
-                <?php
- endif; ?>
+                <?php endif; ?>
 
                 <form id="add-to-cart-form" style="margin:0;">
                     <input type="hidden" name="produto_id" value="<?= $produto_selecionado['id']?>">

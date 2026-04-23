@@ -63,15 +63,17 @@ foreach ($carrinho_itens as $item) {
     $total_preco += $item['preco'] * $item['quantidade'];
 }
 
-// Dados de endereço
-$whatsapp    = $_POST['whatsapp']    ?? '';
-$cep         = $_POST['cep']         ?? '';
-$endereco    = $_POST['endereco']    ?? '';
-$numero      = $_POST['numero']      ?? '';
-$complemento = $_POST['complemento'] ?? '';
-$bairro      = $_POST['bairro']      ?? '';
-$cidade      = $_POST['cidade']      ?? '';
-$estado      = $_POST['estado']      ?? '';
+// Dados de endereço — via POST (checkout.php) ou sessão (checkout_produto.php)
+$_addr       = !empty($_POST['whatsapp']) ? $_POST : ($_SESSION['checkout_address'] ?? []);
+if (!empty($_SESSION['checkout_address'])) unset($_SESSION['checkout_address']);
+$whatsapp    = $_addr['whatsapp']    ?? '';
+$cep         = $_addr['cep']         ?? '';
+$endereco    = $_addr['endereco']    ?? '';
+$numero      = $_addr['numero']      ?? '';
+$complemento = $_addr['complemento'] ?? '';
+$bairro      = $_addr['bairro']      ?? '';
+$cidade      = $_addr['cidade']      ?? '';
+$estado      = $_addr['estado']      ?? '';
 
 // Cria pedido no banco
 $pedido_id = 0;
