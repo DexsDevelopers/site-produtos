@@ -83,6 +83,24 @@ if (!$produto_selecionado) {
     exit();
 }
 
+// Busca galeria de imagens
+$galeria_produto = [];
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS produto_imagens (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            produto_id INT NOT NULL,
+            imagem VARCHAR(500) NOT NULL,
+            ordem INT DEFAULT 0,
+            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $stmt_gi = $pdo->prepare("SELECT imagem FROM produto_imagens WHERE produto_id = ? ORDER BY ordem ASC, id ASC");
+    $stmt_gi->execute([$produto_id]);
+    $galeria_produto = $stmt_gi->fetchAll(PDO::FETCH_COLUMN);
+} catch (Exception $e) {}
+
 $page_title = htmlspecialchars($produto_selecionado['nome']);
 $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
@@ -408,19 +426,45 @@ require_once 'templates/header.php';
     <div class="product-page-grid">
         <!-- Left: Image -->
         <div>
-            <div class="product-main-image">
-                <?php if (!empty($produto_selecionado['imagem']) && file_exists($produto_selecionado['imagem'])): ?>
-                <img src="<?= htmlspecialchars($produto_selecionado['imagem'])?>"
-                    alt="<?= htmlspecialchars($produto_selecionado['nome'])?>" />
-                <?php
-else: ?>
-                <div
-                    style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-tertiary);">
+            <div class="product-main-image" id="main-image-wrap">
+                <?php if (!empty($produto_selecionado['imagem'])): ?>
+                <img id="main-product-img"
+                     src="<?= htmlspecialchars($produto_selecionado['imagem'])?>"
+                     alt="<?= htmlspecialchars($produto_selecionado['nome'])?>" />
+                <?php else: ?>
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-tertiary);">
                     <i class="fas fa-image" style="font-size:4rem;color:var(--text-muted);opacity:0.3;"></i>
                 </div>
-                <?php
-endif; ?>
+                <?php endif; ?>
             </div>
+
+            <?php if (!empty($galeria_produto)): ?>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+                <?php if (!empty($produto_selecionado['imagem'])): ?>
+                <img src="<?= htmlspecialchars($produto_selecionado['imagem']) ?>"
+                     onclick="trocarImagem(this,'<?= htmlspecialchars($produto_selecionado['imagem']) ?>')"
+                     style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid var(--text-primary);opacity:1;"
+                     class="thumb-img">
+                <?php endif; ?>
+                <?php foreach ($galeria_produto as $gi): ?>
+                <img src="<?= htmlspecialchars($gi) ?>"
+                     onclick="trocarImagem(this,'<?= htmlspecialchars($gi) ?>')"
+                     style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;opacity:0.6;"
+                     class="thumb-img">
+                <?php endforeach; ?>
+            </div>
+            <script>
+            function trocarImagem(el, src) {
+                document.getElementById('main-product-img').src = src;
+                document.querySelectorAll('.thumb-img').forEach(t => {
+                    t.style.border = '2px solid transparent';
+                    t.style.opacity = '0.6';
+                });
+                el.style.border = '2px solid var(--text-primary)';
+                el.style.opacity = '1';
+            }
+            </script>
+            <?php endif; ?>
 
             <div class="product-features-row">
                 <div class="product-feature-item">

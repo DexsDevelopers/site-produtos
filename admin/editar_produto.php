@@ -69,6 +69,24 @@ try {
     $tamanhos_estoque = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 } catch (Exception $e) {}
 $tamanhos_selecionados = array_keys($tamanhos_estoque);
+
+// Busca imagens da galeria
+$galeria_imagens = [];
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS produto_imagens (
+            id         INT AUTO_INCREMENT PRIMARY KEY,
+            produto_id INT NOT NULL,
+            imagem     VARCHAR(500) NOT NULL,
+            ordem      INT DEFAULT 0,
+            criado_em  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $stmt_gal = $pdo->prepare("SELECT * FROM produto_imagens WHERE produto_id = ? ORDER BY ordem ASC, id ASC");
+    $stmt_gal->execute([$produto_id]);
+    $galeria_imagens = $stmt_gal->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
 ?>
 <div class="w-full max-w-4xl mx-auto">
     <h1 class="text-3xl font-black text-white mb-8">Editando: <?= htmlspecialchars($produto['nome']) ?></h1>
@@ -172,10 +190,43 @@ $tamanhos_selecionados = array_keys($tamanhos_estoque);
                     </div>
                 </div>
 
+                <!-- Imagem Principal -->
                 <div>
-                    <label for="imagem" class="block text-sm font-medium text-admin-gray-300 mb-2">Nova Imagem (opcional)</label>
+                    <label for="imagem" class="block text-sm font-medium text-admin-gray-300 mb-2">Imagem Principal (opcional)</label>
                     <input type="file" name="imagem" accept="image/*" class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-admin-primary file:text-white hover:file:bg-blue-600 focus:border-admin-primary focus:ring-2 focus:ring-admin-primary/20 focus:outline-none">
                     <p class="text-xs text-admin-gray-400 mt-2">Imagem atual: <img src="../<?= htmlspecialchars($produto['imagem']) ?>" class="h-10 inline-block rounded"></p>
+                </div>
+
+                <!-- Galeria de Imagens -->
+                <div>
+                    <label class="block text-sm font-medium text-admin-gray-300 mb-3">Galeria de Imagens</label>
+
+                    <?php if (!empty($galeria_imagens)): ?>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+                        <?php foreach ($galeria_imagens as $img): ?>
+                        <div class="relative group">
+                            <img src="../<?= htmlspecialchars($img['imagem']) ?>" class="w-full aspect-square object-cover rounded-lg border border-white/10">
+                            <a href="deletar_imagem_produto.php?id=<?= $img['id'] ?>&produto_id=<?= $produto_id ?>"
+                               onclick="return confirm('Remover esta imagem?')"
+                               class="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-times text-white text-[10px]"></i>
+                            </a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="border-2 border-dashed border-white/10 rounded-xl p-5 text-center hover:border-white/25 transition-colors" id="galeria-drop-zone">
+                        <i class="fas fa-images text-2xl text-admin-gray-500 mb-2"></i>
+                        <p class="text-sm text-admin-gray-400 mb-3">Selecione várias imagens de uma vez</p>
+                        <input type="file" name="galeria[]" id="galeria-input" multiple accept="image/*"
+                               class="hidden">
+                        <label for="galeria-input" class="cursor-pointer inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-plus text-xs"></i> Adicionar Imagens
+                        </label>
+                        <div id="galeria-preview" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-4 hidden"></div>
+                    </div>
+                    <p class="text-xs text-admin-gray-500 mt-2">As imagens da galeria aparecem como miniaturas clicáveis na página do produto.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <input type="checkbox" name="destaque" id="destaque" value="1" <?= $produto['destaque'] ? 'checked' : '' ?> class="w-5 h-5 bg-admin-gray-800 border-admin-gray-600 rounded text-admin-primary focus:ring-admin-primary/20">
@@ -272,6 +323,25 @@ function aplicarEstoqueEmMassa() {
         }
     });
 }
+
+// Galeria — preview das imagens selecionadas
+document.getElementById('galeria-input').addEventListener('change', function () {
+    const preview = document.getElementById('galeria-preview');
+    preview.innerHTML = '';
+    if (this.files.length === 0) { preview.classList.add('hidden'); return; }
+    preview.classList.remove('hidden');
+    Array.from(this.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'relative aspect-square';
+            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-lg border border-white/20">`;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+    document.getElementById('galeria-drop-zone').style.borderColor = 'rgba(255,255,255,0.3)';
+});
 </script>
 
 <?php require_once 'templates/footer_admin.php'; ?>

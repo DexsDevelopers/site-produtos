@@ -158,6 +158,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editar'])) {
         }
 
         $_SESSION['admin_message'] = "Produto atualizado com sucesso!";
+
+        // --- Salvar imagens da galeria ---
+        if (!empty($_FILES['galeria']['name'][0])) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS produto_imagens (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    produto_id INT NOT NULL,
+                    imagem VARCHAR(500) NOT NULL,
+                    ordem INT DEFAULT 0,
+                    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+            $stmt_gal = $pdo->prepare("INSERT INTO produto_imagens (produto_id, imagem) VALUES (?, ?)");
+            foreach ($_FILES['galeria']['name'] as $k => $fname) {
+                if ($_FILES['galeria']['error'][$k] !== 0) continue;
+                $ext  = pathinfo($fname, PATHINFO_EXTENSION);
+                $file = uniqid('gal_', true) . '.' . $ext;
+                $dest = "../assets/uploads/" . $file;
+                if (move_uploaded_file($_FILES['galeria']['tmp_name'][$k], $dest)) {
+                    $stmt_gal->execute([$id, "assets/uploads/" . $file]);
+                }
+            }
+        }
     }
     catch (PDOException $e) {
         $_SESSION['admin_message'] = "Erro ao atualizar o produto: " . $e->getMessage();
