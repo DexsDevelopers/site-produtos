@@ -201,12 +201,26 @@ endforeach; ?>
                     </div>
                 </div>
 
-                <!-- Imagem -->
+                <!-- Imagem Principal -->
                 <div>
-                    <label for="imagem" class="block text-sm font-medium text-admin-gray-300 mb-2">Imagem do
-                        Produto</label>
+                    <label for="imagem" class="block text-sm font-medium text-admin-gray-300 mb-2">Imagem Principal do Produto</label>
                     <input type="file" name="imagem" required accept="image/*"
                         class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:bg-white file:text-black hover:file:bg-gray-200">
+                </div>
+
+                <!-- Galeria de Imagens -->
+                <div>
+                    <label class="block text-sm font-medium text-admin-gray-300 mb-3">Galeria de Imagens <span class="text-admin-gray-500 font-normal">(opcional)</span></label>
+                    <div class="border-2 border-dashed border-white/10 rounded-xl p-5 text-center hover:border-white/25 transition-colors" id="galeria-drop-zone">
+                        <i class="fas fa-images text-2xl text-admin-gray-500 mb-2"></i>
+                        <p class="text-sm text-admin-gray-400 mb-3">Selecione v&aacute;rias imagens de uma vez</p>
+                        <input type="file" name="galeria[]" id="galeria-input" multiple accept="image/*" class="hidden">
+                        <label for="galeria-input" class="cursor-pointer inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-plus text-xs"></i> Adicionar Imagens
+                        </label>
+                        <div id="galeria-preview" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-4 hidden"></div>
+                    </div>
+                    <p class="text-xs text-admin-gray-500 mt-2">As imagens da galeria aparecem como miniaturas clic&aacute;veis na p&aacute;gina do produto.</p>
                 </div>
 
                 <!-- Destaque -->
@@ -301,6 +315,25 @@ endforeach; ?>
             if (cb && cb.checked && input) input.value = val;
         });
     }
+
+    // Galeria — preview
+    document.getElementById('galeria-input').addEventListener('change', function () {
+        const preview = document.getElementById('galeria-preview');
+        preview.innerHTML = '';
+        if (this.files.length === 0) { preview.classList.add('hidden'); return; }
+        preview.classList.remove('hidden');
+        Array.from(this.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'relative aspect-square';
+                div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-lg border border-white/20">`;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+        document.getElementById('galeria-drop-zone').style.borderColor = 'rgba(255,255,255,0.3)';
+    });
 </script>
 
 <?php require_once 'templates/footer_admin.php'; ?>
