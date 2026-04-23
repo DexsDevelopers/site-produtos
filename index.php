@@ -480,7 +480,7 @@ endif; ?>
             </a>
         </div>
 
-        <div class="swiper destaques-swiper" data-aos="fade-up" data-aos-delay="200">
+        <div class="swiper destaques-swiper">
             <div class="swiper-wrapper">
                 <?php foreach ($destaques as $idx => $produto): ?>
                 <div class="swiper-slide">
@@ -579,7 +579,7 @@ endif; ?>
             </a>
         </div>
 
-        <div class="swiper produtos-swiper" data-aos="fade-up" data-aos-delay="100">
+        <div class="swiper produtos-swiper">
             <div class="swiper-wrapper">
                 <?php foreach ($produtos as $produto): ?>
                 <div class="swiper-slide">
@@ -660,10 +660,21 @@ endif; ?>
         // Init AOS
         AOS.init({
             once: true,
-            duration: 700,
+            duration: 600,
             easing: 'ease-out-cubic',
-            offset: 50
+            offset: 0,
+            delay: 0
         });
+
+        // Fallback: garante que elementos AOS nao fiquem presos invisiveis
+        setTimeout(function() {
+            document.querySelectorAll('[data-aos]').forEach(function(el) {
+                el.setAttribute('data-aos-easing', 'ease');
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+                el.style.transition = 'none';
+            });
+        }, 2500);
 
         // Init Hero Banner Slider
         if (typeof Swiper !== 'undefined' && document.querySelector('#hero-slider')) {
