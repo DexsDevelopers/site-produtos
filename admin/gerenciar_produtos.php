@@ -150,86 +150,80 @@ endforeach; ?>
 
     <form id="bulk-form" action="processar_lote_produtos.php" method="POST">
         <div class="admin-card overflow-hidden bg-admin-gray-800/20 border border-white/5 rounded-2xl relative">
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full">
+            <div class="hidden md:block">
+                <table class="w-full table-fixed">
                     <thead>
                         <tr class="border-b border-white/5">
-                            <th class="px-6 py-4 text-left w-10">
-                                <input type="checkbox" id="select-all" class="rounded border-white/10 bg-white/5 text-admin-primary focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer">
+                            <th class="w-10 px-4 py-4 text-left">
+                                <input type="checkbox" id="select-all" class="rounded border-white/10 bg-white/5 text-admin-primary focus:ring-0 cursor-pointer">
                             </th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Produto</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Categoria</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Preço</th>
-                            <th class="px-6 py-4 text-center text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Frete</th>
-                            <th class="px-6 py-4 text-center text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Destaque</th>
-                            <th class="px-6 py-4 text-right text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest sticky right-0 bg-[#111]">Ações</th>
+                            <th class="px-4 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Produto</th>
+                            <th class="w-28 px-4 py-4 text-left text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Preço</th>
+                            <th class="w-32 px-4 py-4 text-center text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Destaque</th>
+                            <th class="w-24 px-4 py-4 text-right text-[10px] font-bold text-admin-gray-500 uppercase tracking-widest">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         <?php if (!empty($produtos)): ?>
                         <?php foreach ($produtos as $produto): ?>
                         <tr class="group hover:bg-white/[0.02] transition-colors">
-                            <td class="px-6 py-4">
-                                <input type="checkbox" name="produtos[]" value="<?php echo $produto["id"]; ?>" class="product-checkbox rounded border-white/10 bg-white/5 text-admin-primary focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" name="produtos[]" value="<?php echo $produto["id"]; ?>" class="product-checkbox rounded border-white/10 bg-white/5 text-admin-primary focus:ring-0 cursor-pointer">
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-xl bg-admin-gray-800 flex-shrink-0 border border-white/10 overflow-hidden relative group-hover:border-white/20 transition-all">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-11 w-11 rounded-xl bg-admin-gray-800 flex-shrink-0 border border-white/10 overflow-hidden group-hover:border-white/20 transition-all">
                                         <?php if (!empty($produto["imagem"])): ?>
                                         <img class="h-full w-full object-cover transition-transform group-hover:scale-110"
                                             src="../<?php echo htmlspecialchars($produto["imagem"]); ?>" alt="">
-                                        <?php
-        else: ?>
-                                        <div class="h-full w-full flex items-center justify-center text-admin-gray-700"><i class="fas fa-image"></i></div>
-                                        <?php
-        endif; ?>
+                                        <?php else: ?>
+                                        <div class="h-full w-full flex items-center justify-center text-admin-gray-700"><i class="fas fa-image text-xs"></i></div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-bold text-white truncate max-w-xs transition-colors group-hover:text-admin-primary">
+                                        <div class="text-sm font-bold text-white truncate group-hover:text-admin-primary transition-colors">
                                             <?php echo htmlspecialchars($produto["nome"]); ?>
                                         </div>
-                                        <div class="text-[10px] text-admin-gray-600 font-mono mt-0.5">ID: <?php echo $produto["id"]; ?></div>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            <span class="text-[9px] text-admin-gray-600 font-mono">ID: <?php echo $produto["id"]; ?></span>
+                                            <span class="text-[9px] font-bold bg-white/5 text-admin-gray-400 border border-white/5 px-2 py-0.5 rounded uppercase tracking-wide">
+                                                <?php echo htmlspecialchars($produto["categoria_nome"] ?? "Sem Categoria"); ?>
+                                            </span>
+                                            <?php if (!empty($produto["frete_gratis"])): ?>
+                                            <span class="text-[9px] font-black uppercase bg-green-500/10 text-green-500 border border-green-500/20 px-2 py-0.5 rounded">Frete Grátis</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-admin-gray-400 border border-white/5 uppercase tracking-wider">
-                                    <?php echo htmlspecialchars(isset($produto["categoria_nome"]) ? $produto["categoria_nome"] : "Sem Categoria"); ?>
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-3">
                                 <div class="text-sm font-black text-white"><?php echo formatarPreco($produto["preco"]); ?></div>
+                                <?php if (!empty($produto["preco_antigo"])): ?>
+                                <div class="text-[10px] text-admin-gray-600 line-through"><?php echo formatarPreco($produto["preco_antigo"]); ?></div>
+                                <?php endif; ?>
                             </td>
-                            <td class="px-6 py-4 text-center">
-                                <?php if (isset($produto["frete_gratis"]) && $produto["frete_gratis"]): ?>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-[8px] font-black uppercase bg-green-500/10 text-green-500 border border-green-500/20">Grátis</span>
-                                <?php
-        endif; ?>
-                            </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <a href="toggle_destaque_produto.php?id=<?php echo $produto["id"]; ?>&destaque=<?php echo($produto["destaque"] ? 0 : 1); ?>"
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all <?php echo($produto["destaque"] ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20" : "bg-admin-gray-800 text-admin-gray-600 border border-white/5"); ?>">
-                                    <i class="fas fa-star"></i>
-                                    <?php echo($produto["destaque"] ? "Ativo" : "Não"); ?>
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all <?php echo($produto["destaque"] ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 hover:bg-yellow-500/20" : "bg-white/5 text-admin-gray-600 border border-white/5 hover:border-white/20 hover:text-white"); ?>">
+                                    <i class="fas fa-star text-[8px]"></i>
+                                    <?php echo($produto["destaque"] ? "Ativo" : "Off"); ?>
                                 </a>
                             </td>
-                            <td class="px-6 py-4 text-right sticky right-0 bg-[#111]">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1.5">
                                     <a href="editar_produto.php?id=<?php echo $produto["id"]; ?>"
-                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all" title="Editar">
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-admin-gray-400 hover:bg-white hover:text-black transition-all" title="Editar">
                                         <i class="fas fa-edit text-xs"></i>
                                     </a>
                                     <a href="deletar_produto.php?id=<?php echo $produto["id"]; ?>" onclick="return confirm('Excluir este produto?')"
-                                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all" title="Excluir">
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/5 text-red-500/50 hover:bg-red-500 hover:text-white transition-all" title="Excluir">
                                         <i class="fas fa-trash text-xs"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
-                        <?php
-    endforeach; ?>
-                        <?php
-endif; ?>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
