@@ -97,8 +97,8 @@ try {
     if (($cfg['infinite_status'] ?? 'off') === 'on' && !empty($cfg['infinite_tag'] ?? '')) {
         $metodos_pagamento['infinitepay'] = [
             'url'      => 'checkout_infinitepay.php',
-            'btn_text' => 'Comprar Agora — Cartão / PIX',
-            'icon'     => 'fas fa-bolt'
+            'btn_text' => 'Comprar Agora — Cartão',
+            'icon'     => 'fas fa-credit-card'
         ];
     }
     if (($cfg['pix_status'] ?? 'off') === 'on' && !empty($cfg['pixghost_api_key'] ?? '')) {

@@ -145,7 +145,7 @@ if (isset($_SESSION['user_id'])) {
                                 <button type="button" onclick="submeterCheckout('infinitepay')"
                                     class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500 transition-all group">
                                     <i class="fas fa-credit-card text-3xl text-green-500"></i>
-                                    <span class="font-bold text-white">CARTÃO / PIX</span>
+                                    <span class="font-bold text-white">CARTÃO</span>
                                     <span class="text-xs text-brand-gray-text">Aprovação imediata</span>
                                 </button>
                                 <?php endif; ?>
