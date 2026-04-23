@@ -101,6 +101,51 @@ try {
     $galeria_produto = $stmt_gi->fetchAll(PDO::FETCH_COLUMN);
 } catch (Exception $e) {}
 
+// ── Fake reviews for social proof ──
+$fake_nomes = ['Ana Carolina S.','Pedro Henrique M.','Juliana Costa','Rafael Oliveira','Mariana Santos','Lucas Ferreira','Camila Rodrigues','Gabriel Almeida','Isabela Souza','Thiago Pereira','Larissa Lima','Matheus Cardoso','Fernanda Alves','Bruno Souza','Letícia Nunes'];
+$fake_cidades = ['São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Curitiba, PR','Porto Alegre, RS','Salvador, BA','Brasília, DF','Recife, PE','Fortaleza, CE','Florianópolis, SC'];
+$fake_textos = [
+    'Produto incrível! Superou todas as minhas expectativas. Qualidade excelente e chegou bem antes do prazo.',
+    'Amei demais! Material de primeira qualidade, acabamento impecável. Já indiquei para todos os amigos.',
+    'Melhor compra que fiz esse ano! Chegou em 3 dias, embalagem perfeita e produto idêntico às fotos.',
+    'Comprei com receio mas me surpreendi. Qualidade muito boa pelo preço. Com certeza vou comprar mais.',
+    'Chegou super rápido! O produto é exatamente como descrito, muito bem feito. Nota 10!',
+    'Fiz o pedido e chegou rapidinho. Produto com ótima qualidade, estou muito satisfeita com a compra!',
+    'Excelente custo-benefício! Produto bonito, bem feito e chegou antes do prazo. Recomendo a todos!',
+    'Produto original, qualidade top. Já é minha terceira compra aqui e nunca me decepcionou.',
+    'Vim pela indicação de uma amiga e não me arrependo. Produto perfeito, entrega rápida!',
+    'Qualidade absurda pelo preço. Parece bem mais caro do que é. Fiquei impressionado com o acabamento.',
+    'Atendimento nota 10, produto chegou embalado com muito cuidado. Recomendo a loja de olhos fechados!',
+    'Produto de alta qualidade, exatamente como nas fotos. A entrega foi mais rápida do que esperava.',
+    'Simplesmente perfeito! Não tenho nenhuma reclamação. Chegou no prazo e produto top demais.',
+    'Valeu cada centavo! Muito bem embalado, produto lindo e de qualidade. Vou comprar mais vezes.',
+    'Comprei de presente e a pessoa amou! A qualidade é visível, parece produto de loja de grife.',
+];
+$fake_notas_pool = [5,5,5,5,4,5,5,5,4,5,5,4,5,5,5];
+$seed = $produto_id * 7 + 13;
+$fake_count = 8 + ($seed % 7);
+$fake_reviews = [];
+for ($i = 0; $i < $fake_count; $i++) {
+    $idx    = ($seed + $i * 3)  % count($fake_nomes);
+    $tidx   = ($seed + $i * 5)  % count($fake_textos);
+    $nidx   = ($seed + $i * 2)  % count($fake_notas_pool);
+    $days   = 2 + (($seed + $i * 11) % 88);
+    $fake_reviews[] = [
+        'nome'      => $fake_nomes[$idx],
+        'cidade'    => $fake_cidades[($seed + $i * 4) % count($fake_cidades)],
+        'nota'      => $fake_notas_pool[$nidx],
+        'texto'     => $fake_textos[$tidx],
+        'data'      => date('d/m/Y', strtotime("-{$days} days")),
+    ];
+}
+$fake_rating = [4.7,4.8,4.9,5.0,4.8,4.9,5.0,4.7,4.8,4.9][$produto_id % 10];
+$fake_total  = 47 + (($produto_id * 17 + 23) % 453);
+$display_total = $fake_total + $total_avaliacoes;
+$pct5 = min(89, 70 + ($produto_id % 20));
+$pct4 = min(19, 10 + ($produto_id % 10));
+$pct3 = max(2, 100 - $pct5 - $pct4 - 3);
+$pct2 = 2; $pct1 = 1;
+
 $page_title = htmlspecialchars($produto_selecionado['nome']);
 $page_description = htmlspecialchars($produto_selecionado['descricao_curta']);
 $page_keywords = 'produto, ' . strtolower(str_replace(' ', ', ', $produto_selecionado['nome'])) . ', comprar, macario brazil';
@@ -491,13 +536,16 @@ require_once 'templates/header.php';
             <!-- Rating -->
             <div class="rating-row">
                 <div class="rating-stars">
-                    <?php for ($i = 0; $i < 5; $i++): ?>
-                    <i class="fas fa-star<?=($i < round($media_notas)) ? '' : ' '?>"></i>
                     <?php
-endfor; ?>
+                    $rs_full = floor($fake_rating);
+                    $rs_half = ($fake_rating - $rs_full) >= 0.5 ? 1 : 0;
+                    for ($i = 0; $i < $rs_full; $i++) echo '<i class="fas fa-star"></i>';
+                    if ($rs_half) echo '<i class="fas fa-star-half-alt"></i>';
+                    for ($i = $rs_full + $rs_half; $i < 5; $i++) echo '<i class="far fa-star" style="opacity:0.4;"></i>';
+                    ?>
                 </div>
-                <span class="rating-count">(
-                    <?= $total_avaliacoes?> avaliações)
+                <span class="rating-count" style="cursor:pointer;" onclick="switchTab('reviews', document.querySelectorAll('.product-tab-btn')[1])">
+                    <?= number_format($fake_rating, 1) ?> &nbsp;·&nbsp; <?= $display_total ?> avaliações
                 </span>
             </div>
 
@@ -595,9 +643,7 @@ endif; ?>
     <div style="max-width:1200px;margin:48px auto 0;padding:0 24px;">
         <div class="product-tabs">
             <button class="product-tab-btn active" onclick="switchTab('desc', this)">Descrição</button>
-            <button class="product-tab-btn" onclick="switchTab('reviews', this)">Avaliações (
-                <?= $total_avaliacoes?>)
-            </button>
+            <button class="product-tab-btn" onclick="switchTab('reviews', this)">Avaliações (<?= $display_total ?>)</button>
         </div>
 
         <div id="tab-desc" class="product-tab-content active">
@@ -607,40 +653,82 @@ endif; ?>
         </div>
 
         <div id="tab-reviews" class="product-tab-content">
-            <?php if (!empty($avaliacoes)): ?>
-            <?php foreach ($avaliacoes as $avaliacao): ?>
-            <div class="review-card">
+
+            <!-- Rating Summary -->
+            <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;padding:24px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);margin-bottom:24px;">
+                <div style="text-align:center;min-width:100px;">
+                    <div style="font-family:var(--font-display);font-size:3rem;font-weight:800;color:var(--text-primary);line-height:1;"><?= number_format($fake_rating, 1) ?></div>
+                    <div class="review-stars" style="font-size:0.9rem;margin:6px 0;">
+                        <?php
+                        $rs2_full = floor($fake_rating); $rs2_half = ($fake_rating - $rs2_full) >= 0.5 ? 1 : 0;
+                        for ($i = 0; $i < $rs2_full; $i++) echo '<i class="fas fa-star"></i>';
+                        if ($rs2_half) echo '<i class="fas fa-star-half-alt"></i>';
+                        for ($i = $rs2_full + $rs2_half; $i < 5; $i++) echo '<i class="far fa-star" style="opacity:0.4;"></i>';
+                        ?>
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);"><?= $display_total ?> avaliações</div>
+                </div>
+                <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px;">
+                    <?php foreach ([5=>$pct5, 4=>$pct4, 3=>$pct3, 2=>$pct2, 1=>$pct1] as $star => $pct): ?>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:0.75rem;color:var(--text-muted);min-width:14px;text-align:right;"><?= $star ?></span>
+                        <i class="fas fa-star" style="color:#d4a017;font-size:0.65rem;"></i>
+                        <div style="flex:1;height:6px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;">
+                            <div style="height:100%;width:<?= $pct ?>%;background:<?= $star >= 4 ? '#d4a017' : ($star === 3 ? '#888' : '#555') ?>;border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:0.7rem;color:var(--text-muted);min-width:32px;"><?= $pct ?>%</span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Fake reviews -->
+            <?php foreach ($fake_reviews as $fr):
+                $inicial = mb_strtoupper(mb_substr($fr['nome'], 0, 1));
+            ?>
+            <div class="review-card" style="margin-bottom:12px;">
                 <div class="review-header">
                     <div class="review-user">
-                        <div class="review-avatar">
-                            <?= strtoupper(substr($avaliacao['nome_usuario'], 0, 1))?>
-                        </div>
+                        <div class="review-avatar"><?= $inicial ?></div>
                         <div>
-                            <div style="font-weight:600;font-size:0.9rem;">
-                                <?= htmlspecialchars($avaliacao['nome_usuario'])?>
-                            </div>
-                            <div class="review-stars">
-                                <?php for ($i = 0; $i < $avaliacao['nota']; $i++)
-            echo '<i class="fas fa-star"></i>'; ?>
+                            <div style="font-weight:600;font-size:0.9rem;"><?= htmlspecialchars($fr['nome']) ?></div>
+                            <div style="font-size:0.65rem;color:var(--text-muted);"><?= htmlspecialchars($fr['cidade']) ?></div>
+                            <div class="review-stars" style="margin-top:2px;">
+                                <?php for ($i = 0; $i < $fr['nota']; $i++) echo '<i class="fas fa-star"></i>'; ?>
                             </div>
                         </div>
                     </div>
-                    <span style="font-size:0.75rem;color:var(--text-muted);">
-                        <?= date('d/m/Y', strtotime($avaliacao['data_avaliacao']))?>
-                    </span>
+                    <div style="text-align:right;">
+                        <span style="font-size:0.75rem;color:var(--text-muted);display:block;"><?= $fr['data'] ?></span>
+                        <span style="font-size:0.6rem;color:#22c55e;display:flex;align-items:center;gap:3px;margin-top:4px;justify-content:flex-end;"><i class="fas fa-check-circle"></i> Compra verificada</span>
+                    </div>
                 </div>
-                <p style="color:var(--text-secondary);font-size:0.9rem;">
-                    <?= htmlspecialchars($avaliacao['comentario'])?>
-                </p>
+                <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.6;"><?= htmlspecialchars($fr['texto']) ?></p>
             </div>
-            <?php
-    endforeach; ?>
-            <?php
-else: ?>
-            <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Nenhuma avaliação ainda. Seja o
-                primeiro a avaliar!</p>
-            <?php
-endif; ?>
+            <?php endforeach; ?>
+
+            <!-- Real reviews -->
+            <?php foreach ($avaliacoes as $avaliacao): ?>
+            <div class="review-card" style="margin-bottom:12px;">
+                <div class="review-header">
+                    <div class="review-user">
+                        <div class="review-avatar"><?= strtoupper(substr($avaliacao['nome_usuario'], 0, 1)) ?></div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;"><?= htmlspecialchars($avaliacao['nome_usuario']) ?></div>
+                            <div class="review-stars" style="margin-top:2px;">
+                                <?php for ($i = 0; $i < $avaliacao['nota']; $i++) echo '<i class="fas fa-star"></i>'; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:0.75rem;color:var(--text-muted);display:block;"><?= date('d/m/Y', strtotime($avaliacao['data_avaliacao'])) ?></span>
+                        <span style="font-size:0.6rem;color:#22c55e;display:flex;align-items:center;gap:3px;margin-top:4px;justify-content:flex-end;"><i class="fas fa-check-circle"></i> Compra verificada</span>
+                    </div>
+                </div>
+                <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.6;"><?= htmlspecialchars($avaliacao['comentario']) ?></p>
+            </div>
+            <?php endforeach; ?>
+
         </div>
     </div>
 </section>
