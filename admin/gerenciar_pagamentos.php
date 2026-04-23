@@ -16,19 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
     try {
-        if ($action === 'pix') {
-            $chave_pix = trim($_POST['chave_pix'] ?? '');
-            $nome_pix = trim($_POST['nome_pix'] ?? '');
-            $cidade_pix = trim($_POST['cidade_pix'] ?? '');
+        if ($action === 'pixghost') {
+            $pixghost_api_key = trim($_POST['pixghost_api_key'] ?? '');
             $pix_status = $_POST['pix_status'] ?? 'off';
-            
+
             $stmt = $pdo->prepare("INSERT INTO configuracoes (chave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)");
-            $stmt->execute(['chave_pix', $chave_pix]);
-            $stmt->execute(['nome_pix', $nome_pix]);
-            $stmt->execute(['cidade_pix', $cidade_pix]);
+            $stmt->execute(['pixghost_api_key', $pixghost_api_key]);
             $stmt->execute(['pix_status', $pix_status]);
-            
-            $_SESSION['success_message'] = 'Configurações de PIX atualizadas!';
+
+            $_SESSION['success_message'] = 'Configurações do PixGhost atualizadas!';
         } elseif ($action === 'infinitepay') {
             $infinite_tag = trim($_POST['infinite_tag'] ?? '');
             $infinite_status = $_POST['infinite_status'] ?? 'off';
@@ -126,67 +122,56 @@ require_once 'templates/header_admin.php';
             </div>
         </div>
 
-        <!-- PIX Manual -->
-        <div class="admin-card rounded-xl p-6 border-t-4 transition-all <?= ($config['pix_status'] ?? 'off') === 'on' ? 'border-blue-500 opacity-100' : 'border-gray-600 opacity-60' ?>">
+        <!-- PixGhost (PIX Automático) -->
+        <div class="admin-card rounded-xl p-6 border-t-4 transition-all <?= ($config['pix_status'] ?? 'off') === 'on' ? 'border-teal-500 opacity-100' : 'border-gray-600 opacity-60' ?>">
             <form method="POST" class="space-y-6">
-                <input type="hidden" name="action" value="pix">
+                <input type="hidden" name="action" value="pixghost">
 
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-admin-primary/20 rounded-lg flex items-center justify-center text-admin-primary">
-                            <i class="fas fa-qrcode text-2xl"></i>
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background:rgba(50,188,173,.15);">
+                            <i class="fas fa-bolt text-2xl" style="color:#32BCAD;"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl font-bold text-white">PIX Manual</h2>
-                            <p class="text-sm text-admin-gray-400">Transferência Direta</p>
+                            <h2 class="text-xl font-bold text-white">PixGhost</h2>
+                            <p class="text-sm text-admin-gray-400">PIX Automático com QR Code</p>
                         </div>
                     </div>
 
-                    <!-- Switch Ativar/Desativar -->
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="pix_status" value="on" class="sr-only peer" <?= ($config['pix_status'] ?? 'off') === 'on' ? 'checked' : '' ?>>
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        <span class="ml-3 text-sm font-medium text-admin-gray-400 peer-checked:text-blue-500">Status</span>
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all" style="--tw-peer-checked-bg:#32BCAD;" peer-checked:bg-teal-500></div>
+                        <span class="ml-3 text-sm font-medium text-admin-gray-400 peer-checked:text-teal-400">Status</span>
                     </label>
                 </div>
-                
+
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-white mb-2">Chave PIX</label>
-                        <input 
-                            type="text" 
-                            name="chave_pix" 
-                            value="<?= htmlspecialchars($config['chave_pix'] ?? '') ?>"
-                            class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-admin-primary"
+                        <label class="block text-sm font-medium text-white mb-2">API Key <span class="text-admin-gray-400 font-normal">(Configurações → Desenvolvedor no PixGhost)</span></label>
+                        <input
+                            type="password"
+                            name="pixghost_api_key"
+                            value="<?= htmlspecialchars($config['pixghost_api_key'] ?? '') ?>"
+                            placeholder="Sua API Key do PixGhost"
+                            class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 font-mono"
                         >
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-white mb-2">Nome do Recebedor</label>
-                        <input 
-                            type="text" 
-                            name="nome_pix" 
-                            value="<?= htmlspecialchars($config['nome_pix'] ?? '') ?>"
-                            class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-admin-primary"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-white mb-2">Cidade</label>
-                        <input 
-                            type="text" 
-                            name="cidade_pix" 
-                            value="<?= htmlspecialchars($config['cidade_pix'] ?? '') ?>"
-                            class="w-full bg-admin-gray-800 border border-admin-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-admin-primary"
-                        >
-                    </div>
-
-                    <button type="submit" class="w-full bg-admin-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2" style="background:#32BCAD;">
                         <i class="fas fa-save"></i>
                         Salvar Configurações
                     </button>
                 </div>
             </form>
+
+            <div class="mt-6 p-4 bg-admin-gray-800/50 rounded-lg">
+                <h4 class="text-sm font-bold text-white mb-2">Como funciona?</h4>
+                <ul class="text-xs text-admin-gray-400 space-y-1">
+                    <li>• QR Code e Copia e Cola gerados automaticamente.</li>
+                    <li>• Confirmação automática via webhook.</li>
+                    <li>• Webhook: <code class="text-teal-400">/webhook_pixghost.php</code></li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

@@ -136,8 +136,8 @@ if (isset($_SESSION['user_id'])) {
                                 <button type="button" onclick="submeterCheckout('pix')"
                                     class="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-brand-red/30 bg-brand-red/5 hover:bg-brand-red/10 hover:border-brand-red transition-all group">
                                     <i class="fas fa-qrcode text-3xl text-brand-red"></i>
-                                    <span class="font-bold text-white">PIX MANUAL</span>
-                                    <span class="text-xs text-brand-gray-text">Envio de comprovante</span>
+                                    <span class="font-bold text-white">PIX</span>
+                                    <span class="text-xs text-brand-gray-text">QR Code instantâneo</span>
                                 </button>
                                 <?php endif; ?>
 
