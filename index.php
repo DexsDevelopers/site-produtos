@@ -25,18 +25,24 @@ if (isset($_GET['ref'])) {
 }
 
 // --- BUSCAR DADOS ---
+// ── Banners (query isolada para não ser afetada por erros de outras queries) ──
+$banners_principais = [];
 try {
     $banners_principais = $pdo->query("SELECT * FROM banners WHERE tipo = 'principal' AND ativo = 1 ORDER BY posicao ASC, id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
-
-    // Fallback: se não há banners 'principal', mostra qualquer banner ativo
     if (empty($banners_principais)) {
         $banners_principais = $pdo->query("SELECT * FROM banners WHERE ativo = 1 ORDER BY posicao ASC, id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
     }
+} catch (Exception $e) {
+    error_log("Erro banners: " . $e->getMessage());
+}
 
-    // Filtra apenas categorias que devem aparecer na home
+// ── Categorias, produtos e destaques ──
+$categorias = [];
+$produtos_por_categoria = [];
+$destaques = [];
+try {
     $categorias = $pdo->query("SELECT * FROM categorias WHERE exibir_home = 1 ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-    $produtos_por_categoria = [];
     foreach ($categorias as $categoria) {
         $stmt = $pdo->prepare("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE categoria_id = ? ORDER BY id DESC");
         $stmt->execute([$categoria['id']]);
@@ -46,7 +52,6 @@ try {
         }
     }
 
-    // Fallback: se nenhuma categoria tem exibir_home = 1, carrega todas as categorias com produtos
     if (empty($produtos_por_categoria)) {
         $todas_cats = $pdo->query("SELECT * FROM categorias ORDER BY ordem ASC")->fetchAll(PDO::FETCH_ASSOC);
         foreach ($todas_cats as $categoria) {
@@ -60,20 +65,12 @@ try {
         }
     }
 
-    // Busca produtos marcados como destaque
     $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos WHERE destaque = 1 ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
-
-    // Fallback: se nenhum produto está marcado como destaque, mostra os 12 mais recentes
     if (empty($destaques)) {
         $destaques = $pdo->query("SELECT id, nome, preco, imagem, descricao_curta FROM produtos ORDER BY id DESC LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
     }
-
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     error_log("Erro ao buscar dados: " . $e->getMessage());
-    $produtos_por_categoria = [];
-    $destaques = [];
-    $banners_principais = [];
 }
 
 $page_title = 'Início';

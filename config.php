@@ -79,6 +79,10 @@ try {
     $migracoes = [
         "CREATE TABLE IF NOT EXISTS configuracoes (id INT AUTO_INCREMENT PRIMARY KEY, chave VARCHAR(50) UNIQUE, valor TEXT, data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
         "INSERT IGNORE INTO configuracoes (chave, valor) VALUES ('pix_status', 'on'), ('infinite_status', 'on')",
+        "CREATE TABLE IF NOT EXISTS banners (id INT AUTO_INCREMENT PRIMARY KEY, titulo VARCHAR(255), subtitulo VARCHAR(255), link VARCHAR(500), texto_botao VARCHAR(100), tipo VARCHAR(50) DEFAULT 'principal', posicao INT DEFAULT 0, ativo TINYINT(1) DEFAULT 1, nova_aba TINYINT(1) DEFAULT 0, imagem VARCHAR(500), dispositivo VARCHAR(20) DEFAULT 'todos', data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP, data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
+        "ALTER TABLE categorias ADD COLUMN exibir_home TINYINT(1) DEFAULT 1",
+        "ALTER TABLE categorias ADD COLUMN ordem INT DEFAULT 0",
+        "ALTER TABLE produtos ADD COLUMN destaque TINYINT(1) DEFAULT 0",
         "ALTER TABLE pedidos ADD COLUMN whatsapp VARCHAR(20)",
         "ALTER TABLE pedidos ADD COLUMN endereco VARCHAR(255)", "ALTER TABLE pedidos ADD COLUMN numero VARCHAR(20)",
         "ALTER TABLE pedidos ADD COLUMN complemento VARCHAR(100)", "ALTER TABLE pedidos ADD COLUMN bairro VARCHAR(100)",
