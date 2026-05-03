@@ -45,13 +45,24 @@ function parseBrPrice(string $text): float {
 }
 
 function bestImg(DOMElement $el, DOMXPath $x, string $base): string {
+    // Priority 1: data-srcset (Nuvemshop lazy-load pattern)
+    $ns = $x->query('./descendant-or-self::img/@data-srcset', $el);
+    if ($ns->length && trim($ns->item(0)->nodeValue)) {
+        $srcset = trim($ns->item(0)->nodeValue);
+        $bestUrl = ''; $bestW = 0;
+        foreach (explode(',', $srcset) as $part) {
+            $bits = preg_split('/\s+/', trim($part));
+            $w = isset($bits[1]) ? (int)$bits[1] : 0;
+            if ($bits[0] && $w > $bestW) { $bestW = $w; $bestUrl = $bits[0]; }
+        }
+        if ($bestUrl) return absoluteUrl($bestUrl, $base);
+    }
+    // Priority 2: data-src, data-original, src
     foreach (['@data-src','@data-original','@src'] as $attr) {
         $n = $x->query('./descendant-or-self::img/' . $attr, $el);
         if ($n->length && trim($n->item(0)->nodeValue)) {
             $v = trim($n->item(0)->nodeValue);
-            if ($v && !str_contains($v, 'blank') && !str_contains($v, 'placeholder')) {
-                // Strip Nuvemshop size suffix: //cdn.../name_100x100.jpg → //cdn.../name.jpg
-                $v = preg_replace('/_\d+x\d+(\.(?:jpe?g|png|webp|gif))$/i', '$1', $v);
+            if ($v && !str_contains($v, 'data:') && !str_contains($v, 'blank') && !str_contains($v, 'placeholder')) {
                 return absoluteUrl($v, $base);
             }
         }
@@ -110,12 +121,27 @@ function scrapeCategory(string $html, string $pageUrl): array {
         if (!empty($products)) return $products;
     }
 
-    // ── Strategy 3: schema.org JSON-LD ──────────────────────────────────────
+    // ── Strategy 3: individual schema.org Product JSON-LD (Nuvemshop pattern) ──
     $scripts = $x->query('//script[@type="application/ld+json"]');
+    $jsonProducts = [];
     foreach ($scripts as $s) {
         $data = json_decode($s->textContent, true);
         if (!$data) continue;
-        $list = isset($data['@type']) && $data['@type'] === 'ItemList' ? ($data['itemListElement'] ?? []) : [];
+
+        // Individual Product (one per product card in Nuvemshop)
+        if (($data['@type'] ?? '') === 'Product') {
+            $nome  = $data['name'] ?? '';
+            $preco = parseBrPrice((string)($data['offers']['price'] ?? $data['offers'][0]['price'] ?? 0));
+            $img   = is_array($data['image'] ?? '') ? ($data['image'][0] ?? '') : ($data['image'] ?? '');
+            $link  = $data['url'] ?? ($data['mainEntityOfPage']['@id'] ?? '');
+            if ($nome && $preco > 0) {
+                $jsonProducts[] = compact('nome','preco','img','link');
+            }
+            continue;
+        }
+
+        // ItemList fallback
+        $list = ($data['@type'] ?? '') === 'ItemList' ? ($data['itemListElement'] ?? []) : [];
         if (empty($list) && isset($data['@graph'])) {
             foreach ($data['@graph'] as $n) {
                 if (($n['@type'] ?? '') === 'Product') $list[] = ['item' => $n];
@@ -126,14 +152,14 @@ function scrapeCategory(string $html, string $pageUrl): array {
             if (($p['@type'] ?? '') !== 'Product') continue;
             $nome  = $p['name'] ?? '';
             $preco = parseBrPrice((string)($p['offers']['price'] ?? $p['offers'][0]['price'] ?? 0));
-            $img   = is_array($p['image'] ?? '') ? $p['image'][0] : ($p['image'] ?? '');
+            $img   = is_array($p['image'] ?? '') ? ($p['image'][0] ?? '') : ($p['image'] ?? '');
             $link  = $p['url'] ?? '';
             if ($nome && $preco > 0) {
-                $products[] = compact('nome','preco','img','link');
+                $jsonProducts[] = compact('nome','preco','img','link');
             }
         }
-        if (!empty($products)) return $products;
     }
+    if (!empty($jsonProducts)) return $jsonProducts;
 
     return $products;
 }
