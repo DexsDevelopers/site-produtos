@@ -66,6 +66,9 @@ require_once dirname(dirname(__FILE__)) . '/../config.php';
                 <a href="gerenciar_produtos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gerenciar_produtos.php' ? 'active' : ''); ?>">
                     <i class="fas fa-box w-5 text-center"></i><span>Produtos</span>
                 </a>
+                <a href="importar_produtos.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'importar_produtos.php' ? 'active' : ''); ?>">
+                    <i class="fas fa-cloud-download-alt w-5 text-center"></i><span>Importar em Massa</span>
+                </a>
                 <a href="gestao_midias.php" class="admin-nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl <?php echo($current_page == 'gestao_midias.php' ? 'active' : ''); ?>">
                     <i class="fas fa-images w-5 text-center"></i><span>Mídias</span>
                 </a>
