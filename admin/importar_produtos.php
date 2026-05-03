@@ -283,6 +283,9 @@ if ($step === 'import') {
         foreach ($lista as $i => $p) {
             if (!in_array((string)$i, $selecionados)) continue;
             $imgPath  = downloadImg($p['img'], $destDir);
+            // Use manually-edited price if posted
+            $preco = isset($_POST['precos'][$i]) ? (float)$_POST['precos'][$i] : (float)$p['preco'];
+            if ($preco <= 0) $preco = (float)$p['preco'];
             // Resolve sizes → IDs
             $grupo_id = null;
             $tam_ids  = [];
@@ -295,7 +298,7 @@ if ($step === 'import') {
                 }
             }
             try {
-                $stmtProd->execute([$p['nome'], $p['nome'], $p['preco'], $imgPath, $cat_id, $tipo, $grupo_id]);
+                $stmtProd->execute([$p['nome'], $p['nome'], $preco, $imgPath, $cat_id, $tipo, $grupo_id]);
                 $pid = $pdo->lastInsertId();
                 foreach ($tam_ids as $tid) {
                     $stmtTam->execute([$pid, $tid]);
@@ -422,6 +425,30 @@ require_once 'templates/header_admin.php';
                     </select>
                 </div>
             </div>
+            <!-- Preço em massa -->
+            <div class="mt-5 p-4 bg-white/5 rounded-xl border border-white/10">
+                <p class="text-sm font-semibold text-white mb-3"><i class="fas fa-tag mr-2 text-admin-primary"></i>Alterar preço em massa</p>
+                <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                    <div class="flex-1">
+                        <label class="block text-xs text-admin-gray-400 mb-1">Novo preço para todos (R$)</label>
+                        <input type="number" id="preco-global" step="0.01" min="0" placeholder="Ex: 350,00"
+                               class="w-full p-2.5 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none text-sm">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs text-admin-gray-400 mb-1">% de acréscimo/desconto (opcional)</label>
+                        <input type="number" id="preco-pct" step="1" placeholder="Ex: +20 ou -10"
+                               class="w-full p-2.5 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none text-sm">
+                    </div>
+                    <button type="button" onclick="applyGlobalPrice()"
+                            class="px-5 py-2.5 bg-admin-primary rounded-lg text-sm font-bold text-white hover:bg-admin-primary/80 transition-colors whitespace-nowrap">
+                        <i class="fas fa-check mr-1"></i> Aplicar a todos
+                    </button>
+                    <button type="button" onclick="applyPctPrice()"
+                            class="px-5 py-2.5 bg-white/10 rounded-lg text-sm font-bold text-white hover:bg-white/20 transition-colors whitespace-nowrap">
+                        <i class="fas fa-percent mr-1"></i> Aplicar %
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Tabela de produtos encontrados -->
@@ -447,7 +474,7 @@ require_once 'templates/header_admin.php';
                             <th class="pb-3 text-left w-8">#</th>
                             <th class="pb-3 text-left w-16">Foto</th>
                             <th class="pb-3 text-left">Nome</th>
-                            <th class="pb-3 text-right w-28">Preço</th>
+                            <th class="pb-3 text-right w-36">Preço (R$)</th>
                             <th class="pb-3 text-center w-20">Importar</th>
                         </tr>
                     </thead>
@@ -475,8 +502,10 @@ require_once 'templates/header_admin.php';
                                 </a>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-3 text-right text-green-400 font-bold">
-                                R$ <?= number_format($p['preco'], 2, ',', '.') ?>
+                            <td class="py-3 text-right">
+                                <input type="number" name="precos[<?= $i ?>]" step="0.01" min="0"
+                                       value="<?= number_format($p['preco'], 2, '.', '') ?>"
+                                       class="price-input w-28 p-1.5 text-right bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-green-400 font-bold focus:border-admin-primary focus:outline-none text-sm">
                             </td>
                             <td class="py-3 text-center">
                                 <input type="checkbox" name="selecionados[]" value="<?= $i ?>"
@@ -523,6 +552,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const errEl = document.querySelector('.bg-red-500\\/20');
     if (errEl && errEl.textContent.includes('Colar HTML')) switchTab('html');
 });
+function applyGlobalPrice() {
+    const val = parseFloat(document.getElementById('preco-global').value);
+    if (isNaN(val) || val <= 0) { alert('Informe um preço válido.'); return; }
+    document.querySelectorAll('input.price-input').forEach(el => el.value = val.toFixed(2));
+}
+function applyPctPrice() {
+    const pct = parseFloat(document.getElementById('preco-pct').value);
+    if (isNaN(pct)) { alert('Informe um percentual (ex: 20 para +20% ou -10 para -10%).'); return; }
+    document.querySelectorAll('input.price-input').forEach(el => {
+        const orig = parseFloat(el.value) || 0;
+        el.value = Math.max(0, orig * (1 + pct / 100)).toFixed(2);
+    });
+}
 function toggleAll(check) {
     document.querySelectorAll('input[name="selecionados[]"]').forEach(cb => cb.checked = check);
 }
