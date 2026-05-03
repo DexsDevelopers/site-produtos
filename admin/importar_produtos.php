@@ -216,7 +216,7 @@ if ($step === 'import') {
     }
 }
 
-require_once 'header_admin.php';
+require_once 'templates/header_admin.php';
 ?>
 
 <div class="w-full max-w-5xl mx-auto pb-20">
@@ -385,4 +385,4 @@ document.getElementById('import-form')?.addEventListener('submit', function() {
 });
 </script>
 
-<?php require_once 'footer_admin.php'; ?>
+<?php require_once 'templates/footer_admin.php'; ?>
