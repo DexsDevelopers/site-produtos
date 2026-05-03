@@ -167,7 +167,7 @@ $importados = 0;
 // Categorias para dropdown
 $categorias = $pdo->query("SELECT id, nome FROM categorias ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── STEP: Scrape preview ─────────────────────────────────────────────────────
+// ── STEP: Scrape preview (via URL fetch) ─────────────────────────────────────
 if ($step === 'preview') {
     $url = trim($_POST['url'] ?? '');
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
@@ -176,14 +176,31 @@ if ($step === 'preview') {
     } else {
         $html = fetchUrl($url);
         if (!$html) {
-            $msg  = 'Não foi possível acessar a URL. Verifique se ela é pública e tente novamente.';
+            $msg  = 'O servidor não conseguiu acessar a URL (bloqueio de hospedagem). Use a opção "Colar HTML" abaixo: abra a página no seu navegador → Ctrl+U → Ctrl+A → Ctrl+C → cole aqui.';
             $step = 'form';
         } else {
             $scraped = scrapeCategory($html, $url);
             if (empty($scraped)) {
-                $msg  = 'Nenhum produto encontrado na página. Tente uma URL de listagem de categoria (ex: /colecoes/tenis).';
+                $msg  = 'Nenhum produto encontrado. Use a opção "Colar HTML" ou tente a URL de listagem de categoria (ex: /colecoes/tenis).';
                 $step = 'form';
             }
+        }
+    }
+}
+
+// ── STEP: Scrape preview (via HTML paste) ────────────────────────────────────
+if ($step === 'preview_html') {
+    $html = trim($_POST['html_source'] ?? '');
+    $url  = trim($_POST['base_url']    ?? 'https://sportchique.com.br');
+    if (empty($html)) {
+        $msg  = 'Cole o HTML da página antes de continuar.';
+        $step = 'form';
+    } else {
+        $scraped = scrapeCategory($html, $url);
+        $step    = 'preview';
+        if (empty($scraped)) {
+            $msg  = 'Nenhum produto encontrado no HTML colado. Certifique-se de copiar o código-fonte da página de categoria.';
+            $step = 'form';
         }
     }
 }
@@ -245,23 +262,61 @@ require_once 'templates/header_admin.php';
     <?php if ($step === 'form' || $step === 'done'): ?>
     <!-- ════ PASSO 1: Formulário ════ -->
     <div class="admin-card rounded-xl p-8">
-        <h2 class="text-lg font-bold text-white mb-1">Cole a URL da categoria</h2>
-        <p class="text-admin-gray-400 text-sm mb-6">Ex: <code class="text-admin-primary">https://sportchique.com.br/colecoes/tenis</code></p>
 
-        <form method="POST" action="importar_produtos.php">
-            <input type="hidden" name="step" value="preview">
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-sm font-medium text-admin-gray-300 mb-2">URL da categoria *</label>
-                    <input type="url" name="url" required placeholder="https://site.com.br/colecoes/categoria"
-                           value="<?= htmlspecialchars($_POST['url'] ?? '') ?>"
-                           class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none">
-                </div>
-            </div>
-            <button type="submit" class="mt-6 px-8 py-3 bg-admin-primary rounded-xl font-bold text-white hover:bg-admin-primary/80 transition-colors flex items-center gap-2">
-                <i class="fas fa-search"></i> Buscar Produtos
+        <!-- Abas -->
+        <div class="flex border-b border-white/10 mb-6 gap-1">
+            <button type="button" id="tab-url" onclick="switchTab('url')"
+                    class="tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 border-admin-primary text-white bg-white/5">
+                <i class="fas fa-link mr-2"></i>Buscar por URL
             </button>
-        </form>
+            <button type="button" id="tab-html" onclick="switchTab('html')"
+                    class="tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-admin-gray-400 hover:text-white">
+                <i class="fas fa-code mr-2"></i>Colar HTML
+            </button>
+        </div>
+
+        <!-- Tab: URL -->
+        <div id="pane-url">
+            <p class="text-admin-gray-400 text-sm mb-5">Ex: <code class="text-admin-primary">https://sportchique.com.br/colecoes/tenis</code></p>
+            <form method="POST" action="importar_produtos.php">
+                <input type="hidden" name="step" value="preview">
+                <label class="block text-sm font-medium text-admin-gray-300 mb-2">URL da categoria *</label>
+                <input type="url" name="url" required placeholder="https://site.com.br/colecoes/categoria"
+                       value="<?= htmlspecialchars($_POST['url'] ?? '') ?>"
+                       class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none">
+                <button type="submit" class="mt-5 px-8 py-3 bg-admin-primary rounded-xl font-bold text-white hover:bg-admin-primary/80 transition-colors flex items-center gap-2">
+                    <i class="fas fa-search"></i> Buscar Produtos
+                </button>
+            </form>
+        </div>
+
+        <!-- Tab: HTML Paste -->
+        <div id="pane-html" class="hidden">
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-5 text-sm text-yellow-300">
+                <strong>Como usar:</strong> Abra a página de categoria no navegador →
+                pressione <kbd class="bg-black/30 px-1.5 py-0.5 rounded text-xs">Ctrl+U</kbd> (Ver código-fonte) →
+                <kbd class="bg-black/30 px-1.5 py-0.5 rounded text-xs">Ctrl+A</kbd> → <kbd class="bg-black/30 px-1.5 py-0.5 rounded text-xs">Ctrl+C</kbd> → cole aqui.
+            </div>
+            <form method="POST" action="importar_produtos.php">
+                <input type="hidden" name="step" value="preview_html">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-admin-gray-300 mb-2">URL base (domínio do site) *</label>
+                        <input type="url" name="base_url" required placeholder="https://sportchique.com.br"
+                               value="<?= htmlspecialchars($_POST['base_url'] ?? '') ?>"
+                               class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-admin-gray-300 mb-2">HTML da página de categoria *</label>
+                        <textarea name="html_source" required rows="10" placeholder="Cole aqui o código-fonte completo da página (Ctrl+U no navegador)..."
+                                  class="w-full p-3 bg-admin-gray-800 border border-admin-gray-600 rounded-lg text-white placeholder-admin-gray-500 focus:border-admin-primary focus:outline-none font-mono text-xs resize-y"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="mt-5 px-8 py-3 bg-admin-primary rounded-xl font-bold text-white hover:bg-admin-primary/80 transition-colors flex items-center gap-2">
+                    <i class="fas fa-magic"></i> Extrair Produtos
+                </button>
+            </form>
+        </div>
     </div>
 
     <?php elseif ($step === 'preview' && !empty($scraped)): ?>
@@ -374,6 +429,24 @@ require_once 'templates/header_admin.php';
 </div>
 
 <script>
+function switchTab(tab) {
+    ['url','html'].forEach(t => {
+        document.getElementById('pane-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('tab-' + t);
+        if (t === tab) {
+            btn.classList.add('border-admin-primary','text-white','bg-white/5');
+            btn.classList.remove('border-transparent','text-admin-gray-400');
+        } else {
+            btn.classList.remove('border-admin-primary','text-white','bg-white/5');
+            btn.classList.add('border-transparent','text-admin-gray-400');
+        }
+    });
+}
+// Auto-open HTML tab if error message mentions "Colar HTML"
+document.addEventListener('DOMContentLoaded', () => {
+    const errEl = document.querySelector('.bg-red-500\\/20');
+    if (errEl && errEl.textContent.includes('Colar HTML')) switchTab('html');
+});
 function toggleAll(check) {
     document.querySelectorAll('input[name="selecionados[]"]').forEach(cb => cb.checked = check);
 }
