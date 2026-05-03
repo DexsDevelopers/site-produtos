@@ -92,8 +92,21 @@ function scrapeCategory(string $html, string $pageUrl): array {
             $preco  = $priceN->length ? parseBrPrice($priceN->item(0)->textContent) : 0;
             $link   = $linkN->length  ? absoluteUrl($linkN->item(0)->getAttribute('href'), $base) : '';
             $img    = bestImg($item, $x, $base);
+            // Extract sizes from data-variants JSON
+            $tamanhos = [];
+            $ctn = $x->query('.//*[@data-variants]', $item);
+            if ($ctn->length) {
+                $vj = html_entity_decode($ctn->item(0)->getAttribute('data-variants'), ENT_QUOTES);
+                $variants = json_decode($vj, true);
+                if (is_array($variants)) {
+                    foreach ($variants as $v) {
+                        $opt = trim($v['option0'] ?? '');
+                        if ($opt !== '' && !in_array($opt, $tamanhos)) $tamanhos[] = $opt;
+                    }
+                }
+            }
             if ($nome && $preco > 0) {
-                $products[] = compact('nome','preco','img','link');
+                $products[] = compact('nome','preco','img','link','tamanhos');
             }
         }
         if (!empty($products)) return $products;
@@ -122,6 +135,25 @@ function scrapeCategory(string $html, string $pageUrl): array {
     }
 
     // ── Strategy 3: individual schema.org Product JSON-LD (Nuvemshop pattern) ──
+    // Build URL→sizes map from DOM (Nuvemshop data-variants)
+    $sizeMap = [];
+    $allItems = $x->query('//*[contains(@class,"js-item-product")]');
+    foreach ($allItems as $itm) {
+        $lnk = $x->query('.//a[contains(@href,"/produtos/") or contains(@href,"/products/")]', $itm);
+        $ctn = $x->query('.//*[@data-variants]', $itm);
+        if (!$lnk->length || !$ctn->length) continue;
+        $u  = absoluteUrl($lnk->item(0)->getAttribute('href'), $base);
+        $vj = html_entity_decode($ctn->item(0)->getAttribute('data-variants'), ENT_QUOTES);
+        $vs = json_decode($vj, true);
+        $sz = [];
+        if (is_array($vs)) {
+            foreach ($vs as $v) {
+                $opt = trim($v['option0'] ?? '');
+                if ($opt !== '' && !in_array($opt, $sz)) $sz[] = $opt;
+            }
+        }
+        if (!empty($sz)) $sizeMap[$u] = $sz;
+    }
     $scripts = $x->query('//script[@type="application/ld+json"]');
     $jsonProducts = [];
     foreach ($scripts as $s) {
@@ -130,12 +162,13 @@ function scrapeCategory(string $html, string $pageUrl): array {
 
         // Individual Product (one per product card in Nuvemshop)
         if (($data['@type'] ?? '') === 'Product') {
-            $nome  = $data['name'] ?? '';
-            $preco = parseBrPrice((string)($data['offers']['price'] ?? $data['offers'][0]['price'] ?? 0));
-            $img   = is_array($data['image'] ?? '') ? ($data['image'][0] ?? '') : ($data['image'] ?? '');
-            $link  = $data['url'] ?? ($data['mainEntityOfPage']['@id'] ?? '');
+            $nome     = html_entity_decode($data['name'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $preco    = parseBrPrice((string)($data['offers']['price'] ?? $data['offers'][0]['price'] ?? 0));
+            $img      = is_array($data['image'] ?? '') ? ($data['image'][0] ?? '') : ($data['image'] ?? '');
+            $link     = $data['url'] ?? ($data['mainEntityOfPage']['@id'] ?? '');
+            $tamanhos = $sizeMap[$link] ?? [];
             if ($nome && $preco > 0) {
-                $jsonProducts[] = compact('nome','preco','img','link');
+                $jsonProducts[] = compact('nome','preco','img','link','tamanhos');
             }
             continue;
         }
@@ -244,12 +277,29 @@ if ($step === 'import') {
         $msg  = 'Selecione uma categoria de destino.';
         $step = 'form';
     } else {
-        $stmt = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, preco, imagem, categoria_id, tipo, destaque, frete_gratis) VALUES (?,?,?,?,?,?,0,1)");
+        $stmtProd   = $pdo->prepare("INSERT INTO produtos (nome, descricao_curta, preco, imagem, categoria_id, tipo, destaque, frete_gratis, grupo_tamanho_id) VALUES (?,?,?,?,?,?,0,1,?)");
+        $stmtTam    = $pdo->prepare("INSERT IGNORE INTO produto_tamanhos (produto_id, tamanho_id, estoque) VALUES (?, ?, 10)");
+        $stmtFindTm = $pdo->prepare("SELECT id, grupo_id FROM tamanhos WHERE valor = ? ORDER BY grupo_id ASC LIMIT 1");
         foreach ($lista as $i => $p) {
             if (!in_array((string)$i, $selecionados)) continue;
-            $imgPath = downloadImg($p['img'], $destDir);
+            $imgPath  = downloadImg($p['img'], $destDir);
+            // Resolve sizes → IDs
+            $grupo_id = null;
+            $tam_ids  = [];
+            foreach ($p['tamanhos'] ?? [] as $val) {
+                $stmtFindTm->execute([$val]);
+                $row = $stmtFindTm->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    if ($grupo_id === null) $grupo_id = $row['grupo_id'];
+                    $tam_ids[] = $row['id'];
+                }
+            }
             try {
-                $stmt->execute([$p['nome'], $p['nome'], $p['preco'], $imgPath, $cat_id, $tipo]);
+                $stmtProd->execute([$p['nome'], $p['nome'], $p['preco'], $imgPath, $cat_id, $tipo, $grupo_id]);
+                $pid = $pdo->lastInsertId();
+                foreach ($tam_ids as $tid) {
+                    $stmtTam->execute([$pid, $tid]);
+                }
                 $importados++;
             } catch (Exception $e) {}
         }
