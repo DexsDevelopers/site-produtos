@@ -499,15 +499,21 @@ $badges_pool = ['Mais Vendido','Top','Novo','Exclusivo','Limitado','Best Seller'
             elseif ($disp === 'mobile') $extraClass = ' banner-mobile-only';
         ?>
         <div class="swiper-slide<?= $extraClass ?>">
-            <?php if (!empty($banner['link'])): ?>
-            <a href="<?= htmlspecialchars($banner['link']) ?>">
-            <?php endif; ?>
+            <?php 
+            $banner_link = !empty($banner['link']) ? $banner['link'] : 'busca.php?todos=1';
+            ?>
+            <a href="<?= htmlspecialchars($banner_link) ?>" class="relative block w-full">
                 <img src="<?= htmlspecialchars($banner['imagem']) ?>"
                      alt="<?= htmlspecialchars($banner['titulo'] ?? 'Banner') ?>"
                      loading="eager" />
-            <?php if (!empty($banner['link'])): ?>
+                
+                <!-- CTA Button Overlay (CRO) -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 md:bottom-10">
+                    <span class="inline-flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3.5 rounded-full font-bold text-[11px] md:text-xs uppercase tracking-widest hover:bg-white/90 hover:scale-105 transition-all duration-300 shadow-lg shadow-black/40">
+                        Comprar Agora <i class="fas fa-arrow-right text-[9px] md:text-[10px]"></i>
+                    </span>
+                </div>
             </a>
-            <?php endif; ?>
         </div>
         <?php endforeach; ?>
     </div>
@@ -575,6 +581,14 @@ $badges_pool = ['Mais Vendido','Top','Novo','Exclusivo','Limitado','Best Seller'
                 <div class="text-[11px] text-white/40 font-body uppercase tracking-widest mt-1">% Satisfação</div>
             </div>
         </div>
+        
+        <!-- Trust payment & security bar (CRO) -->
+        <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-8 pt-6 border-t border-white/5 opacity-55 text-[10px] uppercase tracking-wider text-white/70">
+            <span class="flex items-center gap-2"><i class="fab fa-pix text-green-400 text-sm"></i> PIX com desconto</span>
+            <span class="flex items-center gap-2"><i class="fas fa-credit-card text-blue-400 text-sm"></i> Até 12x Sem Juros</span>
+            <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-emerald-400 text-sm"></i> SSL 100% Seguro</span>
+            <span class="flex items-center gap-2"><i class="fas fa-truck text-amber-400 text-sm"></i> Rastreio Correios</span>
+        </div>
     </div>
 </section>
 
@@ -595,10 +609,15 @@ $badges_pool = ['Mais Vendido','Top','Novo','Exclusivo','Limitado','Best Seller'
         $icon = 'fa-tag';
         $nome_lower = mb_strtolower($cat['nome']);
         foreach ($cat_icons as $key => $val) { if (strpos($nome_lower, $key) !== false) { $icon = $val; break; } }
+        
+        $display_name = $cat['nome'];
+        $display_name = str_ireplace('AIR MAX', 'Air Max', $display_name);
+        $display_name = str_ireplace('AIR JORDAN', 'Jordan', $display_name);
+        $display_name = str_ireplace('AIR FORCE', 'Air Force', $display_name);
 ?>
             <a href="categoria.php?id=<?= $cat['id']?>" class="cat-pill">
                 <div class="cat-icon-circle"><i class="fas <?= $icon?>"></i></div>
-                <span class="cat-pill-name"><?= htmlspecialchars($cat['nome'])?></span>
+                <span class="cat-pill-name"><?= htmlspecialchars($display_name)?></span>
             </a>
             <?php endforeach; ?>
         </div>
