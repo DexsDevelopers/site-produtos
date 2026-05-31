@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // checkout.php - Checkout Completo com Endereço e Pagamento
 session_start();
 require_once 'config.php';
@@ -213,6 +213,16 @@ require_once 'templates/header.php';
                     form.action = (metodo === "infinitepay") ? "checkout_infinitepay.php" : "checkout_pix.php";
                     form.submit();
                 }
+
+                // Captura em tempo real do WhatsApp para recuperação de carrinho (CRO)
+                document.getElementById('whatsapp').addEventListener('blur', function() {
+                    const val = this.value.trim();
+                    if (val.length >= 8) {
+                        const fd = new FormData();
+                        fd.append('whatsapp', val);
+                        fetch('salvar_carrinho_ajax.php', { method: 'POST', body: fd });
+                    }
+                });
                 </script>
             </div>
 

@@ -8,6 +8,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (file_exists(__DIR__ . "/includes/performance_optimizer.php")) {
+    require_once __DIR__ . "/includes/performance_optimizer.php";
+}
+
 // RESTAURAÇÃO DE CREDENCIAIS
 $host = "localhost";
 $dbname = "u853242961_lojahelmer";
@@ -78,7 +82,7 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS site_visitas (id INT AUTO_INCREMENT PRIMARY KEY, ip_address VARCHAR(45), data_visita DATE, hora_visita TIME, pagina_visitada VARCHAR(255), user_agent TEXT, dispositivo VARCHAR(50))");
     $migracoes = [
         "CREATE TABLE IF NOT EXISTS configuracoes (id INT AUTO_INCREMENT PRIMARY KEY, chave VARCHAR(50) UNIQUE, valor TEXT, data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
-        "INSERT IGNORE INTO configuracoes (chave, valor) VALUES ('pix_status', 'on'), ('infinite_status', 'on')",
+        "INSERT IGNORE INTO configuracoes (chave, valor) VALUES ('pix_status', 'on'), ('infinite_status', 'on'), ('meta_pixel_id', ''), ('meta_capi_token', '')",
         "CREATE TABLE IF NOT EXISTS banners (id INT AUTO_INCREMENT PRIMARY KEY, titulo VARCHAR(255), subtitulo VARCHAR(255), link VARCHAR(500), texto_botao VARCHAR(100), tipo VARCHAR(50) DEFAULT 'principal', posicao INT DEFAULT 0, ativo TINYINT(1) DEFAULT 1, nova_aba TINYINT(1) DEFAULT 0, imagem VARCHAR(500), dispositivo VARCHAR(20) DEFAULT 'todos', data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP, data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
         "ALTER TABLE categorias ADD COLUMN exibir_home TINYINT(1) DEFAULT 1",
         "ALTER TABLE categorias ADD COLUMN ordem INT DEFAULT 0",
@@ -91,7 +95,10 @@ try {
         "ALTER TABLE usuarios ADD COLUMN endereco VARCHAR(255)", "ALTER TABLE usuarios ADD COLUMN numero VARCHAR(20)",
         "ALTER TABLE usuarios ADD COLUMN complemento VARCHAR(100)", "ALTER TABLE usuarios ADD COLUMN bairro VARCHAR(100)",
         "ALTER TABLE usuarios ADD COLUMN cidade VARCHAR(100)", "ALTER TABLE usuarios ADD COLUMN estado VARCHAR(2)",
-        "CREATE TABLE IF NOT EXISTS carrinhos_abandonados (id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT, sessao_id VARCHAR(255), dados_carrinho TEXT, valor_total DECIMAL(10,2), data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX (usuario_id), INDEX (sessao_id))"
+        "CREATE TABLE IF NOT EXISTS carrinhos_abandonados (id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT, sessao_id VARCHAR(255), dados_carrinho TEXT, valor_total DECIMAL(10,2), data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX (usuario_id), INDEX (sessao_id))",
+        "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_nome VARCHAR(255)",
+        "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_whatsapp VARCHAR(20)",
+        "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_email VARCHAR(255)"
     ];
     foreach ($migracoes as $sql) { try { $pdo->exec($sql); } catch (Exception $e) {} }
 } catch (Exception $e) {}

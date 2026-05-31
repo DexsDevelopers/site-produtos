@@ -69,9 +69,89 @@ if (!$pedido) {
     exit;
 }
 
+// --- RASTREAMENTO DE CONVERSÃO (Meta Ads / Conversions API) ---
+$user_info = [];
+if (isset($user_id)) {
+    try {
+        $stmt_u = $pdo->prepare("SELECT nome, email, whatsapp, cep, cidade, estado FROM usuarios WHERE id = ?");
+        $stmt_u->execute([$user_id]);
+        $user_info = $stmt_u->fetch(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {}
+}
+
+$itens_pedido = [];
+$contents = [];
+try {
+    $stmt_it = $pdo->prepare("SELECT produto_id, nome_produto, quantidade, preco_unitario FROM pedido_itens WHERE pedido_id = ?");
+    $stmt_it->execute([$pedido['id']]);
+    $itens_pedido = $stmt_it->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($itens_pedido as $it) {
+        $contents[] = [
+            'id' => $it['produto_id'],
+            'quantity' => (int)$it['quantidade'],
+            'item_price' => (float)$it['preco_unitario']
+        ];
+    }
+} catch (Exception $e) {}
+
+$customData = [
+    'value' => (float)$pedido['valor_total'],
+    'currency' => 'BRL',
+    'content_type' => 'product',
+    'contents' => $contents
+];
+
+if (!isset($_SESSION['tracked_orders'])) {
+    $_SESSION['tracked_orders'] = [];
+}
+$should_track = !in_array($pedido['id'], $_SESSION['tracked_orders']);
+if ($should_track) {
+    $_SESSION['tracked_orders'][] = $pedido['id'];
+}
+
+$purchase_event_id = 'pur_' . $pedido['id'];
+
+if ($should_track) {
+    try {
+        require_once 'includes/meta_capi.php';
+        $capi = new MetaCAPI($pdo);
+        if ($capi->isConfigured()) {
+            $nome_parts = explode(' ', trim($user_info['nome'] ?? ''));
+            $fn = $nome_parts[0] ?? '';
+            $ln = count($nome_parts) > 1 ? end($nome_parts) : '';
+            
+            $userData = [
+                'em' => $user_info['email'] ?? '',
+                'ph' => $user_info['whatsapp'] ?? $pedido['whatsapp'] ?? '',
+                'fn' => $fn,
+                'ln' => $ln,
+                'ct' => $user_info['cidade'] ?? $pedido['cidade'] ?? '',
+                'st' => $user_info['estado'] ?? $pedido['estado'] ?? '',
+                'zp' => $user_info['cep'] ?? $pedido['cep'] ?? '',
+                'country' => 'BR'
+            ];
+            $capi->sendEvent('Purchase', $purchase_event_id, $customData, $userData);
+        }
+    } catch (Exception $e) {
+        error_log("Erro Meta CAPI Purchase: " . $e->getMessage());
+    }
+}
+
 $page_title = 'Pedido Confirmado';
 require_once 'templates/header.php';
 ?>
+
+<?php if ($should_track && !empty($meta_pixel_id)): ?>
+<!-- Meta Pixel Purchase Event -->
+<script>
+fbq('track', 'Purchase', {
+    value: <?= (float)$pedido['valor_total'] ?>,
+    currency: 'BRL',
+    content_type: 'product',
+    contents: <?= json_encode($contents) ?>
+}, {eventID: '<?= $purchase_event_id ?>'});
+</script>
+<?php endif; ?>
 
 <div class="container" style="padding-top: 80px; min-height: 80vh; text-align: center;">
 

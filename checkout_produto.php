@@ -360,6 +360,16 @@ document.querySelector('[data-metodo="pix"]').click();
 <?php elseif ($infinite_status === 'on' && $pix_status !== 'on'): ?>
 document.querySelector('[data-metodo="infinitepay"]').click();
 <?php endif; ?>
+
+// Captura em tempo real do WhatsApp para recuperação de carrinho (CRO)
+document.getElementById('whatsapp').addEventListener('blur', function() {
+    const val = this.value.trim();
+    if (val.length >= 8) {
+        const fd = new FormData();
+        fd.append('whatsapp', val);
+        fetch('salvar_carrinho_ajax.php', { method: 'POST', body: fd });
+    }
+});
 </script>
 
 <?php require_once 'templates/footer.php'; ?>

@@ -24,27 +24,15 @@ if (isset($_GET['pedido_id']) && (int)$_GET['pedido_id'] > 0) {
     $stmt_itens->execute([$pedido_id]);
     $itens_db = $stmt_itens->fetchAll(PDO::FETCH_ASSOC);
 
-    $items = [];
+    $msg_itens = "";
     foreach ($itens_db as $it) {
-        $nome = $it['nome_produto'] . (!empty($it['valor_tamanho']) ? ' - Tamanho: ' . $it['valor_tamanho'] : '');
-        $items[] = ['name' => $nome, 'description' => $nome, 'price' => (int)round($it['preco_unitario'] * 100), 'quantity' => (int)$it['quantidade']];
+        $nome_exibicao = $it['nome_produto'] . (!empty($it['valor_tamanho']) ? ' (Tam: ' . $it['valor_tamanho'] . ')' : '');
+        $msg_itens .= "• " . $it['quantidade'] . "x " . $nome_exibicao . " - " . formatarPreco($it['preco_unitario'] * $it['quantidade']) . "\n";
     }
-
-    $data = [
-        'handle'       => $infinite_tag,
-        'order_nsu'    => 'ORD-' . $pedido_id . '-' . time(),
-        'items'        => $items,
-        'redirect_url' => (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/obrigado.php?pedido_id=' . $pedido_id
-    ];
-    $ctx = stream_context_create(['http' => ['header' => "Content-type: application/json\r\n", 'method' => 'POST', 'content' => json_encode($data), 'ignore_errors' => true]]);
-    $res = file_get_contents('https://api.infinitepay.io/invoices/public/checkout/links', false, $ctx);
-    $result = json_decode($res, true);
-
-    if (isset($result['url'])) {
-        header('Location: ' . $result['url']);
-        exit();
-    }
-    die('Erro InfinitePay: ' . ($result['message'] ?? 'Erro desconhecido'));
+    $text = "Olá! Gostaria de pagar com cartão o meu pedido (#" . $pedido_id . "):\n\n" . $msg_itens . "\nTotal: " . formatarPreco($pedido['valor_total']);
+    $wa_url = "https://wa.me/5551996148568?text=" . urlencode($text);
+    header('Location: ' . $wa_url);
+    exit();
 }
 
 // Se recebeu produto_id via GET, adiciona ao carrinho primeiro
@@ -170,8 +158,7 @@ try {
     }
 
     $pdo->commit();
-
-// O carrinho será limpo na página de obrigado após o retorno do pagamento
+    unset($_SESSION['carrinho']);
 }
 catch (Exception $e) {
     if ($pdo->inTransaction())
@@ -179,48 +166,62 @@ catch (Exception $e) {
     die("Erro ao processar pedido: " . $e->getMessage());
 }
 
-// Configuração da requisição
-$url = "https://api.infinitepay.io/invoices/public/checkout/links";
-$order_nsu = "ORD-" . $pedido_id . "-" . time();
+// --- RASTREAMENTO DE CONVERSÃO META CAPI ---
+try {
+    require_once 'includes/meta_capi.php';
+    $capi = new MetaCAPI($pdo);
+    if ($capi->isConfigured()) {
+        $stmt_u = $pdo->prepare("SELECT nome, email, whatsapp, cep, cidade, estado FROM usuarios WHERE id = ?");
+        $stmt_u->execute([$user_id]);
+        $user_info = $stmt_u->fetch(PDO::FETCH_ASSOC) ?: [];
 
-$data = [
-    'handle' => $infinite_tag,
-    'order_nsu' => $order_nsu,
-    'items' => $items,
-    'redirect_url' => (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]/obrigado.php?pedido_id=$pedido_id"
-];
+        $contents = [];
+        foreach ($carrinho_itens as $item) {
+            $contents[] = [
+                'id' => $item['id'],
+                'quantity' => (int)$item['quantidade'],
+                'item_price' => (float)$item['preco']
+            ];
+        }
 
-$options = [
-    'http' => [
-        'header' => "Content-type: application/json\r\n",
-        'method' => 'POST',
-        'content' => json_encode($data),
-        'ignore_errors' => true
-    ]
-];
+        $customData = [
+            'value' => (float)$valor_total,
+            'currency' => 'BRL',
+            'content_type' => 'product',
+            'contents' => $contents
+        ];
 
-$context = stream_context_create($options);
-$response = file_get_contents($url, false, $context);
+        $nome_parts = explode(' ', trim($user_info['nome'] ?? ''));
+        $fn = $nome_parts[0] ?? '';
+        $ln = count($nome_parts) > 1 ? end($nome_parts) : '';
 
-if ($response === FALSE) {
-    die("Erro ao conectar com a API da InfinitePay.");
+        $userData = [
+            'em' => $user_info['email'] ?? '',
+            'ph' => $user_info['whatsapp'] ?? $whatsapp ?? '',
+            'fn' => $fn,
+            'ln' => $ln,
+            'ct' => $user_info['cidade'] ?? $cidade ?? '',
+            'st' => $user_info['estado'] ?? $estado ?? '',
+            'zp' => $user_info['cep'] ?? $cep ?? '',
+            'country' => 'BR'
+        ];
+
+        $purchase_event_id = 'pur_' . $pedido_id;
+        $capi->sendEvent('Purchase', $purchase_event_id, $customData, $userData);
+    }
+} catch (Exception $e) {
+    error_log("Erro Meta CAPI InfinitePay (WhatsApp CAPI): " . $e->getMessage());
 }
 
-$result = json_decode($response, true);
+// Constrói a mensagem do WhatsApp com os detalhes do produto e do preço
+$msg_itens = "";
+foreach ($carrinho_itens as $item) {
+    $nome_exibicao = $item['nome'] . (!empty($item['tamanho_valor']) ? ' (Tam: ' . $item['tamanho_valor'] . ')' : '');
+    $msg_itens .= "• " . $item['quantidade'] . "x " . $nome_exibicao . " - " . formatarPreco($item['preco'] * $item['quantidade']) . "\n";
+}
 
-if (isset($result['url'])) {
-    // Armazena informações do pedido no banco se necessário
-    // Por enquanto, apenas redireciona
-    header('Location: ' . $result['url']);
-    exit();
-}
-else {
-    // Trata erro
-    $error_msg = $result['message'] ?? 'Erro desconhecido ao gerar link de pagamento.';
-    echo "<h1>Erro no Checkout InfinitePay</h1>";
-    echo "<p>$error_msg</p>";
-    echo "<pre>";
-    print_r($result);
-    echo "</pre>";
-    echo '<a href="checkout.php">Voltar</a>';
-}
+$text = "Olá! Gostaria de pagar com cartão o meu pedido (#" . $pedido_id . "):\n\n" . $msg_itens . "\nTotal: " . formatarPreco($valor_total);
+$wa_url = "https://wa.me/5551996148568?text=" . urlencode($text);
+
+header('Location: ' . $wa_url);
+exit();

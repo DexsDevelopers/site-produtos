@@ -35,6 +35,16 @@ catch (Exception $e) {
 }
 
 $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho']) : 0;
+
+$meta_pixel_id = '';
+if (isset($pdo)) {
+    try {
+        $stmt_meta = $pdo->query("SELECT valor FROM configuracoes WHERE chave = 'meta_pixel_id' LIMIT 1");
+        $meta_pixel_id = $stmt_meta ? $stmt_meta->fetchColumn() : '';
+    } catch (Exception $e) {}
+}
+$page_event_id = uniqid('evt_page_', true);
+$_SESSION['last_page_event_id'] = $page_event_id;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -89,6 +99,26 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
     }
     </script>
 
+    <?php if (!empty($meta_pixel_id)): ?>
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<?= htmlspecialchars($meta_pixel_id) ?>');
+    fbq('track', 'PageView', {}, {eventID: '<?= $page_event_id ?>'});
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?= urlencode($meta_pixel_id) ?>&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+    <?php endif; ?>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,11 +149,11 @@ $total_itens_carrinho = isset($_SESSION['carrinho']) ? count($_SESSION['carrinho
 
     <!-- AOS Animations -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
 
     <!-- Swiper -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
     <!-- Design System -->
     <link rel="stylesheet" href="assets/css/macario.css?v=3" />

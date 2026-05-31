@@ -8,7 +8,7 @@ class PerformanceOptimizer {
     public function __construct($cache_dir = 'cache/') {
         $this->cache_dir = $cache_dir;
         $this->compression_enabled = extension_loaded('zlib');
-        $this->minification_enabled = true;
+        $this->minification_enabled = false; // Desabilitado por padrão para não quebrar scripts inline
         
         if (!is_dir($this->cache_dir)) {
             mkdir($this->cache_dir, 0755, true);
@@ -38,12 +38,10 @@ class PerformanceOptimizer {
      */
     private function setCacheHeaders() {
         if (!headers_sent()) {
-            // Cache para recursos estáticos
-            $cache_time = 3600 * 24 * 7; // 7 dias
-            
-            header('Cache-Control: public, max-age=' . $cache_time);
-            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $cache_time) . ' GMT');
-            header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($_SERVER['SCRIPT_FILENAME'])) . ' GMT');
+            // Evitar cache de páginas dinâmicas para prevenir problemas de carrinho/login
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
             
             // Headers de segurança
             header('X-Content-Type-Options: nosniff');
