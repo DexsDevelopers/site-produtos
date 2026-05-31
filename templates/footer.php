@@ -76,10 +76,10 @@
             <div class="footer-col">
                 <h4>Informações</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Política de Privacidade</a></li>
-                    <li><a href="#">Termos de Serviço</a></li>
-                    <li><a href="#">Política de Reembolso</a></li>
-                    <li><a href="#">Trocas e Devoluções</a></li>
+                    <li><a href="politica-privacidade.php">Política de Privacidade</a></li>
+                    <li><a href="termos-servico.php">Termos de Serviço</a></li>
+                    <li><a href="politica-reembolso.php">Política de Reembolso</a></li>
+                    <li><a href="trocas-devolucoes.php">Trocas e Devoluções</a></li>
                 </ul>
             </div>
         </div>
