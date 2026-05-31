@@ -320,10 +320,15 @@ require_once 'templates/header.php';
         height: auto !important;
         position: relative;
         cursor: pointer;
+        pointer-events: none;
+    }
+    .hero-banner-swiper .swiper-slide-active {
+        pointer-events: auto;
     }
     .hero-banner-swiper .swiper-slide a {
         display: block;
         width: 100%;
+        pointer-events: auto;
     }
     .hero-banner-swiper .swiper-slide img {
         width: 100%;
@@ -464,8 +469,9 @@ $badges_pool = ['Mais Vendido','Top','Novo','Exclusivo','Limitado','Best Seller'
 
     /* ── Hero banner swiper ── */
     .hero-banner-swiper { width:100%; background:#000; min-height:320px; }
-    .hero-banner-swiper .swiper-slide { height:auto !important; position:relative; cursor:pointer; }
-    .hero-banner-swiper .swiper-slide a { display:block; width:100%; }
+    .hero-banner-swiper .swiper-slide { height:auto !important; position:relative; cursor:pointer; pointer-events:none; }
+    .hero-banner-swiper .swiper-slide-active { pointer-events:auto; }
+    .hero-banner-swiper .swiper-slide a { display:block; width:100%; pointer-events:auto; }
     .hero-banner-swiper .swiper-slide img { width:100%; height:auto; max-height:600px; object-fit:cover; object-position:center; display:block; }
     .hero-banner-swiper .swiper-pagination-bullet { background:rgba(255,255,255,.5); opacity:1; width:8px; height:8px; }
     .hero-banner-swiper .swiper-pagination-bullet-active { background:#fff; width:24px; border-radius:4px; }
@@ -899,6 +905,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // AOS
     AOS.init({ once:true, duration:600, easing:'ease-out-cubic', offset:0, delay:0 });
     setTimeout(function(){ document.querySelectorAll('[data-aos]').forEach(function(el){ el.style.opacity='1'; el.style.transform='none'; el.style.transition='none'; }); }, 2500);
+
+    // Corrigir cliques nos banners no Swiper loop (evita clonagem sem link funcional)
+    const heroSlider = document.getElementById('hero-slider');
+    if (heroSlider) {
+        heroSlider.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link) {
+                e.preventDefault();
+                window.location.href = link.href;
+            }
+        });
+    }
 
     // Hero Slider
     if (typeof Swiper !== 'undefined' && document.querySelector('#hero-slider')) {
