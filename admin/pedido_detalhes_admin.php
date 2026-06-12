@@ -31,7 +31,7 @@ if (isset($_POST['mudar_status'])) {
 }
 
 // Buscar Pedido com LEFT JOIN para prevenir erros se usuário for deletado
-$stmt = $pdo->prepare("SELECT p.*, u.nome, u.email 
+$stmt = $pdo->prepare("SELECT p.*, COALESCE(u.nome, p.nome_cliente) AS nome, COALESCE(u.email, p.email_cliente) AS email 
                        FROM pedidos p 
                        LEFT JOIN usuarios u ON p.usuario_id = u.id 
                        WHERE p.id = ?");

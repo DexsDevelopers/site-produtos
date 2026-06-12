@@ -7,16 +7,24 @@ require_once 'includes/file_storage.php';
 // Fallback: pedido já criado (PIX falhou), retoma com InfinitePay
 if (isset($_GET['pedido_id']) && (int)$_GET['pedido_id'] > 0) {
     $pedido_id = (int)$_GET['pedido_id'];
-    $user_id   = $_SESSION['user_id'] ?? 0;
-
-    if ($user_id == 0) { header('Location: login.php?msg=faca_login'); exit(); }
+    $user_id   = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+    $my_orders = $_SESSION['my_orders'] ?? [];
 
     $stmt_tag = $pdo->query("SELECT valor FROM configuracoes WHERE chave = 'infinite_tag' LIMIT 1");
     $infinite_tag = $stmt_tag ? $stmt_tag->fetchColumn() : '';
     if (empty($infinite_tag)) { die('InfinitePay não configurado.'); }
 
-    $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?');
-    $stmt->execute([$pedido_id, $user_id]);
+    if ($user_id) {
+        $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE id = ? AND (usuario_id = ? OR id IN (' . implode(',', array_map('intval', array_merge([0], $my_orders))) . '))');
+        $stmt->execute([$pedido_id, $user_id]);
+    } else {
+        if (!in_array($pedido_id, $my_orders)) {
+            header('Location: carrinho.php');
+            exit();
+        }
+        $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE id = ?');
+        $stmt->execute([$pedido_id]);
+    }
     $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$pedido) { header('Location: carrinho.php'); exit(); }
 
@@ -117,25 +125,40 @@ $bairro      = $_addr['bairro']      ?? '';
 $cidade      = $_addr['cidade']      ?? '';
 $estado      = $_addr['estado']      ?? '';
 
+// Dados de cliente (nome e email)
+$nome_cliente = '';
+$email_cliente = '';
+$user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+if ($user_id) {
+    $stmt_u = $pdo->prepare("SELECT nome, email FROM usuarios WHERE id = ?");
+    $stmt_u->execute([$user_id]);
+    $user_db = $stmt_u->fetch(PDO::FETCH_ASSOC);
+    $nome_cliente = $user_db['nome'] ?? '';
+    $email_cliente = $user_db['email'] ?? '';
+} else {
+    $nome_cliente = $_addr['nome'] ?? '';
+    $email_cliente = $_addr['email'] ?? '';
+}
+
 // Cria o pedido no banco de dados como "Pendente"
 try {
-    $user_id = $_SESSION['user_id'] ?? 0;
-    if ($user_id == 0) {
-        // Se não estiver logado, redireciona para login
-        header('Location: login.php?msg=faca_login');
-        exit();
-    }
-
     $pdo->beginTransaction();
 
     // Salva dados no pedido
-    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status, whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES (?, ?, 'Aguardando Pagamento', ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$user_id, $valor_total, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado]);
+    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status, whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado, nome_cliente, email_cliente) VALUES (?, ?, 'Aguardando Pagamento', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$user_id, $valor_total, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $nome_cliente, $email_cliente]);
     $pedido_id = $pdo->lastInsertId();
 
+    if (!isset($_SESSION['my_orders'])) {
+        $_SESSION['my_orders'] = [];
+    }
+    $_SESSION['my_orders'][] = (int)$pedido_id;
+
     // Atualiza dados no perfil do usuário para compras futuras
-    $stmt_user = $pdo->prepare("UPDATE usuarios SET whatsapp = ?, cep = ?, endereco = ?, numero = ?, complemento = ?, bairro = ?, cidade = ?, estado = ? WHERE id = ?");
-    $stmt_user->execute([$whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
+    if ($user_id) {
+        $stmt_user = $pdo->prepare("UPDATE usuarios SET whatsapp = ?, cep = ?, endereco = ?, numero = ?, complemento = ?, bairro = ?, cidade = ?, estado = ? WHERE id = ?");
+        $stmt_user->execute([$whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
+    }
 
     $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, tamanho_id, valor_tamanho, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($carrinho_itens as $item) {
@@ -171,9 +194,21 @@ try {
     require_once 'includes/meta_capi.php';
     $capi = new MetaCAPI($pdo);
     if ($capi->isConfigured()) {
-        $stmt_u = $pdo->prepare("SELECT nome, email, whatsapp, cep, cidade, estado FROM usuarios WHERE id = ?");
-        $stmt_u->execute([$user_id]);
-        $user_info = $stmt_u->fetch(PDO::FETCH_ASSOC) ?: [];
+        $user_info = [];
+        if ($user_id) {
+            $stmt_u = $pdo->prepare("SELECT nome, email, whatsapp, cep, cidade, estado FROM usuarios WHERE id = ?");
+            $stmt_u->execute([$user_id]);
+            $user_info = $stmt_u->fetch(PDO::FETCH_ASSOC) ?: [];
+        } else {
+            $user_info = [
+                'nome' => $nome_cliente,
+                'email' => $email_cliente,
+                'whatsapp' => $whatsapp,
+                'cep' => $cep,
+                'cidade' => $cidade,
+                'estado' => $estado
+            ];
+        }
 
         $contents = [];
         foreach ($carrinho_itens as $item) {

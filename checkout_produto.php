@@ -39,6 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     $_SESSION['checkout_address'] = [
+        'nome'        => trim($_POST['nome']        ?? ''),
+        'email'       => trim($_POST['email']       ?? ''),
         'whatsapp'    => trim($_POST['whatsapp']    ?? ''),
         'cep'         => trim($_POST['cep']         ?? ''),
         'endereco'    => trim($_POST['endereco']    ?? ''),
@@ -132,12 +134,28 @@ require_once 'templates/header.php';
                     <h2 class="text-lg font-bold text-white mb-5 flex items-center gap-3">
                         <span class="step-badge">1</span> Contato
                     </h2>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">WhatsApp / Telefone *</label>
-                        <input type="text" name="whatsapp" id="whatsapp" required
-                               value="<?= htmlspecialchars($user_data['whatsapp'] ?? '') ?>"
-                               placeholder="(51) 99999-9999"
-                               class="w-full rounded-xl p-4 text-sm">
+                    <div class="space-y-4">
+                        <?php if (empty($_SESSION['user_id'])): ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Nome Completo *</label>
+                            <input type="text" name="nome" id="nome" required
+                                   placeholder="Seu nome completo"
+                                   class="w-full rounded-xl p-4 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">E-mail *</label>
+                            <input type="email" name="email" id="email" required
+                                   placeholder="seu.email@exemplo.com"
+                                   class="w-full rounded-xl p-4 text-sm">
+                        </div>
+                        <?php endif; ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">WhatsApp / Telefone *</label>
+                            <input type="text" name="whatsapp" id="whatsapp" required
+                                   value="<?= htmlspecialchars($user_data['whatsapp'] ?? '') ?>"
+                                   placeholder="(51) 99999-9999"
+                                   class="w-full rounded-xl p-4 text-sm">
+                        </div>
                     </div>
                 </div>
 
@@ -362,14 +380,27 @@ document.querySelector('[data-metodo="infinitepay"]').click();
 <?php endif; ?>
 
 // Captura em tempo real do WhatsApp para recuperação de carrinho (CRO)
-document.getElementById('whatsapp').addEventListener('blur', function() {
-    const val = this.value.trim();
-    if (val.length >= 8) {
+function salvarCarrinhoAjax() {
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+    const nome = document.getElementById('nome') ? document.getElementById('nome').value.trim() : '';
+    const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
+    
+    if (whatsapp.length >= 8) {
         const fd = new FormData();
-        fd.append('whatsapp', val);
+        fd.append('whatsapp', whatsapp);
+        fd.append('nome', nome);
+        fd.append('email', email);
         fetch('salvar_carrinho_ajax.php', { method: 'POST', body: fd });
     }
-});
+}
+
+document.getElementById('whatsapp').addEventListener('blur', salvarCarrinhoAjax);
+if (document.getElementById('nome')) {
+    document.getElementById('nome').addEventListener('blur', salvarCarrinhoAjax);
+}
+if (document.getElementById('email')) {
+    document.getElementById('email').addEventListener('blur', salvarCarrinhoAjax);
+}
 </script>
 
 <?php require_once 'templates/footer.php'; ?>

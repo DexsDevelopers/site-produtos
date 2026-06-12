@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // checkout_pix.php - Checkout PIX via PixGhost
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
@@ -41,12 +41,8 @@ if (empty($_SESSION['carrinho'])) {
     exit();
 }
 
-// Requer login
-$user_id = $_SESSION['user_id'] ?? 0;
-if ($user_id == 0) {
-    header('Location: login.php?msg=faca_login');
-    exit();
-}
+// Requer login (removido para guest checkout)
+$user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 
 // Busca API Key do PixGhost no banco
 $pixghost_key = '';
@@ -75,16 +71,37 @@ $bairro      = $_addr['bairro']      ?? '';
 $cidade      = $_addr['cidade']      ?? '';
 $estado      = $_addr['estado']      ?? '';
 
+// Dados de cliente (nome e email)
+$nome_cliente = '';
+$email_cliente = '';
+if ($user_id) {
+    $stmt_u = $pdo->prepare("SELECT nome, email FROM usuarios WHERE id = ?");
+    $stmt_u->execute([$user_id]);
+    $user_db = $stmt_u->fetch(PDO::FETCH_ASSOC);
+    $nome_cliente = $user_db['nome'] ?? '';
+    $email_cliente = $user_db['email'] ?? '';
+} else {
+    $nome_cliente = $_addr['nome'] ?? '';
+    $email_cliente = $_addr['email'] ?? '';
+}
+
 // Cria pedido no banco
 $pedido_id = 0;
 try {
     $pdo->beginTransaction();
-    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status, whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES (?, ?, 'Aguardando Pagamento', ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$user_id, $total_preco, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado]);
+    $stmt = $pdo->prepare("INSERT INTO pedidos (usuario_id, valor_total, status, whatsapp, cep, endereco, numero, complemento, bairro, cidade, estado, nome_cliente, email_cliente) VALUES (?, ?, 'Aguardando Pagamento', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$user_id, $total_preco, $whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $nome_cliente, $email_cliente]);
     $pedido_id = $pdo->lastInsertId();
 
-    $stmt_user = $pdo->prepare("UPDATE usuarios SET whatsapp=?, cep=?, endereco=?, numero=?, complemento=?, bairro=?, cidade=?, estado=? WHERE id=?");
-    $stmt_user->execute([$whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
+    if (!isset($_SESSION['my_orders'])) {
+        $_SESSION['my_orders'] = [];
+    }
+    $_SESSION['my_orders'][] = (int)$pedido_id;
+
+    if ($user_id) {
+        $stmt_user = $pdo->prepare("UPDATE usuarios SET whatsapp=?, cep=?, endereco=?, numero=?, complemento=?, bairro=?, cidade=?, estado=? WHERE id=?");
+        $stmt_user->execute([$whatsapp, $cep, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $user_id]);
+    }
 
     $stmt_item = $pdo->prepare("INSERT INTO pedido_itens (pedido_id, produto_id, tamanho_id, valor_tamanho, nome_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($carrinho_itens as $item) {
@@ -108,7 +125,7 @@ $pix_code  = null;
 $qr_image  = null;
 $pix_error = null;
 $expires_in = 1200;
-$user_nome = $_SESSION['user_nome'] ?? 'Cliente';
+$user_nome = !empty($nome_cliente) ? $nome_cliente : ($_SESSION['user_nome'] ?? 'Cliente');
 
 if (!empty($pixghost_key) && $pedido_id > 0) {
     $payload = [

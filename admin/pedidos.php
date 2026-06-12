@@ -7,7 +7,7 @@ require_once 'templates/header_admin.php';
 // Busca todos os pedidos
 try {
     $stmt = $pdo->query(
-        "SELECT pedidos.*, usuarios.nome AS nome_cliente, usuarios.email AS email_cliente
+        "SELECT pedidos.*, COALESCE(usuarios.nome, pedidos.nome_cliente) AS nome_cliente, COALESCE(usuarios.email, pedidos.email_cliente) AS email_cliente
          FROM pedidos 
          LEFT JOIN usuarios ON pedidos.usuario_id = usuarios.id 
          ORDER BY pedidos.data_pedido DESC"

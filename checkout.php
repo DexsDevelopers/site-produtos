@@ -69,6 +69,20 @@ require_once 'templates/header.php';
                     <form id="checkout-form" method="POST" action="checkout_pix.php" class="space-y-4">
                         <!-- Contato -->
                         <div class="grid grid-cols-1 gap-4">
+                            <?php if (!isset($_SESSION['user_id'])): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">Nome Completo</label>
+                                    <input type="text" name="nome" id="nome" required placeholder="Seu nome completo"
+                                        class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">E-mail</label>
+                                    <input type="email" name="email" id="email" required placeholder="seu.email@exemplo.com"
+                                        class="w-full rounded-xl p-4 transition-all focus:border-brand-red">
+                                </div>
+                            </div>
+                            <?php endif; ?>
                             <div>
                                 <label class="block text-sm font-semibold text-brand-gray-text uppercase mb-2">WhatsApp / Telefone</label>
                                 <input type="text" name="whatsapp" id="whatsapp" required value="<?= htmlspecialchars($user_data['whatsapp'] ?? '') ?>" placeholder="(00) 00000-0000"
@@ -215,14 +229,27 @@ require_once 'templates/header.php';
                 }
 
                 // Captura em tempo real do WhatsApp para recuperação de carrinho (CRO)
-                document.getElementById('whatsapp').addEventListener('blur', function() {
-                    const val = this.value.trim();
-                    if (val.length >= 8) {
+                function salvarCarrinhoAjax() {
+                    const whatsapp = document.getElementById('whatsapp').value.trim();
+                    const nome = document.getElementById('nome') ? document.getElementById('nome').value.trim() : '';
+                    const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
+                    
+                    if (whatsapp.length >= 8) {
                         const fd = new FormData();
-                        fd.append('whatsapp', val);
+                        fd.append('whatsapp', whatsapp);
+                        fd.append('nome', nome);
+                        fd.append('email', email);
                         fetch('salvar_carrinho_ajax.php', { method: 'POST', body: fd });
                     }
-                });
+                }
+
+                document.getElementById('whatsapp').addEventListener('blur', salvarCarrinhoAjax);
+                if (document.getElementById('nome')) {
+                    document.getElementById('nome').addEventListener('blur', salvarCarrinhoAjax);
+                }
+                if (document.getElementById('email')) {
+                    document.getElementById('email').addEventListener('blur', salvarCarrinhoAjax);
+                }
                 </script>
             </div>
 

@@ -98,7 +98,10 @@ try {
         "CREATE TABLE IF NOT EXISTS carrinhos_abandonados (id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT, sessao_id VARCHAR(255), dados_carrinho TEXT, valor_total DECIMAL(10,2), data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX (usuario_id), INDEX (sessao_id))",
         "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_nome VARCHAR(255)",
         "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_whatsapp VARCHAR(20)",
-        "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_email VARCHAR(255)"
+        "ALTER TABLE carrinhos_abandonados ADD COLUMN lead_email VARCHAR(255)",
+        "ALTER TABLE pedidos MODIFY COLUMN usuario_id INT NULL",
+        "ALTER TABLE pedidos ADD COLUMN nome_cliente VARCHAR(255) NULL",
+        "ALTER TABLE pedidos ADD COLUMN email_cliente VARCHAR(255) NULL"
     ];
     foreach ($migracoes as $sql) { try { $pdo->exec($sql); } catch (Exception $e) {} }
 } catch (Exception $e) {}

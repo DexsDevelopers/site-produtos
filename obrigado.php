@@ -3,18 +3,24 @@
 session_start();
 require_once 'config.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 $pedido_id = $_GET['pedido_id'] ?? null;
 $pedido = null;
 
 if ($pedido_id) {
-    $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?");
-    $stmt->execute([$pedido_id, $user_id]);
+    $my_orders = $_SESSION['my_orders'] ?? [];
+    if ($user_id) {
+        $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE id = ? AND (usuario_id = ? OR id IN (" . implode(',', array_map('intval', array_merge([0], $my_orders))) . "))");
+        $stmt->execute([$pedido_id, $user_id]);
+    } else {
+        if (in_array((int)$pedido_id, $my_orders)) {
+            $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE id = ?");
+            $stmt->execute([$pedido_id]);
+        } else {
+            header('Location: index.php');
+            exit;
+        }
+    }
     $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
@@ -71,12 +77,21 @@ if (!$pedido) {
 
 // --- RASTREAMENTO DE CONVERSÃO (Meta Ads / Conversions API) ---
 $user_info = [];
-if (isset($user_id)) {
+if ($user_id) {
     try {
         $stmt_u = $pdo->prepare("SELECT nome, email, whatsapp, cep, cidade, estado FROM usuarios WHERE id = ?");
         $stmt_u->execute([$user_id]);
         $user_info = $stmt_u->fetch(PDO::FETCH_ASSOC) ?: [];
     } catch (Exception $e) {}
+} else if ($pedido) {
+    $user_info = [
+        'nome' => $pedido['nome_cliente'] ?? '',
+        'email' => $pedido['email_cliente'] ?? '',
+        'whatsapp' => $pedido['whatsapp'] ?? '',
+        'cep' => $pedido['cep'] ?? '',
+        'cidade' => $pedido['cidade'] ?? '',
+        'estado' => $pedido['estado'] ?? ''
+    ];
 }
 
 $itens_pedido = [];

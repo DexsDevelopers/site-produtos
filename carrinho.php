@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // carrinho.php — MACARIO BRAZIL
 session_start();
 require_once 'config.php';
@@ -173,7 +173,7 @@ foreach ($carrinho_itens as $item) {
                 </span>
             </div>
 
-            <a href="<?=(isset($_SESSION['user_id']) ? 'checkout.php' : 'login.php?redirect=checkout.php')?>"
+            <a href="checkout.php"
                 class="btn-primary"
                 style="display: block; width: 100%; padding: 16px; text-align: center; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; text-transform: uppercase;">
                 Finalizar Compra
